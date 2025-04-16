@@ -3,6 +3,7 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { useAppSelector } from '@/redux/hooks';
 import axios from 'axios';
+import Cookies from 'js-cookie'; // Thêm js-cookie
 import debounce from 'lodash/debounce';
 import styles from './chat.module.scss';
 
@@ -26,19 +27,28 @@ const ChatPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUser = useAppSelector((state) => state.account.user);
 
+  // Lấy access_token từ cookie
+  const accessToken = Cookies.get('access_token'); // Giả sử cookie có tên là 'access_token'
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Hàm tạo destination riêng cho cặp người dùng
+  const createConversationDestination = (senderEmail: string, receiverEmail: string) => {
+    const emails = [senderEmail, receiverEmail].sort();
+    return `/queue/conversation/${emails[0]}/${emails[1]}`;
+  };
+
   // Tải danh sách người nhắn tin
   useEffect(() => {
-    if (currentUser?.email) {
+    if (currentUser?.email && accessToken) {
       console.log('Fetching conversations for user:', currentUser.email);
       axios
-        .get('http://localhost:8080/api/messages/conversations', {
+        .get('http://localhost:8080/api/v1/conversations', {
           params: { userEmail: currentUser.email },
           headers: {
-            Authorization: undefined,
+            Authorization: `Bearer ${accessToken}`,
           },
         })
         .then((response) => {
@@ -57,7 +67,7 @@ const ChatPage = () => {
           setErrorMessage('Could not fetch conversations. Please try again.');
         });
     }
-  }, [currentUser?.email]);
+  }, [currentUser?.email, accessToken]);
 
   useEffect(() => {
     if (receiverEmail) {
@@ -65,30 +75,38 @@ const ChatPage = () => {
     }
   }, [receiverEmail]);
 
-  // Kết nối WebSocket
+  // Kết nối WebSocket với JWT từ cookie
   useEffect(() => {
+    if (!currentUser?.email || !accessToken) return;
+
     const socket = new SockJS('http://localhost:8080/ws');
     stompClient.current = Stomp.over(socket);
 
     stompClient.current.connect(
-      {},
+      { Authorization: `Bearer ${accessToken}` },
       () => {
         console.log('WebSocket connected successfully');
         setIsConnected(true);
-        stompClient.current?.subscribe('/topic/messages', (message) => {
-          const receivedMessage: Message = JSON.parse(message.body);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-          if (
-            receivedMessage.senderEmail !== currentUser?.email &&
-            !conversationEmails.includes(receivedMessage.senderEmail)
-          ) {
-            setConversationEmails((prev) => [...prev, receivedMessage.senderEmail]);
-          }
-        });
+
+        // Subscribe vào destination riêng
+        if (receiverEmail) {
+          const destination = createConversationDestination(currentUser.email, receiverEmail);
+          stompClient.current?.subscribe(destination, (message) => {
+            const receivedMessage: Message = JSON.parse(message.body);
+            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+            if (
+              receivedMessage.senderEmail !== currentUser?.email &&
+              !conversationEmails.includes(receivedMessage.senderEmail)
+            ) {
+              setConversationEmails((prev) => [...prev, receivedMessage.senderEmail]);
+            }
+          });
+        }
       },
       (error) => {
         console.error('WebSocket connection error:', error);
         setIsConnected(false);
+        setErrorMessage('Failed to connect to chat server.');
       }
     );
 
@@ -100,7 +118,7 @@ const ChatPage = () => {
         });
       }
     };
-  }, [currentUser?.email, conversationEmails]);
+  }, [currentUser?.email, receiverEmail, accessToken, conversationEmails]);
 
   // Debounce hàm gọi API
   const fetchMessages = useRef(
@@ -108,7 +126,7 @@ const ChatPage = () => {
       console.log('Fetching messages for:', { sender, receiver });
       setErrorMessage(null);
       axios
-        .get('http://localhost:8080/api/messages', {
+        .get('http://localhost:8080/api/v1/messages', {
           params: {
             sender,
             receiver,
@@ -116,7 +134,7 @@ const ChatPage = () => {
             size: 20,
           },
           headers: {
-            Authorization: undefined,
+            Authorization: `Bearer ${accessToken}`,
           },
         })
         .then((response) => {
@@ -129,12 +147,12 @@ const ChatPage = () => {
     }, 500)
   ).current;
 
-  // Tải tin nhắn khi chọn người nhận
+  // Tải tin nhắn khi chọn người nhận hoặc làm mới trang
   useEffect(() => {
-    if (receiverEmail && currentUser?.email) {
+    if (receiverEmail && currentUser?.email && accessToken) {
       fetchMessages(currentUser.email, receiverEmail);
     }
-  }, [receiverEmail, currentUser?.email]);
+  }, [receiverEmail, currentUser?.email, accessToken]);
 
   useEffect(() => {
     scrollToBottom();
