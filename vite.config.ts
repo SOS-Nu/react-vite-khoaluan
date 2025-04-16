@@ -19,6 +19,9 @@ export default defineConfig(({ command, mode }) => {
       react(), 
       // visualizer() as PluginOption
     ],
+    define: {
+      global: 'window', // Thay thế global bằng window trong trình duyệt
+    },
     server: {
       port: parseInt(env.PORT)
     },

@@ -60,14 +60,14 @@ export default function App() {
   const isLoading = useAppSelector(state => state.account.isLoading);
 
 
-  // useEffect(() => {
-  //   if (
-  //     window.location.pathname === '/login'
-  //     || window.location.pathname === '/register'
-  //   )
-  //     return;
-  //   dispatch(fetchAccount())
-  // }, [])
+  useEffect(() => {
+    if (
+      window.location.pathname === '/login'
+      || window.location.pathname === '/register'
+    )
+      return;
+    dispatch(fetchAccount())
+  }, [])
 
   const router = createBrowserRouter([
     {
