@@ -99,6 +99,28 @@ Module User
 export const callCreateUser = (user: IUser) => {
     return axios.post<IBackendRes<IUser>>('/api/v1/users', { ...user })
 }
+// {
+//     fullName: string;
+//     password: string;
+//     email: string;
+//     phone: string;
+// }
+export const callBulkCreateUserAPI = (hoidanit: {
+    name: string
+    email: string
+    password: string;
+    gender: string,
+    address: string,
+    age: number,
+    role : {
+      id: number
+             }
+    
+}[]) => {
+    const urlBackend = "/api/v1/users/bulk-create";
+    return axios.post<IBackendRes<IUser>>(urlBackend, hoidanit)
+}
+
 
 export const callUpdateUser = (user: IUser) => {
     return axios.put<IBackendRes<IUser>>(`/api/v1/users`, { ...user })

@@ -25,6 +25,13 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: parseInt(env.PORT)
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler' // or "modern"
+        }
+      }
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src/"),

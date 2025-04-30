@@ -2,7 +2,7 @@ import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchUser } from "@/redux/slice/userSlide";
 import { IUser } from "@/types/backend";
-import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined, ExportOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space, message, notification } from "antd";
 import { useState, useRef } from 'react';
@@ -14,16 +14,23 @@ import ViewDetailUser from "@/components/admin/user/view.user";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import { sfLike } from "spring-filter-query-builder";
+import { CSVLink } from "react-csv";
+import ImportUser from "./data/import.user";
 
 const UserPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState<IUser | null>(null);
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
+    const [openModalImport, setOpenModalImport] = useState<boolean>(false);
+
+    // const [currentDataTable, setCurrentDataTable] = useState<IUser[]>([]);
+
 
     const tableRef = useRef<ActionType>();
 
     const isFetching = useAppSelector(state => state.user.isFetching);
     const meta = useAppSelector(state => state.user.meta);
+
     const users = useAppSelector(state => state.user.result);
     const dispatch = useAppDispatch();
 
@@ -232,6 +239,26 @@ const UserPage = () => {
                     rowSelection={false}
                     toolBarRender={(_action, _rows): any => {
                         return (
+                            <>
+                    
+                    <Button
+                        icon={<ExportOutlined />}
+                        type="primary"
+                    >
+                        <CSVLink
+                            data={users}
+                            filename='export-user.csv'
+                        >
+                            Export
+                        </CSVLink>
+                    </Button>
+                    <Button
+                        icon={<CloudUploadOutlined />}
+                            type="primary"
+                            onClick={() => setOpenModalImport(true)}
+                    >
+                        Import
+                    </Button>
                             <Button
                                 icon={<PlusOutlined />}
                                 type="primary"
@@ -239,6 +266,9 @@ const UserPage = () => {
                             >
                                 Thêm mới
                             </Button>
+                            </>
+
+                            
                         );
                     }}
                 />
@@ -255,6 +285,12 @@ const UserPage = () => {
                 open={openViewDetail}
                 dataInit={dataInit}
                 setDataInit={setDataInit}
+            />
+            <ImportUser
+                openModalImport={openModalImport}
+                setOpenModalImport={setOpenModalImport}
+                reloadTable={reloadTable}
+
             />
         </div >
     )
