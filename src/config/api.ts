@@ -11,6 +11,7 @@ import {
   IRole,
   ISkill,
   ISubscribers,
+  IResponseImport,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -164,11 +165,13 @@ export const callBulkCreateUserAPI = (
     gender: string;
     address: string;
     age: number;
-    role?: number;
+    role?: { id?: number };
   }[]
 ) => {
   const urlBackend = "/api/v1/users/bulk-create";
-  return axios.post<IBackendRes<IUser>>(urlBackend, hoidanit);
+  console.log("res", hoidanit);
+
+  return axios.post<IBackendRes<IResponseImport>>(urlBackend, hoidanit);
 };
 
 export const callUpdateUser = (user: IUser) => {

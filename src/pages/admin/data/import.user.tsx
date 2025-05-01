@@ -6,7 +6,8 @@ import { useState } from "react";
 import Exceljs from "exceljs";
 import { Buffer } from "buffer";
 import Dragger from "antd/lib/upload/Dragger";
-import templateFile from "@/assets/template/user.xlsx";
+import templateFile from "@/assets/template/user.xlsx?url";
+import { callBulkCreateUserAPI } from "@/config/api";
 
 interface IProps {
   openModalImport: boolean;
@@ -30,6 +31,7 @@ const ImportUser = (props: IProps) => {
   const { message, notification } = App.useApp();
   const [dataImport, setDataImport] = useState<IDataImport[]>([]);
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
+  console.log("dataimport", dataImport);
 
   // Polyfill Buffer
   window.Buffer = window.Buffer || Buffer;
@@ -131,16 +133,19 @@ const ImportUser = (props: IProps) => {
   const handleImport = async () => {
     setIsSubmit(true);
     const dataSubmit = dataImport.map((item) => ({
-      fullName: item.fullName,
+      name: item.name,
       email: item.email,
-      phone: item.phone,
+      gender: item.gender,
+      address: item.address,
+      age: item.age,
+      role: { id: item.role },
       password: import.meta.env.VITE_USER_CREATE_DEFAULT_PASSWORD,
     }));
-    const res = await bulkCreateUserAPI(dataSubmit);
-    if (res.data) {
+    const res = await callBulkCreateUserAPI(dataSubmit);
+    if (res?.data) {
       notification.success({
         message: "Bulk Create Users",
-        description: `Success = ${res.data.countSuccess}. Error = ${res.data.countError}`,
+        description: `total Users= ${res.data?.total}.||.Success = ${res.data.success}.||.Error = ${res.data.failed}`,
       });
     }
     setIsSubmit(false);

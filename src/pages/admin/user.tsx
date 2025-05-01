@@ -46,6 +46,7 @@ const UserPage = () => {
       ...item,
       role: item.role?.id, // Lấy role.id
       roleName: item.role?.name,
+      company: item.company?.name ?? "",
 
       // Thêm cột roleName
     }));
@@ -221,9 +222,9 @@ const UserPage = () => {
           : "sort=updatedAt,desc";
     }
 
-    //mặc định sort theo updatedAt
+    //mặc định sort theo createAt desc
     if (Object.keys(sortBy).length === 0) {
-      temp = `${temp}&sort=updatedAt,desc`;
+      temp = `${temp}&sort=createdAt,desc`;
     } else {
       temp = `${temp}&${sortBy}`;
     }
