@@ -37,17 +37,17 @@ const JobPage = () => {
   const [openModalImportJob, setOpenModalImportJob] = useState<boolean>(false);
 
   //   // Sử dụng useMemo để tạo userExport, theo dõi sự thay đổi của users
-  //   const jobExport = useMemo(() => {
-  //     return jobs.map((item) => ({
-  //         ...item,
-  //         skills: []
-  //       role: item.role?.id, // Lấy role.id
-  //       roleName: item.role?.name,
-  //       company: item.company?.name ?? "",
-  //
-  //       // Thêm cột roleName
-  //     }));
-  //   }, [jobs]); // Dependency array: userExport sẽ được tính toán lại khi users thay đổi
+  const jobExport = useMemo(() => {
+    return jobs.map((item) => ({
+      ...item,
+      company: item.company?.name ?? "",
+      skills: item.skills
+        .map((item: { name: string }) => `[id ${item.id}]`)
+        .join(","),
+
+      // Thêm cột roleName
+    }));
+  }, [jobs]); // Dependency array: userExport sẽ được tính toán lại khi users thay đổi
 
   const handleDeleteJob = async (id: string | undefined) => {
     if (id) {
