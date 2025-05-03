@@ -36,7 +36,7 @@ interface IDataSubmit {
   name: string;
   location: string;
   salary: string;
-  company: { id: { id: number } };
+  company: { id: number };
   quantity: number;
   level: string;
   description: string;
@@ -195,7 +195,7 @@ const ImportJob = (props: IProps) => {
 
   const handleImport = async () => {
     setIsSubmit(true);
-    const dataSubmit = dataImport.map((item) => ({
+    const dataSubmit: IDataSubmit[] = dataImport.map((item) => ({
       ...item,
       company: { id: item.company },
       skills: item.skills.map((item: { id: number }) => ({ id: item.id })),
