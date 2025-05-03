@@ -227,11 +227,11 @@ const SkillPage = () => {
         toolBarRender={(_action, _rows): any => {
           return (
             <>
-              <Button icon={<ExportOutlined />} type="primary">
-                <CSVLink data={skills} filename="export-skills.csv">
+              <CSVLink data={skills} filename="export-skills.csv">
+                <Button icon={<ExportOutlined />} type="primary">
                   Export
-                </CSVLink>
-              </Button>
+                </Button>
+              </CSVLink>
               <Button
                 icon={<CloudUploadOutlined />}
                 type="primary"

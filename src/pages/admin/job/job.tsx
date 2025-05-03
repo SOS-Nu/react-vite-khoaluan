@@ -285,11 +285,11 @@ const JobPage = () => {
           toolBarRender={(_action, _rows): any => {
             return (
               <>
-                <Button icon={<ExportOutlined />} type="primary">
-                  <CSVLink data={jobExport} filename="export-jobs.csv">
+                <CSVLink data={jobExport} filename="export-jobs.csv">
+                  <Button icon={<ExportOutlined />} type="primary">
                     Export
-                  </CSVLink>
-                </Button>
+                  </Button>
+                </CSVLink>
                 <Button
                   icon={<CloudUploadOutlined />}
                   type="primary"

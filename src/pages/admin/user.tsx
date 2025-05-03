@@ -268,11 +268,11 @@ const UserPage = () => {
           toolBarRender={(_action, _rows): any => {
             return (
               <>
-                <Button icon={<ExportOutlined />} type="primary">
-                  <CSVLink data={userExport} filename="export-user.csv">
+                <CSVLink data={userExport} filename="export-user.csv">
+                  <Button icon={<ExportOutlined />} type="primary">
                     Export
-                  </CSVLink>
-                </Button>
+                  </Button>
+                </CSVLink>
                 <Button
                   icon={<CloudUploadOutlined />}
                   type="primary"
