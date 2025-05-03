@@ -20,7 +20,23 @@ interface IDataImport {
   name: string;
   location: string;
   salary: string;
-  company: { id: string };
+  company: number;
+  quantity: number;
+  level: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  active: boolean;
+  skills: {
+    id: number;
+  }[];
+}
+
+interface IDataSubmit {
+  name: string;
+  location: string;
+  salary: string;
+  company: { id: { id: number } };
   quantity: number;
   level: string;
   description: string;
@@ -36,7 +52,7 @@ interface IDataShow {
   name: string;
   location: string;
   salary: string;
-  company: { id: string };
+  company: number;
   quantity: number;
   level: string;
   description: string;
@@ -180,15 +196,7 @@ const ImportJob = (props: IProps) => {
   const handleImport = async () => {
     setIsSubmit(true);
     const dataSubmit = dataImport.map((item) => ({
-      name: item.name,
-      location: item.location,
-      salary: item.salary,
-      quantity: item.quantity,
-      level: item.level,
-      description: item.description,
-      startDate: item.startDate,
-      endDate: item.endDate,
-      active: item.active,
+      ...item,
       company: { id: item.company },
       skills: item.skills.map((item: { id: number }) => ({ id: item.id })),
       //item là mỗi phần trong mảng skills , trong trường hợp này nó là {"id": 1}

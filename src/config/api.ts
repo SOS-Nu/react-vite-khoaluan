@@ -210,7 +210,7 @@ export const callBulkCreateJobAPI = (
     name: string;
     location: string;
     salary: string;
-    company: { id: string };
+    company: { id: number };
     quantity: number;
     level: string;
     description: string;
