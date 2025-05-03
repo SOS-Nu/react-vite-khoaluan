@@ -6,14 +6,6 @@ import { useState } from "react";
 import Exceljs from "exceljs";
 import { Buffer } from "buffer";
 import Dragger from "antd/lib/upload/Dragger";
-<<<<<<< HEAD
-import templateFile from "@/assets/template/user.xlsx?url";
-import { callBulkCreateUserAPI } from "@/config/api";
-
-interface IProps {
-  openModalImport: boolean;
-  setOpenModalImport: (v: boolean) => void;
-=======
 import templateFile from "@/assets/template/job.xlsx?url";
 import { callBulkCreateJobAPI, callBulkCreateUserAPI } from "@/config/api";
 import { Console } from "console";
@@ -21,27 +13,11 @@ import { Console } from "console";
 interface IProps {
   openModalImportJob: boolean;
   setOpenModalImportJob: (v: boolean) => void;
->>>>>>> fixbug1
   reloadTable: () => void;
 }
 
 interface IDataImport {
   name: string;
-<<<<<<< HEAD
-  email: string;
-  gender: string;
-  address: string;
-  age: number;
-  role?: number;
-}
-
-const ImportUser = (props: IProps) => {
-  const { setOpenModalImport, openModalImport, reloadTable } = props;
-  console.log("ImportUser Props:", { openModalImport, reloadTable });
-
-  const { message, notification } = App.useApp();
-  const [dataImport, setDataImport] = useState<IDataImport[]>([]);
-=======
   location: string;
   salary: string;
   company: { id: string };
@@ -80,7 +56,6 @@ const ImportJob = (props: IProps) => {
   const [dataImport, setDataImport] = useState<IDataImport[]>([]);
   const [dataShow, setDataShow] = useState<IDataShow[]>([]);
 
->>>>>>> fixbug1
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
   console.log("dataimport", dataImport);
 
@@ -148,22 +123,11 @@ const ImportJob = (props: IProps) => {
             let rowCount = 0;
             sheet.eachRow((row, rowNumber) => {
               if (rowNumber === 1) return;
-<<<<<<< HEAD
-              console.log(`Row ${rowNumber} Values:`, row.values);
-=======
->>>>>>> fixbug1
               const values = Array.isArray(row.values)
                 ? row.values.slice(1)
                 : [];
               const obj: any = {};
               keys.forEach((key, index) => {
-<<<<<<< HEAD
-                obj[key] = values[index] !== undefined ? values[index] : null;
-              });
-              console.log(`Row ${rowNumber} Object:`, obj);
-              jsonData.push(obj);
-              rowCount++;
-=======
                 if (key === "skills" && values[index]) {
                   // Parse chuỗi skills: "[id 1],[id 2]" thành [{ id: 1 }, { id: 2 }]
                   const skillsStr = values[index].toString(); // Đảm bảo là chuỗi
@@ -184,15 +148,11 @@ const ImportJob = (props: IProps) => {
                 }
               });
               jsonData.push(obj);
->>>>>>> fixbug1
             });
             jsonData = jsonData.map((item, index) => {
               return { ...item, id: index + 1 };
             });
 
-<<<<<<< HEAD
-            setDataImport(jsonData);
-=======
             const dataShow = jsonData.map((item) => ({
               ...item,
               active: item.active === true ? "true" : "false",
@@ -201,7 +161,6 @@ const ImportJob = (props: IProps) => {
 
             setDataImport(jsonData);
             setDataShow(dataShow);
->>>>>>> fixbug1
             console.log("data", jsonData);
           } catch (error) {
             message.error(
@@ -222,16 +181,6 @@ const ImportJob = (props: IProps) => {
     setIsSubmit(true);
     const dataSubmit = dataImport.map((item) => ({
       name: item.name,
-<<<<<<< HEAD
-      email: item.email,
-      gender: item.gender,
-      address: item.address,
-      age: item.age,
-      role: { id: item.role },
-      password: import.meta.env.VITE_USER_CREATE_DEFAULT_PASSWORD,
-    }));
-    const res = await callBulkCreateUserAPI(dataSubmit);
-=======
       location: item.location,
       salary: item.salary,
       quantity: item.quantity,
@@ -247,7 +196,6 @@ const ImportJob = (props: IProps) => {
     }));
     console.log("dataSubmit", dataSubmit);
     const res = await callBulkCreateJobAPI(dataSubmit);
->>>>>>> fixbug1
     if (res?.data) {
       notification.success({
         message: "Bulk Create Users",
@@ -255,11 +203,7 @@ const ImportJob = (props: IProps) => {
       });
     }
     setIsSubmit(false);
-<<<<<<< HEAD
-    setOpenModalImport(false);
-=======
     setOpenModalImportJob(false);
->>>>>>> fixbug1
     setDataImport([]);
     reloadTable();
   };
@@ -268,17 +212,10 @@ const ImportJob = (props: IProps) => {
     <Modal
       title="Import data user"
       width={"80vw"}
-<<<<<<< HEAD
-      open={openModalImport}
-      onOk={() => handleImport()}
-      onCancel={() => {
-        setOpenModalImport(false);
-=======
       open={openModalImportJob}
       onOk={() => handleImport()}
       onCancel={() => {
         setOpenModalImportJob(false);
->>>>>>> fixbug1
         setDataImport([]);
       }}
       okText="Import data"
@@ -299,16 +236,10 @@ const ImportJob = (props: IProps) => {
         <p className="ant-upload-hint">
           Support for a single upload. Only accept .csv, .xls, .xlsx . or &nbsp;
           <a
-<<<<<<< HEAD
-            href={templateFile} // Ngăn lan truyền lên cha của Dragger
-            download
-            onClick={(e) => e.stopPropagation()}
-=======
             href={templateFile}
             download
             onClick={(e) => e.stopPropagation()}
             // Ngăn lan truyền lên cha của Dragger
->>>>>>> fixbug1
           >
             Download Sample File
           </a>
@@ -320,25 +251,11 @@ const ImportJob = (props: IProps) => {
           rowKey={"id"}
           key={dataImport.length}
           title={() => <span>Dữ liệu upload:</span>}
-<<<<<<< HEAD
-          dataSource={dataImport}
-=======
           dataSource={dataShow}
->>>>>>> fixbug1
           columns={[
             {
               title: "STT",
               key: "stt",
-<<<<<<< HEAD
-              render: (_, __, index) => index + 1, // Hiển thị số thứ tự (index + 1)
-            },
-            { dataIndex: "name", title: "Tên hiển thị" },
-            { dataIndex: "email", title: "Email" },
-            { dataIndex: "gender", title: "Giới tính" },
-            { dataIndex: "address", title: "Địa chỉ" },
-            { dataIndex: "age", title: "Tuổi" },
-            { dataIndex: "role", title: "vai trò" },
-=======
               render: (_, __, index) => index + 1,
             },
             { dataIndex: "name", title: "Tên hiển thị" },
@@ -362,7 +279,6 @@ const ImportJob = (props: IProps) => {
             //     skills?.map((skill: { id: number }) => skill.id).join(", ") ||
             //     "N/A",
             // },
->>>>>>> fixbug1
           ]}
         />
       </div>
@@ -370,8 +286,4 @@ const ImportJob = (props: IProps) => {
   );
 };
 
-<<<<<<< HEAD
-export default ImportUser;
-=======
 export default ImportJob;
->>>>>>> fixbug1
