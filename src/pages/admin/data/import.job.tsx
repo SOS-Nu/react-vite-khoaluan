@@ -180,7 +180,7 @@ const ImportJob = (props: IProps) => {
             console.log("data", jsonData);
           } catch (error) {
             message.error(
-              "Failed to parse the file. Please check the file format."
+              "Failed to parse the file. Please check the file format.."
             );
           }
         }
