@@ -44,10 +44,10 @@ const JobPage = () => {
       skills: item.skills
         .map((item: { name: string }) => `[id ${item.id}]`)
         .join(","),
-
       // Thêm cột roleName
     }));
   }, [jobs]); // Dependency array: userExport sẽ được tính toán lại khi users thay đổi
+  console.log("checkk<jobexport", jobExport);
 
   const handleDeleteJob = async (id: string | undefined) => {
     if (id) {
@@ -286,7 +286,7 @@ const JobPage = () => {
             return (
               <>
                 <Button icon={<ExportOutlined />} type="primary">
-                  <CSVLink data={jobs} filename="export-jobs.csv">
+                  <CSVLink data={jobExport} filename="export-jobs.csv">
                     Export
                   </CSVLink>
                 </Button>

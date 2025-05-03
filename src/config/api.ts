@@ -130,28 +130,14 @@ export const callCreateSkill = (name: string) => {
   return axios.post<IBackendRes<ISkill>>("/api/v1/skills", { name });
 };
 
-// export const callBulkCreateSkillAPI = (
-//   importJob: {
-//     name: string;
-//     location: string;
-//     salary: string;
-//     company: { id: string };
-//     quantity: number;
-//     level: string;
-//     description: string;
-//     startDate: string;
-//     endDate: string;
-//     active: boolean;
-//     skills: {
-//       id: number;
-//     }[];
-//   }[]
-// ) => {
-//   const urlBackend = "/api/v1/jobs/bulk-create";
-//   console.log("res", importJob);
-//
-//   return axios.post<IBackendRes<IResponseImport>>(urlBackend, importJob);
-// };
+export const callBulkCreateSkillAPI = (
+  importSkill: {
+    name: string;
+  }[]
+) => {
+  const urlBackend = "/api/v1/skills/bulk-create";
+  return axios.post<IBackendRes<IResponseImport>>(urlBackend, importSkill);
+};
 
 export const callUpdateSkill = (id: string, name: string) => {
   return axios.put<IBackendRes<ISkill>>(`/api/v1/skills`, { id, name });
