@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { setUserLoginInfo } from '@/redux/slice/accountSlide';
 import styles from 'styles/auth.module.scss';
 import { useAppSelector } from '@/redux/hooks';
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -46,6 +47,9 @@ const LoginPage = () => {
         }
     };
 
+    const loginGoogle = useGoogleLogin({
+        onSuccess: tokenResponse => console.log(tokenResponse),
+      });
 
     return (
         <div className={styles["login-page"]}>
@@ -89,6 +93,15 @@ const LoginPage = () => {
                                 </Button>
                             </Form.Item>
                             <Divider>Or</Divider>
+                             <GoogleLogin
+                            onSuccess={credentialResponse => {
+                                console.log(credentialResponse);
+                            }}
+                            onError={() => {
+                                console.log('Login Failed');
+                            }}
+                            useOneTap
+                            />
                             <p className="text text-normal">Chưa có tài khoản ?
                                 <span>
                                     <Link to='/register' > Đăng Ký </Link>
