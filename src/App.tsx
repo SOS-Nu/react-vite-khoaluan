@@ -30,6 +30,7 @@ import ClientJobDetailPage from './pages/job/detail';
 import ClientCompanyPage from './pages/company';
 import ClientCompanyDetailPage from './pages/company/detail';
 import JobTabs from './pages/admin/job/job.tabs';
+import ChatPage from './pages/chat/ChatPage';
 
 
 const LayoutClient = () => {
@@ -80,7 +81,7 @@ export default function App() {
         { path: "job/:id", element: <ClientJobDetailPage /> },
         { path: "company", element: <ClientCompanyPage /> },
         { path: "company/:id", element: <ClientCompanyDetailPage /> },
-        // { path: "chat", element: <ChatPage /> },
+        { path: 'chat', element: <ProtectedRoute><ChatPage /></ProtectedRoute> }, // NEW
       ],
     },
 

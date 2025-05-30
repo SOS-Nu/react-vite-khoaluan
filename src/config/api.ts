@@ -12,6 +12,7 @@ import {
   ISkill,
   ISubscribers,
   IResponseImport,
+  IChatMessage,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -381,4 +382,15 @@ export const callFetchSubscriber = (query: string) => {
 
 export const callFetchSubscriberById = (id: string) => {
   return axios.get<IBackendRes<ISubscribers>>(`/api/v1/subscribers/${id}`);
+};
+
+// src/config/api.ts
+// ... các import và API hiện có ...
+
+export const getUsersConnected = (id: number) => {
+  return axios.get<IBackendRes<IUser[]>>(`/users-connected?id=${id}`);
+};
+
+export const getAllMessages = (senderId: number, recipientId: number) => {
+  return axios.get<IBackendRes<IChatMessage[]>>(`/messages/${senderId}/${recipientId}`);
 };

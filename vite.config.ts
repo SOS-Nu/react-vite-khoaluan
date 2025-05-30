@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import dns from "dns";
+import tailwindcss from '@tailwindcss/vite'
+import tsconfigPaths from 'vite-tsconfig-paths';
+
+
+
+
 
 //running on localhost instead of IP 127.0.0.1
 // https://vitejs.dev/config/server-options.html#server-host
@@ -16,7 +22,11 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [
+      tsconfigPaths(),
+      tailwindcss(),
+
       react(),
+
       // visualizer() as PluginOption
     ],
     define: {

@@ -186,3 +186,20 @@ export interface ISubscribers {
   createdAt?: string;
   updatedAt?: string;
 }
+
+
+// src/types/chat.ts
+export interface IChatMessage {
+  id?: number;
+  content: string;
+  sender: IUser;
+  receiver: IUser;
+  createdAt?: string;
+  timeStamp?: string;
+}
+
+export interface Message {
+  type: 'sender' | 'receiver';
+  content: string;
+  time?: string;
+}
