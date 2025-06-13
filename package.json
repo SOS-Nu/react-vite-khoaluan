@@ -14,12 +14,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "4.8.0",
+    "@ant-design/icons": "^6.0.0",
     "@ant-design/pro-components": "2.6.46",
     "@ant-design/pro-layout": "7.17.19",
     "@react-oauth/google": "0.12.1",
     "@reduxjs/toolkit": "2.8.2",
-    "antd": "5.13.1",
+    "antd": "^5.26.0",
     "async-mutex": "0.4.0",
     "axios": "1.6.5",
     "bootstrap": "5.3.3",
