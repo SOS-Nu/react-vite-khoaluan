@@ -11,6 +11,7 @@ $spacers: (
 );
 // @import url("https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap");
 @import "bootstrap/scss/bootstrap.scss";
+@import "./scss.header.client.scss";
 @import "./animation.scss";
 @import "./variable.scss";
 
@@ -23,8 +24,15 @@ $spacers: (
   color: var(--brand-name-100);
 }
 
-.brand-red {
-  color: var(--brand-name-200);
+.brand-redd {
+  background: linear-gradient(
+    to right,
+    #ec4899,
+    #8b5cf6
+  ); // Gradient giống resize-button
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 a {
@@ -253,7 +261,6 @@ body {
       cursor: pointer;
       color: #1677ff;
       font-size: 30px;
-      margin-top: 7px;
       animation: spin 20s linear infinite;
     }
   }
