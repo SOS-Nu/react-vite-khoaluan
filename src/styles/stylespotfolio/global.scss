@@ -24,7 +24,7 @@ $spacers: (
   color: var(--brand-name-100);
 }
 
-.brand-redd {
+.brand-red {
   background: linear-gradient(
     to right,
     #ec4899,
@@ -258,10 +258,12 @@ body {
     justify-content: center;
 
     .react-icon {
+      width: 35px;
+      height: 35px;
       cursor: pointer;
       color: #1677ff;
-      font-size: 30px;
-      animation: spin 20s linear infinite;
+
+      animation: spin 10s linear infinite;
     }
   }
 }

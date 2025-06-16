@@ -18,6 +18,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import { message } from "antd";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import logojobhunter from "assets/logojobhunter.png";
 
 // Define props type
 interface HeaderProps {
@@ -35,6 +36,7 @@ interface NavItem {
   to?: string; // to có thể undefined nếu là dropdown
   isFeatured?: boolean; // Thêm thuộc tính để đánh dấu nút nổi bật
   dropdownItems?: DropdownItem[]; // Thêm dropdownItems cho mục có dropdown
+  isNew?: boolean; // <-- THÊM DÒNG NÀY
 }
 
 interface DropdownItem {
@@ -93,9 +95,9 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
 
   const navItems: NavItem[] = [
     { label: t("appHeader.home"), key: "/", to: "/" },
-    { label: "Tìm Việc Làm", key: "/job", to: "/job" },
+    { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
     { label: "Tìm Công ty", key: "/company", to: "/company" },
-    { label: "Tạo CV Bởi AI", key: "/company", to: "/company" },
+    { label: "Tạo CV Bởi AI", key: "/company", to: "/company", isNew: true },
     {
       label: (
         <span>
@@ -154,10 +156,15 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
         >
           <Container>
             <Link className="navbar-brand brand" to="/">
-              <FaReact className="react-icon" title="SOS Nu" />
+              <img
+                src={logojobhunter}
+                alt="Logo Job Hunter"
+                className="react-icon"
+                title="SOS Nu"
+              />
               &nbsp; &nbsp;
               <h3 style={{ paddingTop: 5, paddingBottom: 5 }}>
-                <strong className="brand-redd">{t("appHeader.brand")} </strong>
+                <strong className="brand-red">{t("appHeader.brand")} </strong>
                 <span className="wave" role="img" aria-labelledby="wave">
                   👋🏻
                 </span>
@@ -190,11 +197,15 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       key={item.key}
                       to={item.to!}
                       className={({ isActive }) =>
-                        `nav-link ${isActive && current === item.key ? "active" : ""}`
+                        // Thêm class 'position-relative' để định vị cho nhãn "NEW"
+                        `nav-link position-relative ${isActive && current === item.key ? "active" : ""}`
                       }
                       onClick={() => setCurrent(item.key)}
                     >
                       {item.label}
+                      {/* THÊM KHỐI LỆNH NÀY */}
+                      {item.isNew && <span className="new-badge">AI</span>}
+                      {/* KẾT THÚC KHỐI LỆNH THÊM */}
                     </NavLink>
                   )
                 )}
@@ -217,9 +228,15 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                     title={
                       <span>
                         {user?.name}{" "}
-                        <span className="avatar" style={{ marginLeft: 8 }}>
+                        {/* <span className="avatar" style={{ marginLeft: 8 }}>
                           {user?.name?.substring(0, 2)?.toUpperCase()}
-                        </span>
+                        </span> */}
+                        {/* avatar user */}
+                        <img
+                          src={logojobhunter}
+                          alt="user avatar"
+                          className="avatar"
+                        />
                       </span>
                     }
                     id="user-dropdown"
@@ -259,6 +276,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   )}
                 </Nav.Link>
                 <NavDropdown
+                  className="nav-item-dropdown"
                   title={renderFlag(i18n.resolvedLanguage ?? "en")}
                   id="language-dropdown"
                 >
