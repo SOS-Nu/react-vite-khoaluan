@@ -23,6 +23,7 @@ const SearchClient = () => {
     }[]
   >([]);
 
+  const [isSearching, setIsSearching] = useState(false); // Trạng thái tìm kiếm
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -93,10 +94,11 @@ const SearchClient = () => {
           onFinish={onFinish}
           submitter={{ render: () => <></> }}
         >
-          {/* ===== BẮT ĐẦU PHẦN BỌC HIỆU ỨNG ===== */}
-          <div className="search-input-wrapper">
-            <Row gutter={[0, 0]} className="inner-content">
-              <Col span={24} md={12}>
+          {/* ===== BẮT ĐẦU CẤU TRÚC HÀNG NGANG ===== */}
+          <Row gutter={[16, 16]} align="middle">
+            {/* 1. Ô tìm kiếm theo kỹ năng (rộng nhất) */}
+            <Col xs={24} md={16}>
+              <div className="search-input-wrapper">
                 <ProForm.Item name="skills">
                   <Select
                     mode="multiple"
@@ -112,8 +114,12 @@ const SearchClient = () => {
                     options={optionsSkills}
                   />
                 </ProForm.Item>
-              </Col>
-              <Col span={24} md={8}>
+              </div>
+            </Col>
+
+            {/* 2. Ô tìm kiếm theo địa điểm */}
+            <Col xs={24} md={5}>
+              <div className="search-input-wrapper">
                 <ProForm.Item name="location">
                   <Select
                     mode="multiple"
@@ -129,19 +135,21 @@ const SearchClient = () => {
                     options={optionsLocations}
                   />
                 </ProForm.Item>
-              </Col>
-              <Col span={24} md={4}>
-                <Button
-                  type="primary"
-                  onClick={() => form.submit()}
-                  style={{ width: "100%" }}
-                >
-                  Search
-                </Button>
-              </Col>
-            </Row>
-          </div>
-          {/* ===== KẾT THÚC PHẦN BỌC HIỆU ỨNG ===== */}
+              </div>
+            </Col>
+
+            {/* 3. Nút Search */}
+            <Col xs={24} md={3}>
+              <Button
+                type="primary"
+                onClick={() => form.submit()}
+                className="search-action-button"
+              >
+                Tìm kiếm
+              </Button>
+            </Col>
+          </Row>
+          {/* ===== KẾT THÚC CẤU TRÚC HÀNG NGANG ===== */}
         </ProForm>
       </div>
     </div>

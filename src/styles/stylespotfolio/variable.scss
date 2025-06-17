@@ -1,7 +1,11 @@
+//variable.scss
 // $grey-100: #eee;
 $light-theme: (
+  background-input-search: #e3dddd,
+  border-input-search: rgba(15, 15, 15, 0.75),
   background-body: #fff,
   background-body-tertiary: #f8f9fa,
+  text-color-nobackground: #fff,
 
   scroll-track-background: "#fff",
   scroll-thumb-background: "#ccc",
@@ -36,6 +40,10 @@ $light-theme: (
 );
 
 $dark-theme: (
+  background-input-search: #1f1f1f,
+  border-input-search: #3e3e3e,
+  text-color-nobackground:
+    "linear-gradient(to right, transparent, #ec4899, #8b5cf6, transparent)",
   background-body: #0d1224,
   // background-body-tertiary : transparent,
   background-body-tertiary: #11152c,

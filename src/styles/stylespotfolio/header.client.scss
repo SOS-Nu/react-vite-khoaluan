@@ -1,3 +1,4 @@
+//scss.header.client
 /* Style cho nav-link với hiệu ứng thanh chạy bên dưới */
 .nav-link {
   position: relative;
@@ -215,58 +216,3 @@
   font-size: 14px; // Cỡ chữ cho hai chữ cái đầu
 }
 // SCSS for Animated Gradient Border on Dropdowns
-
-// // 1. Định nghĩa các màu sắc cho gradient (giống ví dụ trước)
-// :root {
-//   --capra-ramp-1: #ffc400;
-//   --capra-ramp-2: #ff9100;
-//   --capra-ramp-3: #ff530f;
-//   --capra-ramp-4: #e62c6d;
-//   --capra-ramp-5: #b25aff;
-// }
-//
-// // 2. Định nghĩa animation cho gradient "chạy"
-// @keyframes gradient-animation {
-//   0% {
-//     background-position: 0% 50%;
-//   }
-//   50% {
-//     background-position: 100% 50%;
-//   }
-//   100% {
-//     background-position: 0% 50%;
-//   }
-// }
-//
-// // 3. Áp dụng hiệu ứng vào các dropdown menu
-// .profile-cv-dropdown .dropdown-menu,
-// .user-dropdown-custom .dropdown-menu {
-//   // Chuẩn bị cho container
-//   position: relative; // Bắt buộc để định vị cho pseudo-element :after
-//   border: 2px solid transparent; // Tạo khoảng trống cho viền mà không hiển thị màu
-//   border-radius: 10px; // Bo góc
-//   background-color: var(--background-body-tertiary); // Nền của dropdown
-//   overflow: hidden; // Rất quan trọng: Cắt bỏ phần thừa của viền giả
-//
-//   // Tạo lớp giả để làm viền
-//   &::after {
-//     content: "";
-//     position: absolute;
-//     top: -2px; left: -2px; right: -2px; bottom: -2px; // Phủ ra ngoài 2px ở mọi phía
-//     z-index: -1; // Đặt lớp viền này nằm DƯỚI nội dung dropdown
-//
-//     // Đây là dải màu gradient "chạy"
-//     background: linear-gradient(
-//       -45deg,
-//       var(--capra-ramp-5),
-//       var(--capra-ramp-4),
-//       var(--capra-ramp-3),
-//       var(--capra-ramp-2),
-//       var(--capra-ramp-1)
-//     );
-//
-//     background-size: 400% 400%; // Kích thước nền lớn để có không gian "chạy"
-//     animation: gradient-animation 4s ease infinite; // Áp dụng animation đã định nghĩa
-//   }
-// }
-//
