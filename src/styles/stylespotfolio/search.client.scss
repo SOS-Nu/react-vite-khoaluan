@@ -1,0 +1,129 @@
+// SearchClient.scss
+
+// 1. Định nghĩa các màu sắc cho hiệu ứng
+// Bạn có thể đặt chúng vào file _variable.scss chung của dự án
+:root {
+  --glow-1: #ffc400; // Vàng cam
+  --glow-2: #ff9100; // Cam
+  --glow-3: #ff530f; // Cam đỏ
+  --border-inactive: #3e3e3e; // Màu viền khi không focus (xám tối)
+  --input-background: #1f1f1f; // Màu nền của ô input
+  --text-color: #e1dfdf; // Màu chữ
+}
+
+// 2. Container chính với ảnh nền và lớp phủ
+.search-form-container {
+  // THAY ĐỔI ĐƯỜNG DẪN NÀY tới ảnh nền của bạn
+  background-image: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  padding: 3rem 1rem;
+  border-radius: 12px;
+
+  .search-form-overlay {
+    background-color: rgba(15, 15, 15, 0.75); // Lớp phủ tối màu
+    padding: 2rem;
+    border-radius: 12px;
+  }
+
+  h2 {
+    color: white;
+    font-weight: bold;
+  }
+}
+
+// 3. Wrapper chính tạo ra hiệu ứng
+/* SearchClient.scss */
+
+// 3. Wrapper chính tạo ra hiệu ứng
+/* SearchClient.scss */
+
+.search-input-wrapper {
+  --border-radius: 20px;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    inset: -3px;
+    border-radius: calc(var(--border-radius) + 2px);
+    z-index: 0;
+    background: linear-gradient(
+      -45deg,
+      var(--glow-3) 0%,
+      var(--glow-2) 25%,
+      var(--glow-1) 50%,
+      var(--border-inactive) 70%,
+      var(--border-inactive) 100%
+    );
+    background-size: 350% 350%;
+    background-position: 0% 0%;
+    transition: background-position 0.5s ease-in-out;
+  }
+
+  &:focus-within::after {
+    background-position: 100% 100%;
+  }
+
+  .inner-content {
+    background-color: var(--input-background);
+    border-radius: var(--border-radius);
+    z-index: 1;
+    position: relative;
+    width: 100%;
+    align-items: center;
+    padding: 4px;
+  }
+
+  .ant-form-item {
+    margin: 0 !important;
+    padding: 4px;
+  }
+
+  .ant-select-selector {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 40px !important;
+    padding: 4px 8px !important;
+    .ant-select-selection-placeholder,
+    .ant-select-selection-item {
+      color: var(--text-color) !important;
+      line-height: 32px !important;
+    }
+  }
+
+  .ant-select-clear {
+    background: transparent !important;
+    color: #888;
+  }
+
+  /* --- PHẦN THAY ĐỔI CHO NÚT SEARCH --- */
+  .ant-btn-primary {
+    height: 40px;
+    width: 100%;
+    border: none !important;
+    font-weight: bold;
+    color: white !important;
+    transition: all 0.3s ease-in-out; // Thêm transition cho hiệu ứng mượt mà
+
+    // Áp dụng màu gradient bạn yêu cầu
+    background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
+
+    // Hiệu ứng khi di chuột vào (hover)
+    &:hover {
+      // Hiệu ứng phát sáng bằng box-shadow
+      box-shadow:
+        0 0 12px rgba(236, 72, 153, 0.6),
+        0 0 20px rgba(139, 92, 246, 0.4);
+      // Phóng to nhẹ để tạo cảm giác tương tác
+      transform: scale(1.02);
+    }
+
+    // Hiệu ứng khi nhấn nút
+    &:active {
+      transform: scale(0.98); // Thu nhỏ lại một chút
+    }
+  }
+}

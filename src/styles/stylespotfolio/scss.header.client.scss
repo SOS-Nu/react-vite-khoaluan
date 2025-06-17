@@ -1,0 +1,272 @@
+/* Style cho nav-link với hiệu ứng thanh chạy bên dưới */
+.nav-link {
+  position: relative;
+  transition:
+    color 0.4s ease,
+    background-color 0.3s ease;
+  padding-bottom: 8px; /* Khoảng cách cho thanh underline */
+
+  /* Thanh underline */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      #ec4899,
+      #8b5cf6
+    ); // Gradient giống resize-button
+    transition: width 0.4s ease;
+  }
+  &:hover {
+    &::after {
+      width: 80%;
+    }
+    color: var(--brand-social); // Thêm dòng này để đổi màu chữ khi hover
+  }
+
+  &.active::after {
+    width: 80%;
+  }
+
+  &.active {
+    color: var(--brand-social);
+  }
+}
+
+/* Style cho nút nổi bật với icon động */
+.nav-link.featured {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  .featured-icon {
+    font-size: 16px;
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+}
+
+/* Animation cho icon động */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Style cho dropdown tùy chỉnh */
+.dropdown-menu {
+  background-color: var(--background-body-tertiary);
+  border: 1px solid var(--border-hero-right);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+
+  .dropdown-item {
+    padding: 0.5rem 1.5rem;
+    color: var(--text-white);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+
+    &:hover {
+      background-color: var(--brand-social);
+      color: #fff;
+      background: linear-gradient(
+        to right,
+        #ec4899,
+        #8b5cf6
+      ); // Gradient giống resize-button
+    }
+  }
+}
+
+/* Tùy chỉnh dropdown toggle */
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-white);
+
+  &:hover {
+    color: var(--brand-social);
+  }
+}
+
+.profile-cv-dropdown .dropdown-menu {
+  border: 2px solid transparent;
+  border-image: linear-gradient(to right, #ffc400, #ff9100, #ff530f) 1;
+  border-radius: 8px;
+  background-color: var(--background-body-tertiary);
+}
+
+.user-dropdown-custom .dropdown-menu {
+  border: 2px solid transparent;
+  border-image: linear-gradient(to right, #ffc400, #ff9100, #ff530f) 1;
+  border-radius: 8px;
+  background-color: var(--background-body-tertiary);
+  padding: 0.5rem;
+}
+/* --- Định nghĩa animation bounce --- */
+@keyframes bounce-new {
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* --- Style cho nhãn "NEW" --- */
+.new-badge {
+  position: absolute;
+  top: -2px; // Đẩy lên trên (tương đương -top-1 của Tailwind)
+  right: -2px; // Đẩy sang phải một chút (tương đương -right-2 của Tailwind)
+
+  background: linear-gradient(
+    to right,
+    #ec4899,
+    #8b5cf6
+  ); // Màu đỏ (tương đương bg-red-600)
+  color: white;
+
+  font-size: 10px;
+  font-weight: bold;
+
+  padding: 1px 6px; // (tương đương py-[1px] px-1.5)
+  border-radius: 9999px; // Làm cho nó tròn (tương đương rounded-full)
+
+  // Áp dụng animation đã định nghĩa
+  animation: bounce-new 1s infinite;
+}
+
+// Đảm bảo rằng NavLink cha có position: relative
+// (chúng ta đã làm điều này bằng cách thêm class 'position-relative' trong JSX)
+.nav-link.position-relative {
+  position: relative;
+}
+
+/* --- SỬA LỖI LỆCH HÀNG CHO NÚT THEME VÀ NGÔN NGỮ --- */
+// Trong file SCSS của bạn (ví dụ: scss.header.client.scss)
+// Xóa các style cũ cho .nav-item-icon và .nav-item-dropdown rồi thêm đoạn này vào
+
+/* --- CĂN CHỈNH NÚT THEME & NGÔN NGỮ --- */
+
+// 1. Áp dụng padding chung để đưa chúng về cùng một "hệ quy chiếu"
+.nav-item-icon,
+.nav-item-dropdown .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-bottom: 8px; // Đồng bộ padding với nav-link chính
+}
+
+// 2. Tinh chỉnh riêng cho Dropdown ngôn ngữ
+.nav-item-dropdown .dropdown-toggle {
+  position: relative; // Bật chế độ định vị tương đối
+  top: 1.5px; // Đẩy nhẹ xuống dưới. Điều chỉnh giá trị này nếu cần!
+}
+
+// Đảm bảo nút icon không có gạch chân (giữ lại từ lần sửa trước)
+.nav-item-icon::after {
+  display: none !important;
+}
+
+//avatar
+
+// Thêm vào file SCSS của bạn
+
+.avatar {
+  // Kích thước và hình dạng
+  width: 40px; // Kích thước avatar
+  height: 40px;
+  border-radius: 50%; // Bo tròn để thành hình tròn
+  margin-left: 8px; // Khoảng cách bên trái
+
+  // Styling cho hình ảnh
+  object-fit: cover; // Đảm bảo ảnh không bị méo, sẽ tự cắt cho vừa
+  border: 1px solid var(--brand-name-300); // Thêm viền trắng nhỏ cho đẹp (tùy chọn)
+
+  // Styling cho chữ (khi không có ảnh)
+  display: inline-flex; // Dùng flexbox để căn giữa chữ
+  align-items: center;
+  justify-content: center;
+  background-color: linear-gradient(
+    to right,
+    #ec4899,
+    #8b5cf6
+  ); // Màu nền mặc định khi không có ảnh
+  font-weight: bold;
+  font-size: 14px; // Cỡ chữ cho hai chữ cái đầu
+}
+// SCSS for Animated Gradient Border on Dropdowns
+
+// // 1. Định nghĩa các màu sắc cho gradient (giống ví dụ trước)
+// :root {
+//   --capra-ramp-1: #ffc400;
+//   --capra-ramp-2: #ff9100;
+//   --capra-ramp-3: #ff530f;
+//   --capra-ramp-4: #e62c6d;
+//   --capra-ramp-5: #b25aff;
+// }
+//
+// // 2. Định nghĩa animation cho gradient "chạy"
+// @keyframes gradient-animation {
+//   0% {
+//     background-position: 0% 50%;
+//   }
+//   50% {
+//     background-position: 100% 50%;
+//   }
+//   100% {
+//     background-position: 0% 50%;
+//   }
+// }
+//
+// // 3. Áp dụng hiệu ứng vào các dropdown menu
+// .profile-cv-dropdown .dropdown-menu,
+// .user-dropdown-custom .dropdown-menu {
+//   // Chuẩn bị cho container
+//   position: relative; // Bắt buộc để định vị cho pseudo-element :after
+//   border: 2px solid transparent; // Tạo khoảng trống cho viền mà không hiển thị màu
+//   border-radius: 10px; // Bo góc
+//   background-color: var(--background-body-tertiary); // Nền của dropdown
+//   overflow: hidden; // Rất quan trọng: Cắt bỏ phần thừa của viền giả
+//
+//   // Tạo lớp giả để làm viền
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     top: -2px; left: -2px; right: -2px; bottom: -2px; // Phủ ra ngoài 2px ở mọi phía
+//     z-index: -1; // Đặt lớp viền này nằm DƯỚI nội dung dropdown
+//
+//     // Đây là dải màu gradient "chạy"
+//     background: linear-gradient(
+//       -45deg,
+//       var(--capra-ramp-5),
+//       var(--capra-ramp-4),
+//       var(--capra-ramp-3),
+//       var(--capra-ramp-2),
+//       var(--capra-ramp-1)
+//     );
+//
+//     background-size: 400% 400%; // Kích thước nền lớn để có không gian "chạy"
+//     animation: gradient-animation 4s ease infinite; // Áp dụng animation đã định nghĩa
+//   }
+// }
+//

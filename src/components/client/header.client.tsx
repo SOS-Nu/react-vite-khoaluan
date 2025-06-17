@@ -1,165 +1,406 @@
-import { useState, useEffect } from 'react';
-import { CodeOutlined, ContactsOutlined, FireOutlined, LogoutOutlined, MenuFoldOutlined, RiseOutlined, TwitterOutlined } from '@ant-design/icons';
-import { Avatar, Drawer, Dropdown, MenuProps, Space, message } from 'antd';
-import { Menu, ConfigProvider } from 'antd';
-import styles from '@/styles/client.module.scss';
-import { isMobile } from 'react-device-detect';
-import { FaReact } from 'react-icons/fa';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { callLogout } from '@/config/api';
-import { setLogoutAction } from '@/redux/slice/accountSlide';
-import ManageAccount from './modal/manage.account';
+import { useState, useEffect } from "react";
+import { FaReact, FaStar, FaChevronDown } from "react-icons/fa"; // Thêm FaStar cho icon động
+import { MdOutlineLightMode, MdNightlight } from "react-icons/md";
+import { useLocation, useNavigate, Link, NavLink } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { callLogout } from "@/config/api";
+import { setLogoutAction } from "@/redux/slice/accountSlide";
+import ManageAccount from "./modal/manage.account";
+import { useCurrentApp } from "../context/app.context";
+import { useTranslation } from "react-i18next";
+import viFlag from "assets/svg/language/vi.svg";
+import enFlag from "assets/svg/language/en.svg";
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import { message } from "antd";
+import logojobhunter from "assets/logojobhunter.png";
+import "styles/stylespotfolio/global.scss";
 
-const Header = (props: any) => {
-    const navigate = useNavigate();
-    const dispatch = useAppDispatch();
+// Define props type
+interface HeaderProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+}
 
-    const isAuthenticated = useAppSelector(state => state.account.isAuthenticated);
-    const user = useAppSelector(state => state.account.user);
-    const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
+// Define theme type
+type ThemeContextType = "light" | "dark";
 
-    const [current, setCurrent] = useState('home');
-    const location = useLocation();
+// Define types for nav items and dropdown items
+interface NavItem {
+  label: string | React.ReactNode;
+  key: string;
+  to?: string; // to có thể undefined nếu là dropdown
+  isFeatured?: boolean; // Thêm thuộc tính để đánh dấu nút nổi bật
+  dropdownItems?: DropdownItem[]; // Thêm dropdownItems cho mục có dropdown
+  isNew?: boolean; // <-- THÊM DÒNG NÀY
+}
 
-    const [openMangeAccount, setOpenManageAccount] = useState<boolean>(false);
+interface DropdownItem {
+  label: string | JSX.Element;
+  key: string;
+  to?: string;
+  onClick?: () => void;
+}
 
-    useEffect(() => {
-        setCurrent(location.pathname);
-    }, [location])
+const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useCurrentApp();
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
+  const user = useAppSelector((state) => state.account.user);
+  const [showOffcanvas, setShowOffcanvas] = useState<boolean>(false);
+  const [openManageAccount, setOpenManageAccount] = useState<boolean>(false);
+  const [current, setCurrent] = useState<string>("home");
+  const location = useLocation();
 
-    const items: MenuProps['items'] = [
-        {
-            label: <Link to={'/'}>Trang Chủ</Link>,
-            key: '/',
-            icon: <TwitterOutlined />,
-        },
-        {
-            label: <Link to={'/job'}>Việc Làm IT</Link>,
-            key: '/job',
-            icon: <CodeOutlined />,
-        },
-        {
-            label: <Link to={'/company'}>Top Công ty IT</Link>,
-            key: '/company',
-            icon: <RiseOutlined />,
-        }
-    ];
+  useEffect(() => {
+    setCurrent(location.pathname);
+  }, [location]);
 
+  const handleMode = (mode: ThemeContextType) => {
+    localStorage.setItem("theme", mode);
+    document.documentElement.setAttribute("data-bs-theme", mode);
+    setTheme(mode);
+  };
 
-
-    const onClick: MenuProps['onClick'] = (e) => {
-        setCurrent(e.key);
-    };
-
-    const handleLogout = async () => {
-        const res = await callLogout();
-        if (res && res && +res.statusCode === 200) {
-            dispatch(setLogoutAction({}));
-            message.success('Đăng xuất thành công');
-            navigate('/')
-        }
+  const handleLogout = async () => {
+    const res = await callLogout();
+    if (res && res.statusCode === 200) {
+      dispatch(setLogoutAction({}));
+      message.success("Đăng xuất thành công");
+      navigate("/");
     }
+  };
 
-    const itemsDropdown = [
-        {
-            label: <label
-                style={{ cursor: 'pointer' }}
-                onClick={() => setOpenManageAccount(true)}
-            >Quản lý tài khoản</label>,
-            key: 'manage-account',
-            icon: <ContactsOutlined />
-        },
-        ...(user.role?.permissions?.length ? [{
-            label: <Link
-                to={"/admin"}
-            >Trang Quản Trị</Link>,
-            key: 'admin',
-            icon: <FireOutlined />
-        },] : []),
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Điều hướng đến trang job với searchTerm
+    navigate(`/job?search=${encodeURIComponent(searchTerm)}`);
+  };
 
-        {
-            label: <label
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleLogout()}
-            >Đăng xuất</label>,
-            key: 'logout',
-            icon: <LogoutOutlined />
-        },
-    ];
+  const renderFlag = (language: string) => (
+    <img
+      style={{ height: 20, width: 20 }}
+      src={language === "en" ? enFlag : viFlag}
+      alt={language}
+    />
+  );
 
-    const itemsMobiles = [...items, ...itemsDropdown];
+  const navItems: NavItem[] = [
+    { label: t("appHeader.home"), key: "/", to: "/" },
+    { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
+    { label: "Tìm Công ty", key: "/company", to: "/company" },
+    { label: "Tạo CV Bởi AI", key: "/company", to: "/company", isNew: true },
+    {
+      label: (
+        <span>
+          Profile CV <FaChevronDown style={{ marginLeft: 5, fontSize: 12 }} />
+        </span>
+      ),
+      key: "/profile-cv",
+      dropdownItems: [
+        { label: "Online Resume", key: "online-resume" },
+        { label: "Create CV", key: "create-cv" },
+        { label: "Evaluation CV By AI", key: "evaluation-cv" },
+        { label: "AI Roadmap", key: "ai-roadmap" },
+      ],
+    },
+  ];
 
-    return (
-        <>
-            <div className={styles["header-section"]}>
-                <div className={styles["container"]}>
-                    {!isMobile ?
-                        <div style={{ display: "flex", gap: 30 }}>
-                            <div className={styles['brand']} >
-                                <FaReact onClick={() => navigate('/')} title='Hỏi Dân IT' />
-                            </div>
-                            <div className={styles['top-menu']}>
-                                <ConfigProvider
-                                    theme={{
-                                        token: {
-                                            colorPrimary: '#fff',
-                                            colorBgContainer: '#222831',
-                                            colorText: '#a7a7a7',
-                                        },
-                                    }}
-                                >
+  const dropdownItems: DropdownItem[] = [
+    ...(!user?.role?.permissions?.length
+      ? [{ label: "Trang Cá Nhân CV", key: "pagecv", to: "/admin" }]
+      : []),
+    {
+      label: (
+        <label
+          style={{ cursor: "pointer" }}
+          onClick={() => setOpenManageAccount(true)}
+        >
+          Quản lý tài khoản
+        </label>
+      ),
+      key: "manage-account",
+      onClick: () => setOpenManageAccount(true),
+    },
+    ...(user?.role?.permissions?.length
+      ? [{ label: "Trang Quản Trị", key: "admin", to: "/admin" }]
+      : []),
 
-                                    <Menu
-                                        // onClick={onClick}
-                                        selectedKeys={[current]}
-                                        mode="horizontal"
-                                        items={items}
-                                    />
-                                </ConfigProvider>
-                                <div className={styles['extra']}>
-                                    {isAuthenticated === false ?
-                                        <Link to={'/login'}>Đăng Nhập</Link>
-                                        :
-                                        <Dropdown menu={{ items: itemsDropdown }} trigger={['click']}>
-                                            <Space style={{ cursor: "pointer" }}>
-                                                <span>Welcome {user?.name}</span>
-                                                <Avatar> {user?.name?.substring(0, 2)?.toUpperCase()} </Avatar>
-                                            </Space>
-                                        </Dropdown>
-                                    }
+    {
+      label: (
+        <label style={{ cursor: "pointer" }} onClick={handleLogout}>
+          Đăng xuất
+        </label>
+      ),
+      key: "logout",
+      onClick: handleLogout,
+    },
+  ];
 
-                                </div>
-
-                            </div>
-                        </div>
-                        :
-                        <div className={styles['header-mobile']}>
-                            <span>Your APP</span>
-                            <MenuFoldOutlined onClick={() => setOpenMobileMenu(true)} />
-                        </div>
-                    }
-                </div>
-            </div>
-            <Drawer title="Chức năng"
-                placement="right"
-                onClose={() => setOpenMobileMenu(false)}
-                open={openMobileMenu}
-            >
-                <Menu
-                    onClick={onClick}
-                    selectedKeys={[current]}
-                    mode="vertical"
-                    items={itemsMobiles}
+  return (
+    <>
+      <div className="header-section">
+        <Navbar
+          fixed="top"
+          data-bs-theme={theme}
+          expand="lg"
+          className="bg-body-tertiary"
+        >
+          <Container>
+            <Link className="navbar-brand brand" to="/">
+              <img
+                src={logojobhunter}
+                alt="Logo Job Hunter"
+                className="react-icon"
+                title="SOS Nu"
+              />
+              &nbsp; &nbsp;
+              <h3 style={{ paddingTop: 5, paddingBottom: 5 }}>
+                <strong className="brand-red">{t("appHeader.brand")} </strong>
+                <span className="wave" role="img" aria-labelledby="wave">
+                  👋🏻
+                </span>
+              </h3>
+            </Link>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="mx-auto">
+                {navItems.map((item) =>
+                  item.dropdownItems ? (
+                    <NavDropdown
+                      key={item.key}
+                      title={item.label}
+                      id={`nav-dropdown-${item.key}`}
+                      className={`${current === item.key ? "active" : ""} ${
+                        item.key === "/profile-cv" ? "profile-cv-dropdown" : ""
+                      }`} // Thêm class cho Profile CV
+                    >
+                      {item.dropdownItems.map((dropdownItem) => (
+                        <NavDropdown.Item
+                          key={dropdownItem.key}
+                          onClick={dropdownItem.onClick}
+                        >
+                          {dropdownItem.label}
+                        </NavDropdown.Item>
+                      ))}
+                    </NavDropdown>
+                  ) : (
+                    <NavLink
+                      key={item.key}
+                      to={item.to!}
+                      className={({ isActive }) =>
+                        // Thêm class 'position-relative' để định vị cho nhãn "NEW"
+                        `nav-link position-relative ${isActive && current === item.key ? "active" : ""}`
+                      }
+                      onClick={() => setCurrent(item.key)}
+                    >
+                      {item.label}
+                      {/* THÊM KHỐI LỆNH NÀY */}
+                      {item.isNew && <span className="new-badge">AI</span>}
+                      {/* KẾT THÚC KHỐI LỆNH THÊM */}
+                    </NavLink>
+                  )
+                )}
+              </Nav>
+              {/* <Form className="d-flex mx-3" onSubmit={handleSearch}>
+                <Form.Control
+                  type="search"
+                  placeholder="Tìm kiếm việc làm"
+                  className="me-2"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-            </Drawer>
-            <ManageAccount
-                open={openMangeAccount}
-                onClose={setOpenManageAccount}
-            />
-        </>
-    )
+                <Button variant="outline-primary" type="submit">
+                  Tìm
+                </Button>
+              </Form> */}
+              <Nav className="ms-auto align-items-center">
+                {isAuthenticated ? (
+                  <NavDropdown
+                    title={
+                      <span>
+                        {user?.name}{" "}
+                        {/* <span className="avatar" style={{ marginLeft: 8 }}>
+                          {user?.name?.substring(0, 2)?.toUpperCase()}
+                        </span> */}
+                        {/* avatar user */}
+                        <img
+                          src={logojobhunter}
+                          alt="user avatar"
+                          className="avatar"
+                        />
+                      </span>
+                    }
+                    id="user-dropdown"
+                    className="user-dropdown-custom" // Thêm class
+                  >
+                    {dropdownItems.map((item) =>
+                      item.to ? (
+                        <NavDropdown.Item key={item.key} as={Link} to={item.to}>
+                          {item.label}
+                        </NavDropdown.Item>
+                      ) : (
+                        <NavDropdown.Item key={item.key} onClick={item.onClick}>
+                          {item.label}
+                        </NavDropdown.Item>
+                      )
+                    )}
+                  </NavDropdown>
+                ) : (
+                  <>
+                    <Nav.Link as={Link} to="/login">
+                      Nhà Tuyển Dụng
+                    </Nav.Link>
+                    <Nav.Link as={Link} to="/login">
+                      Đăng Nhập
+                    </Nav.Link>
+                  </>
+                )}
+                <Nav.Link
+                  onClick={() =>
+                    handleMode(theme === "light" ? "dark" : "light")
+                  }
+                >
+                  {theme === "light" ? (
+                    <MdOutlineLightMode style={{ fontSize: 20 }} />
+                  ) : (
+                    <MdNightlight style={{ fontSize: 20 }} />
+                  )}
+                </Nav.Link>
+                <NavDropdown
+                  className="nav-item-dropdown"
+                  title={renderFlag(i18n.resolvedLanguage ?? "en")}
+                  id="language-dropdown"
+                >
+                  <NavDropdown.Item
+                    onClick={() => i18n.changeLanguage("en")}
+                    className="d-flex gap-2 align-items-center"
+                  >
+                    <img
+                      style={{ height: 20, width: 20 }}
+                      src={enFlag}
+                      alt="english"
+                    />
+                    English
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    onClick={() => i18n.changeLanguage("vi")}
+                    className="d-flex gap-2 align-items-center"
+                  >
+                    <img
+                      style={{ height: 20, width: 20 }}
+                      src={viFlag}
+                      alt="vietnamese"
+                    />
+                    Tiếng Việt
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </Nav>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+      </div>
+
+      <Offcanvas
+        show={showOffcanvas}
+        onHide={() => setShowOffcanvas(false)}
+        placement="end"
+        data-bs-theme={theme}
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Chức năng</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            {navItems.map((item) =>
+              item.dropdownItems ? (
+                <NavDropdown
+                  key={item.key}
+                  title={item.label}
+                  id={`offcanvas-dropdown-${item.key}`}
+                  className={current === item.key ? "active" : ""}
+                >
+                  {item.dropdownItems.map((dropdownItem) => (
+                    <NavDropdown.Item
+                      key={dropdownItem.key}
+                      onClick={() => {
+                        dropdownItem.onClick?.();
+                        setShowOffcanvas(false);
+                      }}
+                    >
+                      {dropdownItem.label}
+                    </NavDropdown.Item>
+                  ))}
+                </NavDropdown>
+              ) : (
+                <NavLink
+                  key={item.key}
+                  to={item.to!}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive && current === item.key ? "active" : ""}`
+                  }
+                  onClick={() => {
+                    setCurrent(item.key);
+                    setShowOffcanvas(false);
+                  }}
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
+            {isAuthenticated ? (
+              <>
+                {dropdownItems.map((item) =>
+                  item.to ? (
+                    <Nav.Link
+                      key={item.key}
+                      as={Link}
+                      to={item.to}
+                      onClick={() => setShowOffcanvas(false)}
+                    >
+                      {item.label}
+                    </Nav.Link>
+                  ) : (
+                    <Nav.Link
+                      key={item.key}
+                      onClick={() => {
+                        item.onClick?.();
+                        setShowOffcanvas(false);
+                      }}
+                    >
+                      {item.label}
+                    </Nav.Link>
+                  )
+                )}
+              </>
+            ) : (
+              <>
+                <Nav.Link
+                  as={Link}
+                  to="/login"
+                  onClick={() => setShowOffcanvas(false)}
+                >
+                  Đăng Nhập
+                </Nav.Link>
+              </>
+            )}
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+      <ManageAccount
+        open={openManageAccount}
+        onClose={() => setOpenManageAccount(false)}
+      />
+    </>
+  );
 };
 
 export default Header;
