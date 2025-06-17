@@ -1,87 +1,196 @@
 // SearchClient.js
 
-import { Button, Col, Form, Row, Select, notification } from "antd";
-import { EnvironmentOutlined, MonitorOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Col,
+  Form,
+  Row,
+  Select,
+  notification,
+  Input,
+  Upload,
+  Tag,
+} from "antd";
+import {
+  EnvironmentOutlined,
+  MonitorOutlined,
+  UploadOutlined,
+  FileTextOutlined,
+  SearchOutlined,
+  ApartmentOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import { LOCATION_LIST } from "@/config/utils";
 import { ProForm } from "@ant-design/pro-components";
 import { useEffect, useState } from "react";
-import { callFetchAllSkill } from "@/config/api";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { callFindJobsByAI } from "@/config/api"; // Giả sử bạn đã tạo hàm này
 
-// Import file SCSS mới mà chúng ta sẽ tạo ở bước 2
+// Import file SCSS
+const { Option } = Select;
 
 const SearchClient = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [form] = Form.useForm();
+
+  // State mới để quản lý loại tìm kiếm
+  const [searchType, setSearchType] = useState("job"); // 'job', 'company', 'ai'
+  const [fileList, setFileList] = useState([]);
 
   const optionsLocations = LOCATION_LIST;
-  const [form] = Form.useForm();
-  const [optionsSkills, setOptionsSkills] = useState<
-    {
-      label: string;
-      value: string;
-    }[]
-  >([]);
 
-  const [isSearching, setIsSearching] = useState(false); // Trạng thái tìm kiếm
-  const [searchParams, setSearchParams] = useSearchParams();
+  const handleRemoveFile = () => {
+    setFileList([]);
+    return false; // Ngăn chặn hành vi mặc định
+  };
 
-  useEffect(() => {
-    if (location.search) {
-      const queryLocation = searchParams.get("location");
-      const querySkills = searchParams.get("skills");
-      if (queryLocation) {
-        form.setFieldValue("location", queryLocation.split(","));
+  // Hàm xử lý khi tìm kiếm
+  const onFinish = async (values) => {
+    const { searchQuery, location } = values;
+
+    // Xử lý tìm kiếm bằng AI
+    if (searchType === "ai") {
+      if (!searchQuery && fileList.length === 0) {
+        notification.error({
+          message: "Lỗi",
+          description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
+        });
+        return;
       }
-      if (querySkills) {
-        form.setFieldValue("skills", querySkills.split(","));
+
+      const formData = new FormData();
+      formData.append(
+        "skillsDescription",
+        searchQuery ||
+          "Tôi muốn tìm việc theo CV mà tôi đã upload lên với kỹ năng của tôi."
+      );
+      if (fileList.length > 0) {
+        formData.append("file", fileList[0].originFileObj);
       }
+
+      try {
+        // Giả sử bạn có hàm callFindJobsByAI để gọi API
+        // const res = await callFindJobsByAI(formData);
+        // if (res && res.data) {
+        //   // Xử lý kết quả trả về, ví dụ điều hướng đến trang kết quả với dữ liệu
+        //   navigate("/ai-results", { state: { jobs: res.data.result } });
+        // }
+        notification.success({
+          message: "Đã gửi yêu cầu tìm kiếm bằng AI",
+          description:
+            "API endpoint: /api/v1/gemini/find-jobs. Body: FormData chứa skillsDescription và file.",
+        });
+        console.log("Calling AI API with FormData:", {
+          skillsDescription: formData.get("skillsDescription"),
+          file: formData.get("file"),
+        });
+      } catch (error) {
+        notification.error({
+          message: "Có lỗi xảy ra",
+          description: "Không thể thực hiện tìm kiếm bằng AI.",
+        });
+      }
+      return;
     }
-  }, [location.search]);
 
-  useEffect(() => {
-    fetchSkill();
-  }, []);
-
-  const fetchSkill = async () => {
-    let query = `page=1&size=100&sort=createdAt,desc`;
-
-    const res = await callFetchAllSkill(query);
-    if (res && res.data) {
-      const arr =
-        res?.data?.result?.map((item) => {
-          return {
-            label: item.name as string,
-            value: (item.id + "") as string,
-          };
-        }) ?? [];
-      setOptionsSkills(arr);
+    // Xử lý tìm kiếm công việc và công ty
+    let query = "";
+    if (searchQuery) {
+      if (searchType === "job") {
+        // API: http://localhost:8080/api/v1/jobs?sort=id,desc&filter=name~~'java'
+        query = `filter=name~~'${searchQuery}'&sort=id,desc`;
+        navigate(`/job?${query}`);
+      }
+      if (searchType === "company") {
+        // API: http://localhost:8080/api/v1/companies?current=1&pageSize=10&filter=name~'apple'&sort=name,desc
+        query = `filter=name~'${searchQuery}'&sort=name,desc`;
+        navigate(`/company?${query}`); // Điều hướng đến trang công ty
+      }
+    } else {
+      notification.error({
+        message: "Chưa có thông tin",
+        description: "Vui lòng nhập từ khóa tìm kiếm",
+      });
     }
   };
 
-  const onFinish = async (values: any) => {
-    let query = "";
-    if (values?.location?.length) {
-      query = `location=${values?.location?.join(",")}`;
-    }
-    if (values?.skills?.length) {
-      query = values.location?.length
-        ? query + `&skills=${values?.skills?.join(",")}`
-        : `skills=${values?.skills?.join(",")}`;
-    }
+  const handleUploadChange = ({ fileList }) => {
+    // Chỉ cho phép tải lên 1 file
+    setFileList(fileList.slice(-1));
+  };
 
-    if (!query) {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        description: "Vui lòng chọn tiêu chí để search",
-      });
-      return;
+  const renderSearchInput = () => {
+    switch (searchType) {
+      case "ai":
+        return (
+          // Cấu trúc cho AI (giữ nguyên)
+          <div className="ai-input-wrapper">
+            <ProForm.Item name="searchQuery">
+              <Input.TextArea
+                placeholder="Nhập mô tả công việc bạn mong muốn, kỹ năng của bạn..."
+                rows={1}
+                bordered={false}
+                autoSize={{ minRows: 1, maxRows: 1 }}
+              />
+            </ProForm.Item>
+            <div className="ai-upload-container">
+              {fileList.length > 0 ? (
+                <div className="custom-upload-item">
+                  <span className="file-name-text" title={fileList[0].name}>
+                    {fileList[0].name}
+                  </span>
+                  <CloseOutlined
+                    className="delete-icon"
+                    onClick={handleRemoveFile}
+                  />
+                </div>
+              ) : (
+                <Upload
+                  className="ai-upload-button"
+                  fileList={fileList}
+                  onChange={handleUploadChange}
+                  beforeUpload={() => false}
+                  showUploadList={false} // Tắt danh sách mặc định
+                  maxCount={1}
+                >
+                  <Button icon={<UploadOutlined />} type="text">
+                    Tải lên CV
+                  </Button>
+                </Upload>
+              )}
+            </div>
+          </div>
+        );
+      case "company":
+        return (
+          // SỬA LỖI: Bọc trong cùng thẻ div với class "ai-input-wrapper"
+          <div className="ai-input-wrapper">
+            <ProForm.Item name="searchQuery">
+              <Input
+                placeholder="Nhập tên công ty bạn quan tâm..."
+                bordered={false}
+              />
+            </ProForm.Item>
+          </div>
+        );
+      case "job":
+      default:
+        return (
+          // SỬA LỖI: Bọc trong cùng thẻ div với class "ai-input-wrapper"
+          <div className="ai-input-wrapper">
+            <ProForm.Item name="searchQuery">
+              <Input
+                placeholder="Nhập tên công việc, ví dụ: Java, Frontend, DevOps..."
+                bordered={false}
+              />
+            </ProForm.Item>
+          </div>
+        );
     }
-    navigate(`/job?${query}`);
   };
 
   return (
-    // Container chính với ảnh nền và lớp phủ tối màu
     <div className="search-form-container">
       <div className="search-form-overlay">
         <Row justify="center">
@@ -94,31 +203,34 @@ const SearchClient = () => {
           onFinish={onFinish}
           submitter={{ render: () => <></> }}
         >
-          {/* ===== BẮT ĐẦU CẤU TRÚC HÀNG NGANG ===== */}
           <Row gutter={[16, 16]} align="middle">
-            {/* 1. Ô tìm kiếm theo kỹ năng (rộng nhất) */}
-            <Col xs={24} md={16}>
+            {/* 1. Ô tìm kiếm chính (kết hợp) */}
+            <Col xs={24} md={17}>
               <div className="search-input-wrapper">
-                <ProForm.Item name="skills">
+                <Input.Group compact className="custom-input-group">
                   <Select
-                    mode="multiple"
-                    allowClear
-                    showArrow
-                    style={{ width: "100%" }}
-                    placeholder={
-                      <>
-                        <MonitorOutlined /> Tìm theo kỹ năng...
-                      </>
-                    }
-                    optionLabelProp="label"
-                    options={optionsSkills}
-                  />
-                </ProForm.Item>
+                    value={searchType}
+                    onChange={(value) => setSearchType(value)}
+                    className="search-type-select"
+                    dropdownClassName="search-type-dropdown"
+                  >
+                    <Option value="job">
+                      <SearchOutlined /> Tên Job
+                    </Option>
+                    <Option value="company">
+                      <ApartmentOutlined /> Công ty
+                    </Option>
+                    <Option value="ai">
+                      <FileTextOutlined /> Dùng AI
+                    </Option>
+                  </Select>
+                  {renderSearchInput()}
+                </Input.Group>
               </div>
             </Col>
 
             {/* 2. Ô tìm kiếm theo địa điểm */}
-            <Col xs={24} md={5}>
+            <Col xs={24} md={4}>
               <div className="search-input-wrapper">
                 <ProForm.Item name="location">
                   <Select
@@ -149,10 +261,10 @@ const SearchClient = () => {
               </Button>
             </Col>
           </Row>
-          {/* ===== KẾT THÚC CẤU TRÚC HÀNG NGANG ===== */}
         </ProForm>
       </div>
     </div>
   );
 };
+
 export default SearchClient;

@@ -45,20 +45,26 @@
   }
 }
 
-// 3. Wrapper cho hiệu ứng viền (áp dụng cho từng ô input)
+// 3. Wrapper cho hiệu ứng viền (sửa đổi và bổ sung)
+//* SearchClient.scss */
+
+// ... (giữ nguyên các style từ :root đến trước .search-input-wrapper)
+
+// 3. Wrapper cho hiệu ứng viền (PHIÊN BẢN SỬA LỖI HOÀN CHỈNH)
 .search-input-wrapper {
-  --border-radius: 16px; // Bạn có thể chỉnh lại giá trị này
-  --border-thickness: 2.5px; // Và giá trị này để viền dày/mỏng
+  --border-radius: 16px;
+  --border-thickness: 2.5px;
 
   position: relative;
 
+  // Lớp viền gradient
   &::after {
     content: "";
     position: absolute;
     pointer-events: none;
     inset: calc(-1 * var(--border-thickness));
     border-radius: calc(var(--border-radius) + var(--border-thickness));
-    z-index: 0;
+    z-index: 0; // Viền nằm ở lớp dưới cùng
     background: linear-gradient(
       -45deg,
       var(--capra-ramp-1) 0%,
@@ -74,37 +80,150 @@
     transition: background-position 0.5s ease-in-out;
   }
 
+  // Kích hoạt animation khi focus vào bất kỳ đâu bên trong
   &:focus-within::after {
     background-position: 100% 100%;
   }
 
-  // Bỏ class .inner-content và style trực tiếp vào .ant-form-item
-  .ant-form-item {
-    margin: 0 !important;
-    background-color: var(--input-background);
-    border-radius: var(--border-radius);
-    z-index: 1;
+  /* --- PHẦN SỬA LỖI CHÍNH --- */
+  // Áp dụng style "mặt nạ" cho các khối nội dung bên trong wrapper.
+  // Bao gồm cả Input.Group và Form.Item của ô địa điểm.
+  & .custom-input-group,
+  & .ant-form-item {
     position: relative;
+    z-index: 1; // Nằm trên lớp viền ::after
+    background-color: var(--input-background); // Có nền tối
+    border-radius: var(--border-radius); // CÓ BO GÓC Ở ĐÂY
+    overflow: hidden; // Rất quan trọng: Cắt bỏ các góc vuông của phần tử con
+    margin: 0 !important;
   }
 
-  // Các style cho Ant Select vẫn giữ nguyên
-  .ant-select-selector {
-    background: transparent !important;
+  // Các style cho component con bên trong
+  .ant-select-selector,
+  .ant-input,
+  .ant-input-affix-wrapper {
+    background: transparent !important; // Nền trong suốt để thấy nền của cha
     border: none !important;
-    box-shadow: 100px !important;
-    height: 48px !important; // Tăng chiều cao cho đẹp hơn
-    padding: 12px 12px !important;
+    box-shadow: none !important;
+    height: 45px !important;
+    color: var(--text-color) !important;
+
     .ant-select-selection-placeholder,
     .ant-select-selection-item {
       color: var(--text-color) !important;
-      line-height: normal !important;
-      line-height: 80px !important;
+      line-height: 32px !important;
+    }
+    &::placeholder {
+      color: #888 !important;
     }
   }
 
-  .ant-select-clear {
-    background: transparent !important;
-    color: #888;
+  // Style riêng cho Input.Group (chỉ là layout, không có style nền hay bo góc)
+  & .custom-input-group {
+    display: flex;
+    height: 48px;
+  }
+
+  // Style cho Select chọn loại Search
+  .search-type-select {
+    width: 120px;
+    .ant-select-selector {
+      height: 48px !important;
+      border-right: 1px solid #444 !important;
+    }
+  }
+
+  // Style cho khu vực AI
+  .ai-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1; // <-- Dòng này đã có, để nó chiếm hết không gian trong group
+
+    /* --- DÒNG SỬA LỖI ĐƯỢC THÊM VÀO ĐÂY --- */
+    .ant-form-item {
+      flex: 1; // QUAN TRỌNG: Buộc Form.Item phải giãn ra lấp đầy ai-input-wrapper
+    }
+    /* --- KẾT THÚC DÒNG SỬA LỖI --- */
+
+    textarea.ant-input {
+      padding-right: 100px !important;
+      height: 100% !important;
+    }
+
+    .ai-upload-button {
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+  }
+}
+
+/* --- CUSTOM STYLE CHO KHU VỰC UPLOAD CV --- */
+
+// Định vị container cho nút upload/danh sách file
+.ai-upload-container {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+
+  // Style cho nút "Tải lên CV" ban đầu
+  .ai-upload-button {
+    .ant-btn {
+      color: #b0b8c4; // Màu chữ xám nhạt cho hợp theme
+      font-weight: 500;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--brand-social) !important; // Đổi màu khi hover
+      }
+    }
+  }
+
+  // Style cho layout của file đã tải lên (thay thế cho list mặc định)
+  .custom-upload-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #2c314a; // Nền màu tối nhẹ
+    padding: 4px 10px;
+    border-radius: 16px; // Bo tròn thành dạng "pill"
+    max-width: 180px; // Giới hạn chiều rộng
+    border: 1px solid #4a4a5a;
+
+    // Style cho tên file
+    .file-name-text {
+      color: #e1dfdf;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; // Hiển thị "..." nếu tên file quá dài
+      font-size: 13px;
+    }
+
+    // Style cho icon xóa
+    .delete-icon {
+      color: #9ca3af;
+      cursor: pointer;
+      transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+
+      &:hover {
+        color: #ef4444; // Chuyển màu đỏ khi hover
+        transform: scale(1.2);
+      }
+    }
+  }
+}
+
+// Điều chỉnh lại padding của textarea để nó không bị che mất
+.ai-input-wrapper {
+  textarea.ant-input {
+    padding-right: 200px !important; // Tăng padding để có đủ chỗ cho file name
   }
 }
 
@@ -130,5 +249,61 @@
 
   &:active {
     transform: scale(0.98);
+  }
+}
+
+.search-type-dropdown {
+  background-color: var(
+    --background-dropdown-search
+  ) !important; // Nền màu tối thay vì trắng
+  border: 1px solid #4a4a5a !important;
+  border-radius: 12px !important; // Bo góc cho mềm mại
+  padding: 8px !important; // Thêm khoảng đệm bên trong
+  backdrop-filter: blur(5px); // Hiệu ứng "kính mờ" (tùy chọn)
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); // Đổ bóng nhẹ
+
+  // Tùy chỉnh thanh cuộn (nếu có nhiều lựa chọn)
+  .rc-virtual-list-scrollbar {
+    width: 5px;
+  }
+  .rc-virtual-list-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.6) !important; // Màu thanh cuộn
+    border-radius: 5px;
+  }
+
+  // Style cho mỗi mục lựa chọn
+  .ant-select-item {
+    border-radius: 8px !important; // Bo góc cho từng mục
+    color: var(--text-white); // Màu chữ xám nhạt
+
+    // Khi một mục được chọn (nó sẽ có màu xanh dương mặc định)
+    &.ant-select-item-option-selected {
+      background: linear-gradient(
+        to right,
+        #ec489930,
+        #8b5cf630
+      ) !important; // Gradient nền
+      color: var(
+        --text-white
+      ) !important; // Chữ màu trắng linear-gradient(to right, #ec489930, #8b5cf630)
+
+      .anticon {
+        color: var(--text-white) !important; // Icon cũng màu trắng
+      }
+    }
+
+    // Khi hover chuột lên một mục
+    &.ant-select-item-option-active {
+      // Dùng gradient mờ để tạo hiệu ứng hover tinh tế
+      background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
+      color: var(--text-white) !important;
+    }
+
+    // Căn chỉnh icon và text
+    .ant-select-item-option-content {
+      display: flex;
+      align-items: center;
+      gap: 8px; // Khoảng cách giữa icon và text
+    }
   }
 }

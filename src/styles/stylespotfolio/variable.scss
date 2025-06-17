@@ -1,6 +1,7 @@
 //variable.scss
 // $grey-100: #eee;
 $light-theme: (
+  background-dropdown-search: white,
   background-input-search: #e3dddd,
   border-input-search: rgba(15, 15, 15, 0.75),
   background-body: #fff,
@@ -14,6 +15,7 @@ $light-theme: (
   brand-name-100: black,
   brand-name-200: black,
   brand-name-300: black,
+  brand-name-400: black,
 
   brand-social: #ec4899,
 
@@ -40,6 +42,7 @@ $light-theme: (
 );
 
 $dark-theme: (
+  background-dropdown-search: #252530,
   background-input-search: #1f1f1f,
   border-input-search: #3e3e3e,
   text-color-nobackground:
@@ -53,6 +56,7 @@ $dark-theme: (
   brand-name-100: #16f2b3,
   brand-name-200: #ec4899,
   brand-name-300: #ec4899,
+  brand-name-400: #ffa304,
   brand-social: #ff4da6,
 
   border-hero-right: #1b2c68a0,
