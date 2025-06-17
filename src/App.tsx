@@ -30,7 +30,6 @@ import ClientJobDetailPage from "./pages/job/detail";
 import ClientCompanyPage from "./pages/company";
 import ClientCompanyDetailPage from "./pages/company/detail";
 import JobTabs from "./pages/admin/job/job.tabs";
-import "styles/stylespotfolio/global.scss";
 import { App as AntdApp } from "antd";
 import { AppContextProvider } from "./components/context/app.context";
 

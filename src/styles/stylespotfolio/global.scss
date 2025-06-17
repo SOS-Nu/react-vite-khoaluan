@@ -14,7 +14,8 @@ $spacers: (
 @import "./scss.header.client.scss";
 @import "./animation.scss";
 @import "./variable.scss";
-
+@import "./scss.footer.client.scss";
+@import "./search.client.scss";
 * {
   margin: 0;
   padding: 0;

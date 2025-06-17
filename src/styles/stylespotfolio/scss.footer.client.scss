@@ -1,0 +1,152 @@
+/* --- STYLES FOR FOOTER --- */
+.site-footer {
+  background-color: var(--background-body-tertiary);
+  border-top: 1px solid var(--border-hero-right);
+  color: var(--text-white);
+  font-size: 14px;
+
+  .footer-top {
+    border-bottom: 1px solid var(--border-hero-right);
+  }
+
+  .footer-title {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-white);
+    font-size: 0.875rem; // 14px
+  }
+
+  .footer-links {
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        margin-bottom: 0.75rem;
+
+        a {
+          color: var(--text-white);
+          text-decoration: none;
+          opacity: 0.8;
+          transition: all 0.3s ease;
+
+          &:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+            color: var(--brand-social);
+          }
+        }
+      }
+    }
+  }
+
+  .newsletter-box {
+    background-color: var(--glow-card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+
+    .form-control {
+      background-color: var(--background-body);
+      color: var(--text-white);
+      border: 1px solid var(--border-hero-right);
+
+      &:focus {
+        background-color: var(--background-body);
+        color: var(--text-white);
+        border-color: var(--brand-social);
+        box-shadow: 0 0 0 0.25rem rgba(236, 72, 153, 0.25); // Màu shadow giống màu brand
+      }
+      &::placeholder {
+        color: var(--text-white);
+        opacity: 0.6;
+      }
+    }
+
+    // Tái sử dụng nút đã có
+    .resize-button {
+      padding: 10px 15px;
+      white-space: nowrap; // Ngăn không cho chữ xuống dòng
+    }
+  }
+
+  .app-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    background-color: var(--background-body);
+    color: var(--text-white);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: 1px solid var(--border-hero-right);
+
+    &:hover {
+      background-color: var(--background-hero-right);
+      color: var(--brand-social);
+    }
+
+    .app-icon {
+      font-size: 28px;
+      margin-right: 12px;
+    }
+
+    .text-xs {
+      font-size: 12px;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+  }
+
+  .social-icons {
+    a {
+      color: var(--text-white);
+      opacity: 0.7;
+      font-size: 20px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: var(--brand-social);
+        opacity: 1;
+        transform: translateY(-2px);
+        transform: translateY(-2px) scale(1.1); // Kết hợp cả 2 hiệu ứng
+      }
+    }
+  }
+
+  .footer-bottom {
+    p {
+      color: var(--text-white);
+      opacity: 0.7;
+      font-size: 13px;
+    }
+  }
+}
+
+/* --- ANIMATION CHO FOOTER KHI CUỘN TỚI --- */
+
+/* --- TÙY CHỌN 3: ANIMATION MẠNH MẼ HƠN (HIỆU ỨNG NẢY) --- */
+
+@keyframes fadeInUp-Bounce {
+  // Đổi tên để phân biệt
+  from {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.is-visible .animate-on-scroll {
+  // THAY ĐỔI: Sử dụng keyframe mới và một đường cong cubic-bezier để tạo hiệu ứng nảy.
+  // Bạn có thể xem trước đường cong này tại: https://cubic-bezier.com/#.17,.67,.66,1.21
+  animation: fadeInUp-Bounce 1.5s cubic-bezier(0.2, 0.7, 0.7, 1.3) forwards;
+}

@@ -16,9 +16,8 @@ import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import { message } from "antd";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import logojobhunter from "assets/logojobhunter.png";
+import "styles/stylespotfolio/global.scss";
 
 // Define props type
 interface HeaderProps {
