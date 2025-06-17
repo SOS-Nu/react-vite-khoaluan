@@ -106,11 +106,12 @@
     border: none !important;
     box-shadow: none !important;
     height: 45px !important;
-    color: var(--text-color) !important;
+    color: var(--text-white) !important;
+    font-size: auto !important;
 
     .ant-select-selection-placeholder,
     .ant-select-selection-item {
-      color: var(--text-color) !important;
+      color: var(--text-white) !important;
       line-height: 32px !important;
     }
     &::placeholder {
@@ -174,7 +175,7 @@
   // Style cho nút "Tải lên CV" ban đầu
   .ai-upload-button {
     .ant-btn {
-      color: #b0b8c4; // Màu chữ xám nhạt cho hợp theme
+      color: var(--text-white); // Màu chữ xám nhạt cho hợp theme
       font-weight: 500;
       transition: color 0.2s ease;
 
@@ -189,7 +190,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background-color: #2c314a; // Nền màu tối nhẹ
+    background-color: var(--text-color-nobackground); // Nền màu tối nhẹ
     padding: 4px 10px;
     border-radius: 16px; // Bo tròn thành dạng "pill"
     max-width: 180px; // Giới hạn chiều rộng
@@ -197,7 +198,7 @@
 
     // Style cho tên file
     .file-name-text {
-      color: #e1dfdf;
+      color: var(--text-white);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis; // Hiển thị "..." nếu tên file quá dài
@@ -206,7 +207,7 @@
 
     // Style cho icon xóa
     .delete-icon {
-      color: #9ca3af;
+      color: var(--text-white);
       cursor: pointer;
       transition:
         color 0.2s ease,
@@ -235,7 +236,7 @@
   border: none !important;
   font-weight: bold;
   font-size: 16px;
-  color: white !important;
+  color: var(--text-white) !important;
   transition: all 0.3s ease-in-out;
 
   background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
@@ -305,5 +306,26 @@
       align-items: center;
       gap: 8px; // Khoảng cách giữa icon và text
     }
+  }
+}
+
+//css cho chữ ở mobile trong thanh search tìm kiếm việc làm chữ bự
+// File: SearchClient.scss hoặc file css tương ứng
+
+.typewriter-title {
+  // Style chung (nếu cần) có thể đặt ở đây
+
+  // Áp dụng chỉ cho màn hình mobile và tablet
+  @media (max-width: 767px) {
+    // 1. Đặt chiều cao tối thiểu tương đương 2 dòng
+    // line-height: 1.4; (ví dụ)
+    // min-height = 2 * line-height = 2.8em
+    min-height: 2.8em;
+
+    // 2. Dùng Flexbox để căn chữ vào giữa theo chiều dọc
+    // Giúp cho khi text chỉ có 1 dòng, nó sẽ nằm ở giữa, không bị lệch lên trên
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

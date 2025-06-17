@@ -3,6 +3,7 @@
 $light-theme: (
   background-dropdown-search: white,
   background-input-search: #e3dddd,
+  background-file-search: #bd21b8,
   border-input-search: rgba(15, 15, 15, 0.75),
   background-body: #fff,
   background-body-tertiary: #f8f9fa,
@@ -42,6 +43,8 @@ $light-theme: (
 );
 
 $dark-theme: (
+  background-file-search:
+    "linear-gradient(to right, transparent,#8b5cf6, #8b5cf6, transparent)",
   background-dropdown-search: #252530,
   background-input-search: #1f1f1f,
   border-input-search: #3e3e3e,

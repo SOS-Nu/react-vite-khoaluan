@@ -25,6 +25,7 @@ import { ProForm } from "@ant-design/pro-components";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { callFindJobsByAI } from "@/config/api"; // Giả sử bạn đã tạo hàm này
+import Typewriter from "typewriter-effect";
 
 // Import file SCSS
 const { Option } = Select;
@@ -195,7 +196,20 @@ const SearchClient = () => {
       <div className="search-form-overlay">
         <Row justify="center">
           <Col span={24} style={{ textAlign: "center", marginBottom: "20px" }}>
-            <h2>Việc Làm IT Cho Developer "Chất"</h2>
+            <h2 className="typewriter-title">
+              <Typewriter
+                options={{
+                  strings: [
+                    "Tìm Việc làm nhanh chóng ",
+                    "mới nhất toàn quốc",
+                    "Tìm Việc làm Bởi AI",
+                  ],
+                  autoStart: true,
+                  loop: true,
+                  deleteSpeed: 120,
+                }}
+              />
+            </h2>
           </Col>
         </Row>
         <ProForm
@@ -232,21 +246,25 @@ const SearchClient = () => {
             {/* 2. Ô tìm kiếm theo địa điểm */}
             <Col xs={24} md={4}>
               <div className="search-input-wrapper">
-                <ProForm.Item name="location">
+                <div className="custom-input-group">
                   <Select
                     mode="multiple"
                     allowClear
                     showArrow
-                    style={{ width: "100%" }}
-                    placeholder={
-                      <>
-                        <EnvironmentOutlined /> Địa điểm...
-                      </>
-                    }
+                    placeholder="Địa Điểm"
                     optionLabelProp="label"
                     options={optionsLocations}
+                    // 2. Dùng class mới và bỏ các style/class không cần thiết
+                    className="location-select-standalone"
+                    dropdownClassName="search-type-dropdown"
+                    // 3. Giữ lại width 100% để antd hiểu là cần co giãn
+                    style={{
+                      width: "100%",
+
+                      paddingLeft: "6px",
+                    }}
                   />
-                </ProForm.Item>
+                </div>
               </div>
             </Col>
 
