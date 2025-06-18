@@ -25,19 +25,19 @@ export const EXPERIENCES = [
     },
     duration: {
       vi: "Tải Lên CV",
-      en: "Upload CV Info",
+      en: `Upload CV Info `,
     },
   },
   {
     id: 2,
     title: {
       vi: "Lập Trình Viên",
-      en: "Fullstack Developer",
+      en: "Recruiter and others can see your Online Resume",
     },
 
     company: {
       vi: "Công ty F (freelancer)",
-      en: "F (freelancer)",
+      en: "AI will connect your online resume.",
     },
     duration: {
       vi: "Tháng 6/2022 - Tháng 1/2024",
@@ -48,15 +48,15 @@ export const EXPERIENCES = [
     id: 3,
     title: {
       vi: "Dự án tự làm",
-      en: "Self Employed",
+      en: "Recruiter and others can see your WorkExperiences",
     },
     company: {
       vi: "Học kiến thức mới mỗi ngày",
-      en: "Code and build something in everyday.",
+      en: "AI will connect your WorkExperiences.",
     },
     duration: {
       vi: "Tháng 1/2020 - Hiện tại",
-      en: "Jan 2020 - Present",
+      en: "Upload WorkExperiences",
     },
   },
 ];

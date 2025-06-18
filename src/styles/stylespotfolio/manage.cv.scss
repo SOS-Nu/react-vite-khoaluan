@@ -1,0 +1,20 @@
+.manage-cv-wrapper {
+  position: relative;
+
+  // Tùy chỉnh cho mobile
+  @media (max-width: 767px) {
+    .manage-cv-wrapper {
+      background-size: contain; // Điều chỉnh cho màn hình nhỏ
+    }
+  }
+}
+
+.wave {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+}
+.wave img {
+  width: 24px; /* Điều chỉnh kích thước ảnh */
+  height: 24px;
+}

@@ -49,7 +49,7 @@ const Footer = () => {
         style={{
           backgroundImage: `url(${bg})`,
           width: "100%",
-          height: 500, // Khớp với chiều cao footer
+          height: "100%", // Khớp với chiều cao footer
           position: "absolute",
           top: 0,
           left: 0,

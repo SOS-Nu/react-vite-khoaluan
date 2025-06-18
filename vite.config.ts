@@ -24,6 +24,10 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       port: parseInt(env.PORT),
+      host: "0.0.0.0",
+      allowedHosts: [
+        "b690-2001-ee1-e605-7460-49e0-1317-1fb2-d762.ngrok-free.app",
+      ],
     },
     css: {
       preprocessorOptions: {
