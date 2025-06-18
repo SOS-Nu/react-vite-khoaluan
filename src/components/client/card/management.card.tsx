@@ -28,7 +28,9 @@ const ManageCV = () => {
       <Row className="mb-5">
         <Col xs={12} className="my-3 my-md-5">
           <div className="text-center">
-            <h3>The best tools to support your job application journey</h3>
+            <h3 id="title-managecv">
+              The best tools to support your job application journey
+            </h3>
           </div>
         </Col>
 
