@@ -61,7 +61,7 @@ const Footer = () => {
         }}
       ></div>
       <Container>
-        <div className="footer-top py-3 py-lg-4 pt-lg-5">
+        <div className="footer-top py-4 py-lg-4 pt-lg-5">
           <Row className="g-4 g-lg-5">
             <Col lg={7} xl={8}>
               <Row className="g-4">
@@ -136,7 +136,7 @@ const Footer = () => {
             <Col
               lg={5}
               xl={4}
-              className="mt-5 mt-lg-0 animate-on-scroll"
+              className="mt-0 mt-lg-0 animate-on-scroll"
               style={{ animationDelay: "500ms", paddingTop: "30px" }}
             >
               <div className="newsletter-box">
@@ -202,7 +202,7 @@ const Footer = () => {
 
         <div className="footer-bottom py-3 py-lg-4">
           <p className="mb-0 text-center">
-            Frontend React Typescript - Series Nest.JS Basic &copy; Hỏi Dân IT{" "}
+            JobHunter Cơ hội việc làm, chỉ một cú click! &copy; President SOS Nu{" "}
             {new Date().getFullYear()}. All rights reserved.
           </p>
         </div>

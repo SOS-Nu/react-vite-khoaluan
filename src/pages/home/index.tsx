@@ -3,6 +3,7 @@ import styles from "styles/client.module.scss";
 import SearchClient from "@/components/client/search.client";
 import JobCard from "@/components/client/card/job.card";
 import CompanyCard from "@/components/client/card/company.card";
+import ManageCV from "@/components/client/card/management.card";
 
 const HomePage = () => {
   return (
@@ -11,12 +12,12 @@ const HomePage = () => {
         <SearchClient />
       </div>
       <Divider />
-
-      <CompanyCard />
+      <ManageCV />
       <div style={{ margin: 50 }}></div>
       <Divider />
 
       <JobCard />
+      <Divider />
     </div>
   );
 };

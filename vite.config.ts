@@ -40,6 +40,7 @@ export default defineConfig(({ command, mode }) => {
         config: `${path.resolve(__dirname, "./src/config/")}`,
         pages: `${path.resolve(__dirname, "./src/pages/")}`,
         assets: `${path.resolve(__dirname, "./src/assets/")}`,
+        helpers: `${path.resolve(__dirname, "./src/helpers/")}`,
       },
     },
     assetsInclude: ["**/*.xlsx", "**/*.csv"], ///cho phep dowload file excel
