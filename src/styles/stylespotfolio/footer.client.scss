@@ -5,6 +5,8 @@
   border-top: 1px solid var(--border-hero-right);
   color: var(--text-white);
   font-size: 14px;
+  position: relative; // Đảm bảo footer là container định vị
+  overflow: hidden; // Ngăn ảnh nền tràn ra ngoài
 
   .footer-top {
     border-bottom: 1px solid var(--border-hero-right);
@@ -39,6 +41,12 @@
             color: var(--brand-social);
           }
         }
+      }
+    }
+    // Tùy chỉnh cho mobile
+    @media (max-width: 767px) {
+      .footer-background {
+        background-size: contain; // Điều chỉnh cho màn hình nhỏ
       }
     }
   }

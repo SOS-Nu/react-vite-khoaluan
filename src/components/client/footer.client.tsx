@@ -11,6 +11,7 @@ import {
   FaGooglePlay,
 } from "react-icons/fa";
 import { FaApple } from "react-icons/fa6";
+import bg from "assets/section.svg";
 
 const footerLinks = {
   about: {
@@ -38,14 +39,29 @@ const Footer = () => {
   // Sử dụng hook useInView để theo dõi footer
   const { ref, inView } = useInView({
     triggerOnce: true, // Chỉ chạy animation một lần
-    threshold: 0.5, // Kích hoạt khi 10% của footer hiện ra
+    threshold: 0.4, // Kích hoạt khi 10% của footer hiện ra
   });
 
   return (
     // Gắn `ref` và thêm class `is-visible` khi footer trong tầm nhìn
     <footer ref={ref} className={`site-footer ${inView ? "is-visible" : ""}`}>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500, // Khớp với chiều cao footer
+          position: "absolute",
+          top: 0,
+          left: 0,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover", // Hoặc "contain" tùy thuộc vào ảnh
+          backgroundPosition: "center", // Căn giữa ảnh
+          zIndex: 0, // Đặt dưới tất cả nội dung
+          pointerEvents: "none", // Không chặn sự kiện chuột
+        }}
+      ></div>
       <Container>
-        <div className="footer-top py-3 py-lg-5">
+        <div className="footer-top py-3 py-lg-4 pt-lg-5">
           <Row className="g-4 g-lg-5">
             <Col lg={7} xl={8}>
               <Row className="g-4">
@@ -121,7 +137,7 @@ const Footer = () => {
               lg={5}
               xl={4}
               className="mt-5 mt-lg-0 animate-on-scroll"
-              style={{ animationDelay: "500ms" }}
+              style={{ animationDelay: "500ms", paddingTop: "30px" }}
             >
               <div className="newsletter-box">
                 <Form>

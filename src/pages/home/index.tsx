@@ -11,9 +11,11 @@ const HomePage = () => {
         <SearchClient />
       </div>
       <Divider />
+
       <CompanyCard />
       <div style={{ margin: 50 }}></div>
       <Divider />
+
       <JobCard />
     </div>
   );
