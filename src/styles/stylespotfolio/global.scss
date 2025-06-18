@@ -20,6 +20,8 @@
 @use "./variable.scss";
 @use "./footer.client.scss";
 @use "./search.client.scss";
+@use "./notification.scss";
+
 * {
   margin: 0;
   padding: 0;
@@ -255,7 +257,7 @@ body {
   height: 55px;
   background-color: #222831;
   position: fixed;
-  z-index: 9999;
+  z-index: 100;
 
   .brand {
     display: flex;

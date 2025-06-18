@@ -47,7 +47,7 @@ const SearchClient = () => {
   };
 
   // Hàm xử lý khi tìm kiếm
-  const onFinish = async (values) => {
+  const onFinish = async (values: any) => {
     const { searchQuery, location } = values;
 
     // Xử lý tìm kiếm bằng AI
@@ -248,7 +248,21 @@ const SearchClient = () => {
               <div className="search-input-wrapper">
                 <div className="custom-input-group">
                   <Select
-                    mode="multiple"
+                    showSearch
+                    filterOption={(input, option) =>
+                      // Logic tìm kiếm: Chuyển cả chuỗi nhập và tên địa điểm về chữ thường, bỏ dấu rồi so sánh
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .includes(
+                          input
+                            .toLowerCase()
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")
+                        )
+                    }
+                    notFoundContent="Không tìm thấy"
                     allowClear
                     showArrow
                     placeholder="Địa Điểm"

@@ -307,6 +307,19 @@
       gap: 8px; // Khoảng cách giữa icon và text
     }
   }
+
+  // --- CSS MỚI CHO CHỮ "KHÔNG TÌM THẤY" ---
+  .ant-select-item-empty {
+    // Ví dụ 1: Đổi màu chữ và in nghiêng (phổ biến nhất)
+    color: var(--text-white); // Đổi thành màu xám nhạt
+    font-style: bold;
+    font-size: 14px;
+
+    // Ví dụ 2: Hoặc làm chữ đậm hơn
+    // font-weight: 500;
+
+    // Bạn có thể thêm bất kỳ thuộc tính CSS cho text nào bạn muốn ở đây
+  }
 }
 
 //css cho chữ ở mobile trong thanh search tìm kiếm việc làm chữ bự
@@ -327,5 +340,36 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+.location-select-standalone {
+  // ... (giữ nguyên tất cả các style cũ của bạn cho class này) ...
+
+  /* --- CSS MỚI ĐỂ LÀM NÚT XÓA TO HƠN --- */
+  .ant-select-clear {
+    // 1. Tăng kích thước font của icon 'x'
+    font-size: 16px; // <-- Bạn có thể chỉnh giá trị này to/nhỏ hơn tùy ý
+    display: none !important;
+    // 2. Tăng kích thước của cả vùng bấm cho dễ tương tác
+    width: 30px;
+    height: 30px;
+
+    // 3. Căn lại vị trí sau khi tăng kích thước
+    // Giá trị margin-top = - (một nửa của height) để nó nằm chính giữa theo chiều dọc
+    margin-top: -15px;
+
+    // 4. (Tùy chọn) Thêm hiệu ứng khi di chuột vào cho đẹp
+    border-radius: 50%; // Bo tròn
+    transition: background-color 0.2s ease;
+
+    // Dùng flexbox để căn icon 'x' vào chính giữa vùng bấm
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08); // Thêm một lớp nền mờ khi hover
+    }
   }
 }
