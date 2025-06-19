@@ -17,6 +17,7 @@
   --capra-ramp-5: #b25aff; /* Màu mới */
 }
 $light-theme: (
+  text-tilte-newjob: black,
   background-dropdown-search: white,
   background-input-search: #e3dddd,
   background-file-search: #bd21b8,
@@ -66,6 +67,7 @@ $dark-theme: (
   border-input-search: #3e3e3e,
   text-color-nobackground:
     "linear-gradient(to right, transparent, #ec4899, #8b5cf6, transparent)",
+  text-tilte-newjob: #ff4da6,
   text-title-managecv: linear-gradient(
       -45deg,
       var(--capra-ramp-2) 10%,
