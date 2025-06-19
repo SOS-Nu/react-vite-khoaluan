@@ -51,7 +51,7 @@ const ManageCV = () => {
                 style={{ textDecoration: "none" }}
               >
                 <GlowCard identifier={`experience-${experience.id}`}>
-                  <div className="p-3 relative">
+                  <div className="p-0 pt-3 p-md-3 relative">
                     {theme === "dark" && (
                       <img
                         style={{

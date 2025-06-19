@@ -17,7 +17,7 @@ export const EXPERIENCES = [
     id: 1,
     title: {
       vi: "Giúp tiếp cận CV với nhà tuyển dụng",
-      en: "Help approach CV to Recruiter",
+      en: "help recruiters reach you quickly and easily",
     },
     company: {
       vi: "AI sẽ kết nối bạn với các nhà tuyển dụng hàng đầu",
@@ -37,7 +37,7 @@ export const EXPERIENCES = [
 
     company: {
       vi: "Công ty F (freelancer)",
-      en: "AI will connect your online resume.",
+      en: "AI will connect your online resume .",
     },
     duration: {
       vi: "Tháng 6/2022 - Tháng 1/2024",

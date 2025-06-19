@@ -181,3 +181,28 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .glow-card {
+    /* Vô hiệu hóa hiệu ứng hover */
+    transition: none;
+    /* Đặt lại border để không thay đổi khi hover */
+    border-color: var(--border-hero-right);
+    padding: 0px;
+  }
+
+  .glow-card:hover,
+  .glow-card:focus-visible {
+    /* Đảm bảo không có thay đổi khi hover/focus trên mobile */
+    z-index: unset;
+    border-color: var(--border-hero-right);
+  }
+
+  .glows,
+  .glow-card::before,
+  .glow-card::after {
+    /* Tắt hiệu ứng glow */
+    opacity: 0 !important;
+    transition: none;
+  }
+}
