@@ -26,6 +26,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { callFindJobsByAI } from "@/config/api"; // Giả sử bạn đã tạo hàm này
 import Typewriter from "typewriter-effect";
+import { useTranslation } from "react-i18next";
 
 // Import file SCSS
 const { Option } = Select;
@@ -34,6 +35,7 @@ const SearchClient = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
+  const { t } = useTranslation();
 
   // State mới để quản lý loại tìm kiếm
   const [searchType, setSearchType] = useState("job"); // 'job', 'company', 'ai'
@@ -216,6 +218,11 @@ const SearchClient = () => {
           form={form}
           onFinish={onFinish}
           submitter={{ render: () => <></> }}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              form.submit(); // Trigger submit khi nhấn Enter
+            }
+          }}
         >
           <Row gutter={[16, 16]} align="middle">
             {/* 1. Ô tìm kiếm chính (kết hợp) */}

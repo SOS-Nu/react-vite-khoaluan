@@ -14,12 +14,11 @@ import styles from "styles/client.module.scss";
 import { sfIn } from "spring-filter-query-builder";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import GlowCard from "components/share/glowcard/glow-card";
+import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
 import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/new-badge-orange.png";
 import { BsGeoAlt, BsCurrencyDollar } from "react-icons/bs";
-
 dayjs.extend(relativeTime);
 
 interface IProps {
@@ -83,6 +82,11 @@ const JobCard = (props: IProps) => {
     setPageSize(pageSize);
   };
 
+  // Danh sách skills cố định
+  const skills = ["Java", "Spring", "JavaScript", "React", "MySQL", "MongoDB"];
+  // Tên công ty cố định
+  const companyName = "TechCorp";
+
   return (
     <div className={`${styles["card-job-section"]}`}>
       <div className={`${styles["job-content"]}`}>
@@ -109,12 +113,11 @@ const JobCard = (props: IProps) => {
                       to="job"
                       style={{ textDecoration: "none", padding: "0px" }}
                     >
-                      {" "}
                       <Button
                         className="search-action-button"
                         style={{ padding: "0px" }}
                       >
-                        Xem tất cả{" "}
+                        Xem tất cả
                       </Button>
                     </Link>
                   </Col>
@@ -123,13 +126,13 @@ const JobCard = (props: IProps) => {
             </Col>
 
             {displayJob?.map((item) => (
-              <Col xs={12} md={6} key={item.id}>
+              <Col xs={12} md={4} key={item.id}>
                 <Link
                   to={`/job/${convertSlug(item.name)}?id=${item.id}`}
                   style={{ textDecoration: "none" }}
                 >
-                  <GlowCard identifier={`job-${item.id}`}>
-                    <div className="p-0 pt-3 p-md-3 position-relative">
+                  <SimpleGlowCard identifier={`job-${item.id}`}>
+                    <div className="p-0 pt-2 p-md-2 position-relative">
                       {theme === "dark" && (
                         <img
                           style={{
@@ -157,6 +160,7 @@ const JobCard = (props: IProps) => {
                                   }
                                 : { color: "#000" }),
                               fontWeight: 600,
+                              marginBottom: "0.5rem",
                             }}
                           >
                             {item.name}
@@ -169,43 +173,48 @@ const JobCard = (props: IProps) => {
                             <img
                               src={upload3}
                               alt="Wave icon"
-                              style={{ width: "24px", height: "24px" }}
+                              style={{ width: "20px", height: "20px" }}
                             />
                           </span>
                         </div>
-                        <div className="details">
+                        <div className="details" style={{ padding: "0.5rem" }}>
                           <div className="icon">
                             <img
                               alt="company logo"
                               src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.company?.logo}`}
                               style={{
-                                width: "36px",
-                                height: "36px",
+                                width: "80px",
+                                height: "80px",
                                 objectFit: "cover",
+                                borderRadius: "20px",
                               }}
+                              // className="pe-1 pe-md-0"
                             />
                           </div>
                           <div className="info">
                             <p
-                              className="title"
+                              className="company"
                               style={{
                                 color: theme === "dark" ? "#ccc" : "#666",
+                                fontSize: "0.875rem",
+                                marginBottom: "0.25rem",
                               }}
                             >
-                              {item.updatedAt
-                                ? dayjs(item.updatedAt).locale("en").fromNow()
-                                : dayjs(item.createdAt).locale("en").fromNow()}
+                              Công ty: {companyName}
                             </p>
+
                             <p
                               className="company"
                               style={{
                                 color: theme === "dark" ? "#ccc" : "#666",
+                                fontSize: "0.875rem",
+                                marginBottom: "0.25rem",
                               }}
                             >
                               <BsGeoAlt
                                 style={{
                                   color: theme === "dark" ? "#58aaab" : "#000",
-                                  marginRight: "8px",
+                                  marginRight: "6px",
                                 }}
                               />
                               {getLocationName(item.location)}
@@ -214,12 +223,16 @@ const JobCard = (props: IProps) => {
                               className="company"
                               style={{
                                 color: theme === "dark" ? "#ccc" : "#666",
+                                fontSize: "0.875rem",
+                                marginBottom: "0.25rem",
                               }}
                             >
                               <BsCurrencyDollar
                                 style={{
                                   color: theme === "dark" ? "orange" : "#000",
-                                  marginRight: "8px",
+                                  marginRight: "6px",
+                                  fontSize: "0.875rem",
+                                  gap: "1",
                                 }}
                               />
                               {(item.salary + "").replace(
@@ -228,11 +241,59 @@ const JobCard = (props: IProps) => {
                               )}{" "}
                               đ
                             </p>
+                            <p
+                              className="time"
+                              style={{
+                                color: theme === "dark" ? "#ccc" : "#666",
+                                fontSize: "0.875rem",
+                                marginBottom: "0.25rem",
+                              }}
+                            >
+                              {item.updatedAt
+                                ? dayjs(item.updatedAt).locale("en").fromNow()
+                                : dayjs(item.createdAt).locale("en").fromNow()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="skills" style={{ padding: "0.5rem" }}>
+                          <p
+                            style={{
+                              color: theme === "dark" ? "#ccc" : "#666",
+                              fontSize: "0.875rem",
+                              marginBottom: "0.5rem",
+                              fontWeight: 500,
+                            }}
+                          >
+                            Kỹ năng yêu cầu:
+                          </p>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "1rem",
+                            }}
+                          >
+                            {skills.map((skill, index) => (
+                              <span
+                                key={index}
+                                style={{
+                                  backgroundColor:
+                                    theme === "dark" ? "#333" : "#f0f0f0",
+                                  color: theme === "dark" ? "#fff" : "#333",
+                                  padding: "0.2rem 0.4rem",
+                                  borderRadius: "0.2rem",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {skill}
+                              </span>
+                            ))}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </GlowCard>
+                  </SimpleGlowCard>
                 </Link>
               </Col>
             ))}
