@@ -18,6 +18,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import { message } from "antd";
 import logojobhunter from "assets/logojobhunter.png";
 import "styles/stylespotfolio/global.scss";
+import levannguyen from "assets/levannguyen.jpg";
 
 // Define props type
 interface HeaderProps {
@@ -232,7 +233,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                         </span> */}
                         {/* avatar user */}
                         <img
-                          src={logojobhunter}
+                          src={levannguyen}
                           alt="user avatar"
                           className="avatar"
                         />

@@ -5,6 +5,9 @@ import JobCard from "@/components/client/card/job.card";
 import CompanyCard from "@/components/client/card/company.card";
 import ManageCV from "@/components/client/card/management.card";
 import bg from "assets/section.svg";
+import Banner from "@/components/client/introduction/banner";
+import Partners from "@/components/client/introduction/partner";
+import Introduction from "@/components/client/introduction/introduction";
 
 const HomePage = () => {
   return (
@@ -12,6 +15,9 @@ const HomePage = () => {
       <div className="search-content" style={{ marginTop: 20 }}>
         <SearchClient />
       </div>
+
+      <Partners />
+      <Introduction />
       <ManageCV />
       <JobCard />
       {/* <div style={{ margin: 50 }}></div> */}
@@ -20,6 +26,7 @@ const HomePage = () => {
       <Divider />
       <CompanyCard />
       <Divider />
+      <Banner />
     </div>
   );
 };
