@@ -17,7 +17,7 @@ const HomePage = () => {
       </div>
 
       <Partners />
-      <Introduction />
+
       <ManageCV />
       <JobCard />
       {/* <div style={{ margin: 50 }}></div> */}
@@ -26,6 +26,7 @@ const HomePage = () => {
       <Divider />
       <CompanyCard />
       <Divider />
+      <Introduction />
       <Banner />
     </div>
   );

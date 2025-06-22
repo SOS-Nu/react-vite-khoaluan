@@ -3,6 +3,8 @@ import { useCurrentApp } from "components/context/app.context";
 import { isMobile } from "react-device-detect";
 import { Link } from "react-router-dom";
 import styles from "styles/client.module.scss";
+import AnimationLottie from "@/components/share/glowcard/animation-lottie";
+import { CONTACT_LOTTIE } from "@/assets/lottie/string/contact";
 
 const Banner = () => {
   const { theme } = useCurrentApp();
@@ -11,15 +13,12 @@ const Banner = () => {
     <div
       className={`${styles["banner-section"]}`}
       style={{
-        background:
-          theme === "dark"
-            ? "linear-gradient(to right, #0d1224, #0a0d37)"
-            : "linear-gradient(to right, #fff, #eee)",
-        padding: isMobile ? "2rem 1rem" : "4rem 2rem",
+        padding: isMobile ? "1.5rem 1rem" : "0rem 1rem",
         borderRadius: "1rem",
         marginBottom: "2rem",
         position: "relative",
         overflow: "hidden",
+        minHeight: isMobile ? "auto" : "400px", // Đảm bảo chiều cao đủ cho animation
       }}
     >
       <Container>
@@ -31,15 +30,18 @@ const Banner = () => {
                 fontWeight: 700,
                 color: theme === "dark" ? "#fff" : "#000",
                 marginBottom: "1rem",
+                lineHeight: "1.2",
               }}
             >
-              Tìm Việc Làm Mơ Ước Với TechCorp
+              Tìm Việc Làm Mơ Ước Với{" "}
+              <span className="brand-red">JobHunter</span>
             </h1>
             <p
               style={{
                 fontSize: isMobile ? "0.875rem" : "1rem",
                 color: theme === "dark" ? "#ccc" : "#666",
                 marginBottom: "1.5rem",
+                lineHeight: "1.5",
               }}
             >
               Khám phá hàng ngàn cơ hội việc làm từ các công ty hàng đầu. Bắt
@@ -55,23 +57,41 @@ const Banner = () => {
                   padding: isMobile ? "0.5rem 1rem" : "0.75rem 1.5rem",
                   fontSize: isMobile ? "0.875rem" : "1rem",
                   fontWeight: 600,
+                  borderRadius: "0.5rem",
                 }}
               >
                 Tìm Việc Ngay
               </Button>
             </Link>
           </Col>
-          <Col xs={12} md={6} className="text-center">
-            <img
-              src="https://via.placeholder.com/300x200?text=Banner+Image"
-              alt="Banner illustration"
+          <Col
+            xs={12}
+            md={6}
+            className="d-flex flex-column align-items-center justify-content-center"
+            style={{
+              padding: isMobile ? "1rem 0" : "2rem 0",
+              minHeight: isMobile ? "200px" : "300px", // Đảm bảo không gian cho animation
+            }}
+          >
+            <AnimationLottie
+              width={isMobile ? "80%" : "60%"} // Tăng kích thước để cân đối
+              animationPath={JSON.parse(CONTACT_LOTTIE)}
               style={{
-                maxWidth: "100%",
-                height: "auto",
-                borderRadius: "0.75rem",
-                opacity: theme === "dark" ? 0.9 : 1,
+                maxWidth: "400px", // Giới hạn để tránh quá lớn trên desktop
+                marginBottom: "0.5rem",
               }}
             />
+            <h4
+              style={{
+                fontSize: isMobile ? "1rem" : "1.25rem",
+                fontWeight: 500,
+                color: theme === "dark" ? "#ccc" : "#666",
+                textAlign: "center",
+                marginTop: "0.5rem",
+              }}
+            >
+              Khám Phá Ngay!
+            </h4>
           </Col>
         </Row>
       </Container>

@@ -12,6 +12,7 @@ import {
   ISkill,
   ISubscribers,
   IResponseImport,
+  IDashboardData,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -36,7 +37,6 @@ export const callRegister = (
     address,
   });
 };
-
 
 export const callLogin = (username: string, password: string) => {
   return axios.post<IBackendRes<IAccount>>("/api/v1/auth/login", {
@@ -381,4 +381,8 @@ export const callFetchSubscriber = (query: string) => {
 
 export const callFetchSubscriberById = (id: string) => {
   return axios.get<IBackendRes<ISubscribers>>(`/api/v1/subscribers/${id}`);
+};
+
+export const callGetDashboard = () => {
+  return axios.get<IBackendRes<IDashboardData>>("/api/v1/dashboard");
 };

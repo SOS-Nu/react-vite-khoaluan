@@ -186,3 +186,10 @@ export interface ISubscribers {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface IDashboardData {
+  totalUsers: number;
+  totalCompanies: number;
+  totalJobs: number;
+  totalResumesApproved: number; // Thêm key mới
+}

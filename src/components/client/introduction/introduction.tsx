@@ -1,4 +1,4 @@
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { useCurrentApp } from "components/context/app.context";
 import { isMobile } from "react-device-detect";
 import styles from "styles/client.module.scss";
@@ -13,32 +13,75 @@ import {
   Legend,
 } from "chart.js";
 import CountUp from "react-countup";
+import { useState, useEffect, useRef } from "react";
+import { IDashboardData } from "@/types/backend";
+import { callGetDashboard } from "@/config/api";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const Introduction = () => {
   const { theme } = useCurrentApp();
+  const [isVisible, setIsVisible] = useState(false);
+  const chartRef = useRef<HTMLDivElement>(null);
 
-  // Hard-coded data for stats and chart
+  const [dashboardData, setDashboardData] = useState<IDashboardData | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await callGetDashboard();
+        if (res && res.data) {
+          setDashboardData(res.data);
+        }
+      } catch (error) {
+        console.error("API Call Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && chartRef.current) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.2 }
+      );
+      observer.observe(chartRef.current);
+
+      return () => {
+        if (chartRef.current) {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          observer.unobserve(chartRef.current);
+        }
+      };
+    }
+  }, [isLoading]);
+
   const stats = {
-    jobs: 10000,
-    companies: 500,
-    users: 100000,
-    successfulUsers: 5000,
+    jobs: dashboardData?.totalJobs ?? 0,
+    companies: dashboardData?.totalCompanies ?? 0,
+    users: dashboardData?.totalUsers ?? 0,
+    successfulUsers: dashboardData?.totalResumesApproved ?? 0,
   };
 
   const chartData = {
-    labels: ["Công việc", "Công ty", "Người dùng", "Người tìm được việc"],
+    labels: ["Công việc", "Công ty", "Người dùng", "Hồ sơ duyệt"],
     datasets: [
       {
         label: "Thống kê",
         data: [stats.jobs, stats.companies, stats.users, stats.successfulUsers],
-        backgroundColor: [
-          "#28a745", // Xanh lá cây (Công việc)
-          "#ec4899", // Hồng (Công ty)
-          "#58aaab", // Xanh lam (Người dùng)
-          "#ff9100", // Cam (Người tìm được việc)
-        ],
+        backgroundColor: ["#28a745", "#ec4899", "#58aaab", "#ff9100"],
         borderColor: theme === "dark" ? "#1f1f1f" : "#fff",
         borderWidth: 1,
       },
@@ -55,9 +98,7 @@ const Introduction = () => {
           color: theme === "dark" ? "#ccc" : "#666",
           font: { size: isMobile ? 10 : 12 },
         },
-        grid: {
-          color: theme === "dark" ? "#3e3e3e" : "#e0e0e0",
-        },
+        grid: { color: theme === "dark" ? "#3e3e3e" : "#e0e0e0" },
       },
       x: {
         ticks: {
@@ -90,21 +131,34 @@ const Introduction = () => {
         },
       },
     },
-    animation: {
-      duration: 2000,
-      easing: "easeOutQuad",
-    },
+    animation: { duration: 2000, easing: "easeOutQuad" },
   };
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          minHeight: "400px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
+  }
 
   return (
     <div
       className={`${styles["introduction-section"]}`}
       style={{
-        padding: isMobile ? "2rem 1rem" : "3rem 2rem",
+        padding: isMobile ? "2rem 1rem" : "2rem 0rem",
         backgroundColor: theme === "dark" ? "#101123" : "#f8f9fa",
         borderRadius: "1rem",
         marginBottom: "2rem",
-        animation: "fadeIn 1s ease-in-out",
+        animation: isVisible ? "fadeIn 1s ease-in-out" : "none",
+        minHeight: "400px",
       }}
     >
       <Container>
@@ -118,7 +172,7 @@ const Introduction = () => {
                 marginBottom: "1rem",
               }}
             >
-              Về TechCorp
+              Về <span className="brand-red">JobHunter </span>
             </h2>
             <p
               style={{
@@ -127,9 +181,10 @@ const Introduction = () => {
                 marginBottom: "1.5rem",
               }}
             >
-              TechCorp là nền tảng tuyển dụng hàng đầu, kết nối hàng ngàn ứng
-              viên với các cơ hội việc làm từ những công ty uy tín. Hãy tham gia
-              ngay để xây dựng sự nghiệp mơ ước!
+              <span className="brand-red">JobHunter</span> là nền tảng tuyển
+              dụng hàng đầu, kết nối hàng ngàn ứng viên với các cơ hội việc làm
+              từ những công ty uy tín. Hãy bắt đầu hành trình sự nghiệp của bạn
+              ngay hôm nay!
             </p>
             <Row className="g-3">
               <Col xs={6} sm={3}>
@@ -140,28 +195,34 @@ const Introduction = () => {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      height: isMobile ? "80px" : "100px",
-                      minHeight: isMobile ? "80px" : "100px",
+                      height: isMobile ? "100px" : "120px",
+                      minHeight: isMobile ? "100px" : "120px",
                     }}
                   >
                     <p
                       style={{
                         fontSize: isMobile ? "1.25rem" : "1.5rem",
                         fontWeight: 600,
-                        color: theme === "dark" ? "#28a745" : "#28a745",
+                        color: "#28a745",
                         marginBottom: "0.25rem",
                       }}
                     >
-                      <CountUp end={stats.jobs} duration={2.5} separator="," />
+                      {isVisible ? (
+                        <CountUp
+                          end={stats.jobs}
+                          duration={2.5}
+                          separator=","
+                        />
+                      ) : (
+                        "0"
+                      )}
                     </p>
                     <p
                       style={{
                         fontSize: isMobile ? "0.75rem" : "0.875rem",
                         color: theme === "dark" ? "#ccc" : "#666",
                         marginBottom: 0,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        lineHeight: "1.2",
                       }}
                     >
                       Công việc
@@ -177,32 +238,34 @@ const Introduction = () => {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      height: isMobile ? "80px" : "100px",
-                      minHeight: isMobile ? "80px" : "100px",
+                      height: isMobile ? "100px" : "120px",
+                      minHeight: isMobile ? "100px" : "120px",
                     }}
                   >
                     <p
                       style={{
                         fontSize: isMobile ? "1.25rem" : "1.5rem",
                         fontWeight: 600,
-                        color: theme === "dark" ? "#ec4899" : "#ec4899",
+                        color: "#ec4899",
                         marginBottom: "0.25rem",
                       }}
                     >
-                      <CountUp
-                        end={stats.companies}
-                        duration={2.5}
-                        separator=","
-                      />
+                      {isVisible ? (
+                        <CountUp
+                          end={stats.companies}
+                          duration={2.5}
+                          separator=","
+                        />
+                      ) : (
+                        "0"
+                      )}
                     </p>
                     <p
                       style={{
                         fontSize: isMobile ? "0.75rem" : "0.875rem",
                         color: theme === "dark" ? "#ccc" : "#666",
                         marginBottom: 0,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        lineHeight: "1.2",
                       }}
                     >
                       Công ty
@@ -218,28 +281,34 @@ const Introduction = () => {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      height: isMobile ? "80px" : "100px",
-                      minHeight: isMobile ? "80px" : "100px",
+                      height: isMobile ? "100px" : "120px",
+                      minHeight: isMobile ? "100px" : "120px",
                     }}
                   >
                     <p
                       style={{
                         fontSize: isMobile ? "1.25rem" : "1.5rem",
                         fontWeight: 600,
-                        color: theme === "dark" ? "#58aaab" : "#58aaab",
+                        color: "#58aaab",
                         marginBottom: "0.25rem",
                       }}
                     >
-                      <CountUp end={stats.users} duration={2.5} separator="," />
+                      {isVisible ? (
+                        <CountUp
+                          end={stats.users}
+                          duration={2.5}
+                          separator=","
+                        />
+                      ) : (
+                        "0"
+                      )}
                     </p>
                     <p
                       style={{
                         fontSize: isMobile ? "0.75rem" : "0.875rem",
                         color: theme === "dark" ? "#ccc" : "#666",
                         marginBottom: 0,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        lineHeight: "1.2",
                       }}
                     >
                       Người dùng
@@ -255,52 +324,57 @@ const Introduction = () => {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      height: isMobile ? "80px" : "100px",
-                      minHeight: isMobile ? "80px" : "100px",
+                      height: isMobile ? "100px" : "120px",
+                      minHeight: isMobile ? "100px" : "120px",
                     }}
                   >
                     <p
                       style={{
                         fontSize: isMobile ? "1.25rem" : "1.5rem",
                         fontWeight: 600,
-                        color: theme === "dark" ? "#ff9100" : "#ff9100",
+                        color: "#ff9100",
                         marginBottom: "0.25rem",
                       }}
                     >
-                      <CountUp
-                        end={stats.successfulUsers}
-                        duration={2.5}
-                        separator=","
-                      />
+                      {isVisible ? (
+                        <CountUp
+                          end={stats.successfulUsers}
+                          duration={2.5}
+                          separator=","
+                        />
+                      ) : (
+                        "0"
+                      )}
                     </p>
                     <p
                       style={{
                         fontSize: isMobile ? "0.75rem" : "0.875rem",
                         color: theme === "dark" ? "#ccc" : "#666",
                         marginBottom: 0,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        lineHeight: "1.2",
                       }}
                     >
-                      Người tìm được việc
+                      Hồ sơ duyệt
                     </p>
                   </div>
                 </SimpleGlowCard>
               </Col>
             </Row>
           </Col>
-          <Col xs={12} md={6} className="text-center">
+          <Col xs={12} md={6} className="text-center mt-4 mt-md-0">
             <div
+              ref={chartRef}
               style={{
                 position: "relative",
-                height: isMobile ? "200px" : "300px",
+                height: isMobile ? "250px" : "300px",
                 maxWidth: "100%",
                 margin: "0 auto",
-                animation: "scaleUp 1s ease-in-out",
+                animation: isVisible ? "scaleUp 1s ease-in-out" : "none",
               }}
             >
-              <Bar data={chartData} options={chartOptions} />
+              {isVisible && (
+                <Bar key="chart" data={chartData} options={chartOptions} />
+              )}
             </div>
           </Col>
         </Row>
