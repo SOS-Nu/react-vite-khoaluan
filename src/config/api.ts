@@ -26,7 +26,8 @@ export const callRegister = (
   password: string,
   age: number,
   gender: string,
-  address: string
+  address: string,
+  otpCode: string // Thêm tham số otpCode
 ) => {
   return axios.post<IBackendRes<IUser>>("/api/v1/auth/register", {
     name,
@@ -35,7 +36,15 @@ export const callRegister = (
     age,
     gender,
     address,
+    otpCode, // Gửi kèm otpCode
   });
+};
+
+/**
+ * Gửi mã OTP đến email người dùng
+ */
+export const callSendOtp = (email: string) => {
+  return axios.post("/api/v1/auth/register/send-otp", { email });
 };
 
 export const callLogin = (username: string, password: string) => {

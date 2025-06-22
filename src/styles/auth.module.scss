@@ -105,8 +105,9 @@
 [data-bs-theme="dark"] {
   .google-login-btn {
     // Trong theme dark, chúng ta sẽ cho nền tối và chữ sáng
-
-    color: black; // Chữ trắng
+    background-color: #424242; // Một màu xám tối
+    color: #ffffff; // Chữ trắng
+    border-color: #555 !important;
 
     &:hover {
       background-color: #505050; // Hơi sáng lên một chút khi hover

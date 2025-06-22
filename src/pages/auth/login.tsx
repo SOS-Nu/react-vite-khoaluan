@@ -1,11 +1,9 @@
 // src/pages/auth/login.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-
-// 1. Bỏ <GoogleLogin>, thêm hook useGoogleLogin
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 
 import {
   Container,
@@ -16,7 +14,7 @@ import {
   InputGroup,
 } from "react-bootstrap";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
-import { FcGoogle } from "react-icons/fc"; // Thêm icon Google cho đẹp
+import { FcGoogle } from "react-icons/fc";
 import { message, notification } from "antd";
 
 import styles from "styles/auth.module.scss";
@@ -24,6 +22,7 @@ import { callLogin, callLoginWithGoogle } from "@/config/api";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
 
 const LoginPage = () => {
+  const googleLoginRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [isSubmit, setIsSubmit] = useState(false);
   const dispatch = useAppDispatch();
@@ -36,33 +35,37 @@ const LoginPage = () => {
   const params = new URLSearchParams(location.search);
   const callback = params.get("callback");
 
+  // ===> TỐI ƯU HÓA <===
   useEffect(() => {
     if (isAuthenticated) {
-      window.location.href = "/";
+      // Dùng navigate để chuyển trang, không gây reload lại trang
+      navigate(callback || "/");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate, callback]); // Thêm các dependency cần thiết
 
   const onFinish = async (event: React.FormEvent<HTMLFormElement>) => {
-    // ... (logic onFinish giữ nguyên)
-  };
+    event.preventDefault(); // Ngăn hành vi mặc định của form
+    setIsSubmit(true);
+    const form = event.currentTarget;
+    const username = (form.elements.namedItem("username") as HTMLInputElement)
+      .value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
 
-  // 2. Khởi tạo hook useGoogleLogin
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      console.log(tokenResponse);
-      // Xử lý logic sau khi đăng nhập Google thành công
-      // Ví dụ: gửi access_token đến backend của bạn để xác thực
-      // và nhận về JWT token của hệ thống
-      // callLoginWithGoogle(tokenResponse.access_token).then(res => ...);
-      message.success("Đăng nhập Google thành công!");
-    },
-    onError: () => {
+    const res = await callLogin(username, password);
+    setIsSubmit(false);
+    if (res?.data) {
+      localStorage.setItem("access_token", res.data.access_token);
+      dispatch(setUserLoginInfo(res.data.user));
+      message.success("Đăng nhập thành công");
+      navigate(callback || "/");
+    } else {
       notification.error({
-        message: "Đăng nhập Google thất bại",
-        description: "Đã có lỗi xảy ra trong quá trình đăng nhập với Google.",
+        message: "Có lỗi xảy ra",
+        description: res.message,
       });
-    },
-  });
+    }
+  };
 
   return (
     <div
@@ -72,7 +75,6 @@ const LoginPage = () => {
         <Card.Body>
           <h2 className="text-center fw-bold mb-4">Đăng Nhập</h2>
           <Form onSubmit={onFinish}>
-            {/* ... Form.Group cho email và password giữ nguyên ... */}
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -119,16 +121,75 @@ const LoginPage = () => {
             <hr className="flex-grow-1" />
           </div>
 
-          {/* ================================================================ */}
-          {/* ====> 3. THAY THẾ <GoogleLogin> BẰNG NÚT BUTTON TÙY CHỈNH <==== */}
           <Button
             className={`w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 ${styles["google-login-btn"]}`}
-            onClick={() => loginWithGoogle()}
+            onClick={() => {
+              if (googleLoginRef.current) {
+                // Tìm phần tử có thể click được bên trong
+                const clickableElement =
+                  googleLoginRef.current.querySelector<HTMLElement>(
+                    '[role="button"]'
+                  );
+
+                if (clickableElement) {
+                  console.log(
+                    "Tìm thấy phần tử có thể click, đang click...",
+                    clickableElement
+                  );
+                  clickableElement.click();
+                } else {
+                  console.error(
+                    "Không tìm thấy phần tử Google Login có thể click được bên trong ref."
+                  );
+                }
+              }
+            }}
           >
             <FcGoogle size={22} />
             Đăng nhập với Google
           </Button>
-          {/* ================================================================ */}
+
+          <div ref={googleLoginRef} style={{ display: "none" }}>
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                if (credentialResponse.credential) {
+                  try {
+                    const res = await callLoginWithGoogle(
+                      credentialResponse.credential
+                    );
+                    if (res?.data) {
+                      localStorage.setItem(
+                        "access_token",
+                        res.data.access_token
+                      );
+                      dispatch(setUserLoginInfo(res.data.user));
+                      message.success("Đăng nhập bằng Google thành công!");
+                      // navigate đã được gọi trong useEffect nên không cần gọi lại ở đây
+                    } else {
+                      notification.error({
+                        message: "Đăng nhập thất bại",
+                        description:
+                          res?.message ?? "Có lỗi xảy ra, vui lòng thử lại.",
+                      });
+                    }
+                  } catch (error) {
+                    notification.error({
+                      message: "Đăng nhập thất bại",
+                      description:
+                        "Có lỗi xảy ra trong quá trình xác thực với máy chủ.",
+                    });
+                  }
+                }
+              }}
+              onError={() => {
+                notification.error({
+                  message: "Đăng nhập Google thất bại",
+                  description:
+                    "Không thể kết nối với Google. Vui lòng thử lại.",
+                });
+              }}
+            />
+          </div>
 
           <p className="text-center mt-4">
             Chưa có tài khoản?{" "}
