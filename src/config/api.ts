@@ -387,8 +387,8 @@ export const callGetDashboard = () => {
   return axios.get<IBackendRes<IDashboardData>>("/api/v1/dashboard");
 };
 
-export const callLoginWithGoogle = (googleToken: string) => {
+export const callLoginWithGoogle = (credential: string) => {
   return axios.post<IBackendRes<IAccount>>("/api/v1/auth/google", {
-    credential: googleToken, // Gửi access_token dưới key 'credential' như backend yêu cầu
+    credential,
   });
 };
