@@ -132,7 +132,7 @@ const Introduction = () => {
       },
     },
     animation: { duration: 2000, easing: "easeOutQuad" },
-  };
+  } as const;
 
   if (isLoading) {
     return (

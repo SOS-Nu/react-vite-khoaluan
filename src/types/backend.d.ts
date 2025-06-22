@@ -18,20 +18,36 @@ export interface IModelPaginate<T> {
 export interface IAccount {
   access_token: string;
   user: {
-    id: string;
+    id: string | number;
     email: string;
     name: string;
     role: {
-      id: string;
+      id: string | number;
       name: string;
+      description?: string;
+      active: boolean;
+      createdAt?: string;
+      updatedAt?: string | null;
+      createdBy?: string;
+      updatedBy?: string | null;
       permissions: {
-        id: string;
+        id: string | number;
         name: string;
         apiPath: string;
         method: string;
         module: string;
+        createdAt?: string;
+        updatedAt?: string | null;
+        createdBy?: string;
+        updatedBy?: string | null;
       }[];
     };
+    company: {
+      id?: string | number;
+      name?: string;
+      logo?: string;
+    } | null;
+    vip: boolean;
   };
 }
 

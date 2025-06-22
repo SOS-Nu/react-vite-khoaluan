@@ -256,7 +256,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   </NavDropdown>
                 ) : (
                   <>
-                    <Nav.Link as={Link} to="/login">
+                    <Nav.Link as={Link} to="/login?callback=/recruiter">
                       Nhà Tuyển Dụng
                     </Nav.Link>
                     <Nav.Link as={Link} to="/login">

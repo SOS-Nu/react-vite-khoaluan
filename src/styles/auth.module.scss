@@ -1,188 +1,115 @@
-$color-white: #ffffff;
-$color-light: #f1f5f9;
-$color-black: #121212;
-$color-night: #001632;
+/* styles/auth.bootstrap.module.scss */
 
-$color-red: #f44336;
-$color-blue: #1a73e8;
-$color-gray: #80868b;
-$color-grayish: #dadce0;
+// Lớp cha để áp dụng các biến CSS toàn cục
+.login-page-bootstrap {
+  // Bootstrap đã tự xử lý màu nền và chữ thông qua thuộc tính [data-bs-theme]
+  // trên thẻ <html> mà bạn đã có. Chúng ta không cần định nghĩa lại ở đây.
+  // background-color: var(--background-body);
+}
 
-$shadow-normal:
-  0 1px 3px 0 rgba(0, 0, 0, 0.1),
-  0 1px 2px 0 rgba(0, 0, 0, 0.06);
-$shadow-medium:
-  0 4px 6px -1px rgba(0, 0, 0, 0.1),
-  0 2px 4px -1px rgba(0, 0, 0, 0.06);
-$shadow-large:
-  0 10px 15px -3px rgba(0, 0, 0, 0.1),
-  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+// "Nhuộm màu" cho Card đăng nhập
+.login-card {
+  width: 100%;
+  max-width: 450px; // Giới hạn chiều rộng
+  background-color: var(--glow-card-background) !important;
+  color: var(--text-white) !important;
+  border: 1px solid var(--border-hero-right) !important;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 
-.login-page,
-.register-page {
-  color: $color-black;
-  background: $color-light;
+  // Ghi đè màu chữ của Card.Title, Card.Text nếu cần
+  h2,
+  .form-label,
+  p {
+    color: var(--text-white) !important;
+  }
+}
 
-  // Components
-  .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 80rem;
-    min-height: 100vh;
-    // width: 100%;
-    padding: 0 2rem;
-    margin: 0 auto;
+// "Nhuộm màu" cho các ô Input
+.login-card .form-control {
+  background-color: var(--background-body);
+  color: var(--text-white);
+  border: 1px solid var(--border-hero-right);
+  padding: 0.75rem 1.25rem;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out; // Thêm transition cho mượt
+
+  // Xử lý màu sắc khi focus vào input
+  &:focus {
+    // Thêm !important vào 2 dòng dưới đây
+    border-color: var(--brand-social) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-social-rgb), 0.25) !important;
+    outline: 0;
   }
 
-  .text {
-    font-family: inherit;
-    line-height: inherit;
-    text-transform: unset;
-    text-rendering: optimizeLegibility;
+  // Màu cho placeholder text
+  &::placeholder {
+    color: #888;
+  }
+}
 
-    &-large {
-      font-size: 2rem;
-      font-weight: 600;
-      color: $color-black;
-    }
+// "Nhuộm màu" cho nút Primary
+:global(.btn-primary) {
+  // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
+  background: var(--resize-button) !important;
+  border: none !important;
+  transition: opacity 0.3s ease;
+  padding: 0.75rem;
 
-    &-normal {
-      font-size: 1rem;
-      font-weight: 400;
-      color: $color-black;
-    }
-
-    &-links {
-      font-size: 1rem;
-      font-weight: 400;
-      color: $color-blue;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+  &:hover {
+    opacity: 0.9;
   }
 
-  // Main
-  .main {
-    .wrapper {
-      max-width: 28rem;
-      width: 100%;
-      margin: 2rem auto;
-      padding: 2rem 2.5rem;
-      border: none;
-      outline: none;
-      border-radius: 0.5rem;
-      color: $color-black;
-      background: $color-white;
-      box-shadow: $shadow-large;
+  &:disabled {
+    background: var(--resize-button) !important;
+    opacity: 0.65;
+  }
+}
 
-      .form {
-        width: 100%;
-        height: auto;
-        margin-top: 2rem;
+// "Nhuộm màu" cho đường kẻ
+.login-card hr {
+  border-top: 1px solid var(--border-hero-right);
+}
 
-        .input-control {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 1.25rem;
-        }
+// "Nhuộm màu" cho link Đăng Ký
+.register-link {
+  color: var(--brand-social) !important;
+  font-weight: 600;
+  text-decoration: none;
 
-        .input-field {
-          font-family: inherit;
-          font-size: 1rem;
-          font-weight: 400;
-          line-height: inherit;
-          width: 100%;
-          height: auto;
-          padding: 0.75rem 1.25rem;
-          border: none;
-          outline: none;
-          border-radius: 2rem;
-          color: $color-black;
-          background: $color-light;
-          text-transform: unset;
-          text-rendering: optimizeLegibility;
-        }
+  &:hover {
+    text-decoration: underline;
+  }
+}
 
-        .input-submit {
-          font-family: inherit;
-          font-size: 1rem;
-          font-weight: 500;
-          line-height: inherit;
-          cursor: pointer;
-          min-width: 40%;
-          height: auto;
-          padding: 0.65rem 1.25rem;
-          border: none;
-          outline: none;
-          border-radius: 2rem;
-          color: $color-white;
-          background: $color-blue;
-          box-shadow: $shadow-medium;
-          text-transform: capitalize;
-          text-rendering: optimizeLegibility;
-        }
-      }
+// Để sử dụng được biến --brand-social-rgb, bạn cần thêm nó vào file variable.scss.
+// Ví dụ: --brand-social: #ec4899; -> --brand-social-rgb: 236, 72, 153;
 
-      .striped {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        margin: 1rem 0;
+// Thêm vào cuối file
+// Style cho nút đăng nhập với Google tùy chỉnh
+.google-login-btn {
+  background-color: #ffffff; // Nền trắng cho light mode
+  color: #333; // Chữ đen cho light mode
+  border: 1px solid var(--border-input-search) !important; // Dùng border của theme
+  transition: background-color 0.3s ease;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 
-        &-line {
-          flex: auto;
-          flex-basis: auto;
-          border: none;
-          outline: none;
-          height: 2px;
-          background: $color-grayish;
-        }
+  &:hover {
+    background-color: #f8f9fa; // Hơi xám một chút khi hover
+  }
+}
 
-        &-text {
-          font-family: inherit;
-          font-size: 1rem;
-          font-weight: 500;
-          line-height: inherit;
-          color: $color-black;
-          margin: 0 1rem;
-        }
-      }
+// Tự động đổi màu khi ở Dark Theme
+[data-bs-theme="dark"] {
+  .google-login-btn {
+    // Trong theme dark, chúng ta sẽ cho nền tối và chữ sáng
 
-      .method {
-        &-control {
-          margin-bottom: 1rem;
-        }
+    color: black; // Chữ trắng
 
-        &-action {
-          font-family: inherit;
-          font-size: 0.95rem;
-          font-weight: 500;
-          line-height: inherit;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 100%;
-          height: auto;
-          padding: 0.35rem 1.25rem;
-          outline: none;
-          border: 2px solid $color-grayish;
-          border-radius: 2rem;
-          color: $color-black;
-          background: $color-white;
-          text-transform: capitalize;
-          text-rendering: optimizeLegibility;
-          transition: all 0.35s ease;
-
-          &:hover {
-            background: $color-light;
-          }
-        }
-      }
+    &:hover {
+      background-color: #505050; // Hơi sáng lên một chút khi hover
     }
   }
 }

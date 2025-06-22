@@ -33,6 +33,7 @@ import JobTabs from "./pages/admin/job/job.tabs";
 import { App as AntdApp } from "antd";
 
 import { AppContextProvider } from "./components/context/app.context";
+import RecruiterPage from "./pages/recruiter";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,6 +90,14 @@ export default function App() {
         { path: "job/:id", element: <ClientJobDetailPage /> },
         { path: "company", element: <ClientCompanyPage /> },
         { path: "company/:id", element: <ClientCompanyDetailPage /> },
+        {
+          path: "recruiter",
+          element: (
+            <ProtectedRoute>
+              <RecruiterPage />
+            </ProtectedRoute>
+          ),
+        },
         // { path: "chat", element: <ChatPage /> },
       ],
     },
