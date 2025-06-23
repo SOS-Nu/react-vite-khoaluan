@@ -250,6 +250,18 @@ export const callFetchJob = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IJob>>>(`/api/v1/jobs?${query}`);
 };
 
+export const callFindJobsByAI = (formData: FormData) => {
+  return axios<IBackendRes<{ jobs: { score: number; job: IJob }[] }>>({
+    method: "post",
+    url: "/api/v1/gemini/find-jobs",
+    data: formData,
+    headers: {
+      // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 export const callFetchJobById = (id: string) => {
   return axios.get<IBackendRes<IJob>>(`/api/v1/jobs/${id}`);
 };

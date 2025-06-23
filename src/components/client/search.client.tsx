@@ -1,5 +1,3 @@
-// SearchClient.js
-
 import {
   Button,
   Col,
@@ -9,125 +7,122 @@ import {
   notification,
   Input,
   Upload,
-  Tag,
 } from "antd";
 import {
-  EnvironmentOutlined,
-  MonitorOutlined,
-  UploadOutlined,
-  FileTextOutlined,
   SearchOutlined,
   ApartmentOutlined,
+  FileTextOutlined,
+  UploadOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
 import { LOCATION_LIST } from "@/config/utils";
 import { ProForm } from "@ant-design/pro-components";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { callFindJobsByAI } from "@/config/api"; // Giả sử bạn đã tạo hàm này
+// BƯỚC 1: Import thêm useState
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { callFindJobsByAI } from "@/config/api";
 import Typewriter from "typewriter-effect";
-import { useTranslation } from "react-i18next";
+import styles from "styles/client.module.scss";
 
-// Import file SCSS
 const { Option } = Select;
 
 const SearchClient = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [form] = Form.useForm();
-  const { t } = useTranslation();
+  const [searchType, setSearchType] = useState("job");
+  const [fileList, setFileList] = useState<any[]>([]);
 
-  // State mới để quản lý loại tìm kiếm
-  const [searchType, setSearchType] = useState("job"); // 'job', 'company', 'ai'
-  const [fileList, setFileList] = useState([]);
+  // BƯỚC 2: Tạo state để quản lý trạng thái loading của nút bấm
+  const [isLoading, setIsLoading] = useState(false);
 
-  const optionsLocations = LOCATION_LIST;
-
-  const handleRemoveFile = () => {
-    setFileList([]);
-    return false; // Ngăn chặn hành vi mặc định
-  };
-
-  // Hàm xử lý khi tìm kiếm
   const onFinish = async (values: any) => {
-    const { searchQuery, location } = values;
+    // Bật loading ngay khi bắt đầu xử lý
+    setIsLoading(true);
 
-    // Xử lý tìm kiếm bằng AI
-    if (searchType === "ai") {
-      if (!searchQuery && fileList.length === 0) {
-        notification.error({
-          message: "Lỗi",
-          description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
-        });
+    try {
+      const { searchQuery, location } = values;
+
+      if (searchType === "ai") {
+        if (!searchQuery && fileList.length === 0) {
+          notification.error({
+            message: "Lỗi",
+            description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
+          });
+          return; // Nhớ return để dừng hàm
+        }
+
+        const formData = new FormData();
+        formData.append(
+          "skillsDescription",
+          searchQuery ||
+            "Tôi muốn tìm việc theo CV mà tôi đã upload lên với kỹ năng của tôi."
+        );
+        if (fileList.length > 0 && fileList[0].originFileObj) {
+          formData.append("file", fileList[0].originFileObj);
+        }
+
+        const res = await callFindJobsByAI(formData);
+        if (res && res.data && res.data.jobs) {
+          const jobIds = res.data.jobs.map((item: any) => item.job.id);
+          if (jobIds.length > 0) {
+            const query = `filter=id in (${jobIds.join(",")})`;
+            navigate(`/job?${query}`);
+          } else {
+            notification.info({ message: "Không tìm thấy công việc phù hợp." });
+            navigate(`/job?filter=id in (0)`);
+          }
+        }
+        return; // Dừng hàm sau khi xử lý xong
+      }
+
+      let filterParts = [];
+      if (searchQuery) {
+        filterParts.push(`name~~'${searchQuery}'`);
+      }
+      if (location && location !== "tatca") {
+        filterParts.push(`location~'${location}'`);
+      }
+
+      if (filterParts.length === 0) {
+        // Nếu không có query, vẫn điều hướng đến trang job mặc định
+        if (searchType === "job") navigate("/job");
+        if (searchType === "company") navigate("/company");
         return;
       }
 
-      const formData = new FormData();
-      formData.append(
-        "skillsDescription",
-        searchQuery ||
-          "Tôi muốn tìm việc theo CV mà tôi đã upload lên với kỹ năng của tôi."
-      );
-      if (fileList.length > 0) {
-        formData.append("file", fileList[0].originFileObj);
-      }
+      const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc`;
 
-      try {
-        // Giả sử bạn có hàm callFindJobsByAI để gọi API
-        // const res = await callFindJobsByAI(formData);
-        // if (res && res.data) {
-        //   // Xử lý kết quả trả về, ví dụ điều hướng đến trang kết quả với dữ liệu
-        //   navigate("/ai-results", { state: { jobs: res.data.result } });
-        // }
-        notification.success({
-          message: "Đã gửi yêu cầu tìm kiếm bằng AI",
-          description:
-            "API endpoint: /api/v1/gemini/find-jobs. Body: FormData chứa skillsDescription và file.",
-        });
-        console.log("Calling AI API with FormData:", {
-          skillsDescription: formData.get("skillsDescription"),
-          file: formData.get("file"),
-        });
-      } catch (error) {
-        notification.error({
-          message: "Có lỗi xảy ra",
-          description: "Không thể thực hiện tìm kiếm bằng AI.",
-        });
-      }
-      return;
-    }
-
-    // Xử lý tìm kiếm công việc và công ty
-    let query = "";
-    if (searchQuery) {
       if (searchType === "job") {
-        // API: http://localhost:8080/api/v1/jobs?sort=id,desc&filter=name~~'java'
-        query = `filter=name~~'${searchQuery}'&sort=id,desc`;
         navigate(`/job?${query}`);
+      } else if (searchType === "company") {
+        navigate(`/company?${query}`);
       }
-      if (searchType === "company") {
-        // API: http://localhost:8080/api/v1/companies?current=1&pageSize=10&filter=name~'apple'&sort=name,desc
-        query = `filter=name~'${searchQuery}'&sort=name,desc`;
-        navigate(`/company?${query}`); // Điều hướng đến trang công ty
-      }
-    } else {
+    } catch (error) {
+      console.error("Search failed:", error);
       notification.error({
-        message: "Chưa có thông tin",
-        description: "Vui lòng nhập từ khóa tìm kiếm",
+        message: "Lỗi",
+        description: "Quá trình tìm kiếm đã xảy ra lỗi. Vui lòng thử lại.",
       });
+    } finally {
+      // Luôn tắt loading sau khi xử lý xong (kể cả khi có lỗi)
+      setIsLoading(false);
     }
   };
 
-  const handleUploadChange = ({ fileList }) => {
-    // Chỉ cho phép tải lên 1 file
+  // ... (các hàm khác giữ nguyên: handleUploadChange, handleRemoveFile, renderSearchInput)
+  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
     setFileList(fileList.slice(-1));
+  };
+
+  const handleRemoveFile = () => {
+    setFileList([]);
+    return false;
   };
 
   const renderSearchInput = () => {
     switch (searchType) {
       case "ai":
         return (
-          // Cấu trúc cho AI (giữ nguyên)
           <div className="ai-input-wrapper">
             <ProForm.Item name="searchQuery">
               <Input.TextArea
@@ -154,7 +149,7 @@ const SearchClient = () => {
                   fileList={fileList}
                   onChange={handleUploadChange}
                   beforeUpload={() => false}
-                  showUploadList={false} // Tắt danh sách mặc định
+                  showUploadList={false}
                   maxCount={1}
                 >
                   <Button icon={<UploadOutlined />} type="text">
@@ -167,7 +162,6 @@ const SearchClient = () => {
         );
       case "company":
         return (
-          // SỬA LỖI: Bọc trong cùng thẻ div với class "ai-input-wrapper"
           <div className="ai-input-wrapper">
             <ProForm.Item name="searchQuery">
               <Input
@@ -180,7 +174,6 @@ const SearchClient = () => {
       case "job":
       default:
         return (
-          // SỬA LỖI: Bọc trong cùng thẻ div với class "ai-input-wrapper"
           <div className="ai-input-wrapper">
             <ProForm.Item name="searchQuery">
               <Input
@@ -216,16 +209,16 @@ const SearchClient = () => {
         </Row>
         <ProForm
           form={form}
+          // Sửa onFinish để không cần gọi trực tiếp từ button nữa
           onFinish={onFinish}
           submitter={{ render: () => <></> }}
           onKeyPress={(e) => {
             if (e.key === "Enter") {
-              form.submit(); // Trigger submit khi nhấn Enter
+              form.submit();
             }
           }}
         >
           <Row gutter={[16, 16]} align="middle">
-            {/* 1. Ô tìm kiếm chính (kết hợp) */}
             <Col xs={24} md={17}>
               <div className="search-input-wrapper">
                 <Input.Group compact className="custom-input-group">
@@ -249,52 +242,49 @@ const SearchClient = () => {
                 </Input.Group>
               </div>
             </Col>
-
-            {/* 2. Ô tìm kiếm theo địa điểm */}
             <Col xs={24} md={4}>
               <div className="search-input-wrapper">
                 <div className="custom-input-group">
-                  <Select
-                    showSearch
-                    filterOption={(input, option) =>
-                      // Logic tìm kiếm: Chuyển cả chuỗi nhập và tên địa điểm về chữ thường, bỏ dấu rồi so sánh
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "")
-                        .includes(
-                          input
-                            .toLowerCase()
-                            .normalize("NFD")
-                            .replace(/[\u0300-\u036f]/g, "")
-                        )
-                    }
-                    notFoundContent="Không tìm thấy"
-                    allowClear
-                    showArrow
-                    placeholder="Địa Điểm"
-                    optionLabelProp="label"
-                    options={optionsLocations}
-                    // 2. Dùng class mới và bỏ các style/class không cần thiết
-                    className="location-select-standalone"
-                    dropdownClassName="search-type-dropdown"
-                    // 3. Giữ lại width 100% để antd hiểu là cần co giãn
-                    style={{
-                      width: "100%",
-
-                      paddingLeft: "6px",
-                    }}
-                  />
+                  <Form.Item name="location" noStyle>
+                    <Select
+                      showSearch
+                      filterOption={(input, option) =>
+                        (option?.label ?? "")
+                          .toLowerCase()
+                          .normalize("NFD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .includes(
+                            input
+                              .toLowerCase()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                          )
+                      }
+                      notFoundContent="Không tìm thấy"
+                      allowClear
+                      showArrow
+                      placeholder="Địa Điểm"
+                      optionLabelProp="label"
+                      options={LOCATION_LIST}
+                      className="location-select-standalone"
+                      dropdownClassName="search-type-dropdown"
+                      style={{
+                        width: "100%",
+                        paddingLeft: "6px",
+                      }}
+                    />
+                  </Form.Item>
                 </div>
               </div>
             </Col>
-
-            {/* 3. Nút Search */}
             <Col xs={24} md={3}>
+              {/* BƯỚC 3: Thêm prop `loading` và `htmlType` cho Button */}
               <Button
                 type="primary"
                 onClick={() => form.submit()}
                 className="search-action-button"
+                // Thêm prop loading
+                loading={isLoading}
               >
                 Tìm kiếm
               </Button>

@@ -124,7 +124,6 @@ export interface IJob {
   startDate: Date;
   endDate: Date;
   active: boolean;
-
   createdBy?: string;
   isDeleted?: boolean;
   deletedAt?: boolean | null;
