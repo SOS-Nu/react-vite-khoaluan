@@ -1,6 +1,5 @@
 import { convertSlug, getLocationName } from "@/config/utils";
 import { IJob } from "@/types/backend";
-import { Col, Row, Spin } from "antd";
 import { Link } from "react-router-dom";
 import styles from "styles/client.module.scss";
 import dayjs from "dayjs";
@@ -10,6 +9,8 @@ import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/new-badge-orange.png";
 import { BsGeoAlt, BsCurrencyDollar } from "react-icons/bs";
+import { Button, Col } from "react-bootstrap";
+import { isMobile } from "react-device-detect";
 
 dayjs.extend(relativeTime);
 
@@ -17,31 +18,60 @@ interface IProps {
   jobs: IJob[] | null;
   isLoading: boolean;
   title?: string;
+  showPagination?: boolean;
 }
 
 const JobCard = (props: IProps) => {
-  const { jobs, isLoading, title = "Danh sách công việc" } = props;
+  const {
+    jobs,
+    isLoading,
+    title = "Danh sách công việc",
+    showPagination,
+  } = props;
   const { theme } = useCurrentApp();
 
   return (
     <div className={`${styles["card-job-section"]}`}>
       <div className={`${styles["job-content"]}`}>
         {isLoading ? (
-          <div style={{ textAlign: "center", margin: "50px 0" }}>
-            <Spin size="large" />
+          <div className="text-center py-4">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
         ) : (
-          <Row gutter={[16, 24]}>
-            <Col xs={24}>
-              <div className={styles["dflex-pc"]}>
-                <span className={styles["title"]} id="job-tilte-new">
-                  {title}
-                </span>
-              </div>
-            </Col>
+          <div className="row g-4">
+            <div className="col-12 ">
+              <Col xs={12}>
+                <div
+                  className={
+                    isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
+                  }
+                >
+                  <span className={styles["title"]} id="company-title-new">
+                    {title}
+                  </span>
+                  {!showPagination && (
+                    <Col xs={24} md={2}>
+                      <Link
+                        to="company"
+                        style={{ textDecoration: "none", padding: "0px" }}
+                      >
+                        <Button
+                          className="search-action-button"
+                          style={{ padding: "0px" }}
+                        >
+                          Xem tất cả
+                        </Button>
+                      </Link>
+                    </Col>
+                  )}
+                </div>
+              </Col>
+            </div>
 
             {jobs?.map((item) => (
-              <Col xs={24} sm={12} md={8} key={item.id}>
+              <div className="col-12 col-sm-6 col-md-4" key={item.id}>
                 <Link
                   to={`/job/${convertSlug(item.name)}?id=${item.id}`}
                   style={{ textDecoration: "none" }}
@@ -208,15 +238,15 @@ const JobCard = (props: IProps) => {
                     </div>
                   </SimpleGlowCard>
                 </Link>
-              </Col>
+              </div>
             ))}
 
             {(!jobs || jobs.length === 0) && !isLoading && (
-              <Col xs={24} style={{ textAlign: "center", padding: "50px 0" }}>
+              <div className="col-12 text-center py-5">
                 <p>Không có dữ liệu hoặc không tìm thấy công việc phù hợp.</p>
-              </Col>
+              </div>
             )}
-          </Row>
+          </div>
         )}
       </div>
     </div>

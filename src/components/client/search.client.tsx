@@ -17,9 +17,10 @@ import {
 } from "@ant-design/icons";
 import { LOCATION_LIST } from "@/config/utils";
 import { ProForm } from "@ant-design/pro-components";
-// BƯỚC 1: Import thêm useState
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// BƯỚC 1: Import thêm useEffect
+import { useState, useEffect } from "react";
+// BƯỚC 2: Import thêm useSearchParams và useLocation để đọc URL
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { callFindJobsByAI } from "@/config/api";
 import Typewriter from "typewriter-effect";
 import styles from "styles/client.module.scss";
@@ -31,26 +32,55 @@ const SearchClient = () => {
   const [form] = Form.useForm();
   const [searchType, setSearchType] = useState("job");
   const [fileList, setFileList] = useState<any[]>([]);
-
-  // BƯỚC 2: Tạo state để quản lý trạng thái loading của nút bấm
   const [isLoading, setIsLoading] = useState(false);
 
+  // Khởi tạo các hook để đọc URL
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  // BƯỚC 3: Thêm useEffect để đồng bộ URL với Form
+  useEffect(() => {
+    // Lấy chuỗi filter từ URL
+    const filter = searchParams.get("filter");
+
+    // Xác định search type dựa trên đường dẫn URL
+    if (location.pathname.startsWith("/job")) {
+      setSearchType("job");
+    } else if (location.pathname.startsWith("/company")) {
+      setSearchType("company");
+    }
+
+    if (filter) {
+      // Dùng regex để trích xuất giá trị từ chuỗi filter
+      const nameMatch = filter.match(/name~'([^']*)'/);
+      const locationMatch = filter.match(/location~'([^']*)'/);
+
+      const searchQueryValue = nameMatch ? nameMatch[1] : null;
+      const locationValue = locationMatch ? locationMatch[1] : null;
+
+      // Dùng setFieldsValue để điền dữ liệu vào form
+      form.setFieldsValue({
+        searchQuery: searchQueryValue,
+        location: locationValue,
+      });
+    }
+  }, [searchParams, form, location.pathname]); // Chạy lại khi URL hoặc path thay đổi
+
   const onFinish = async (values: any) => {
-    // Bật loading ngay khi bắt đầu xử lý
     setIsLoading(true);
 
     try {
       const { searchQuery, location } = values;
 
       if (searchType === "ai") {
+        // ... logic AI giữ nguyên
         if (!searchQuery && fileList.length === 0) {
           notification.error({
             message: "Lỗi",
             description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
           });
-          return; // Nhớ return để dừng hàm
+          return;
         }
-
         const formData = new FormData();
         formData.append(
           "skillsDescription",
@@ -60,38 +90,29 @@ const SearchClient = () => {
         if (fileList.length > 0 && fileList[0].originFileObj) {
           formData.append("file", fileList[0].originFileObj);
         }
-
         const res = await callFindJobsByAI(formData);
         if (res && res.data && res.data.jobs) {
           const jobIds = res.data.jobs.map((item: any) => item.job.id);
-          if (jobIds.length > 0) {
-            const query = `filter=id in (${jobIds.join(",")})`;
-            navigate(`/job?${query}`);
-          } else {
-            notification.info({ message: "Không tìm thấy công việc phù hợp." });
-            navigate(`/job?filter=id in (0)`);
-          }
+          const query = `filter=id in (${jobIds.length > 0 ? jobIds.join(",") : "0"})`;
+          navigate(`/job?${query}`);
         }
-        return; // Dừng hàm sau khi xử lý xong
+        return;
       }
 
       let filterParts = [];
       if (searchQuery) {
-        filterParts.push(`name~~'${searchQuery}'`);
+        filterParts.push(`name~'${searchQuery}'`);
       }
       if (location && location !== "tatca") {
         filterParts.push(`location~'${location}'`);
       }
 
       if (filterParts.length === 0) {
-        // Nếu không có query, vẫn điều hướng đến trang job mặc định
         if (searchType === "job") navigate("/job");
         if (searchType === "company") navigate("/company");
         return;
       }
-
       const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc`;
-
       if (searchType === "job") {
         navigate(`/job?${query}`);
       } else if (searchType === "company") {
@@ -104,7 +125,6 @@ const SearchClient = () => {
         description: "Quá trình tìm kiếm đã xảy ra lỗi. Vui lòng thử lại.",
       });
     } finally {
-      // Luôn tắt loading sau khi xử lý xong (kể cả khi có lỗi)
       setIsLoading(false);
     }
   };
@@ -124,14 +144,14 @@ const SearchClient = () => {
       case "ai":
         return (
           <div className="ai-input-wrapper">
-            <ProForm.Item name="searchQuery">
+            <Form.Item name="searchQuery" noStyle>
               <Input.TextArea
                 placeholder="Nhập mô tả công việc bạn mong muốn, kỹ năng của bạn..."
                 rows={1}
                 bordered={false}
                 autoSize={{ minRows: 1, maxRows: 1 }}
               />
-            </ProForm.Item>
+            </Form.Item>
             <div className="ai-upload-container">
               {fileList.length > 0 ? (
                 <div className="custom-upload-item">
@@ -153,7 +173,8 @@ const SearchClient = () => {
                   maxCount={1}
                 >
                   <Button icon={<UploadOutlined />} type="text">
-                    Tải lên CV
+                    {" "}
+                    Tải lên CV{" "}
                   </Button>
                 </Upload>
               )}
@@ -163,24 +184,24 @@ const SearchClient = () => {
       case "company":
         return (
           <div className="ai-input-wrapper">
-            <ProForm.Item name="searchQuery">
+            <Form.Item name="searchQuery" noStyle>
               <Input
                 placeholder="Nhập tên công ty bạn quan tâm..."
                 bordered={false}
               />
-            </ProForm.Item>
+            </Form.Item>
           </div>
         );
       case "job":
       default:
         return (
           <div className="ai-input-wrapper">
-            <ProForm.Item name="searchQuery">
+            <Form.Item name="searchQuery" noStyle>
               <Input
                 placeholder="Nhập tên công việc, ví dụ: Java, Frontend, DevOps..."
                 bordered={false}
               />
-            </ProForm.Item>
+            </Form.Item>
           </div>
         );
     }
@@ -207,17 +228,7 @@ const SearchClient = () => {
             </h2>
           </Col>
         </Row>
-        <ProForm
-          form={form}
-          // Sửa onFinish để không cần gọi trực tiếp từ button nữa
-          onFinish={onFinish}
-          submitter={{ render: () => <></> }}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              form.submit();
-            }
-          }}
-        >
+        <Form form={form} onFinish={onFinish}>
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} md={17}>
               <div className="search-input-wrapper">
@@ -229,13 +240,16 @@ const SearchClient = () => {
                     dropdownClassName="search-type-dropdown"
                   >
                     <Option value="job">
-                      <SearchOutlined /> Tên Job
+                      {" "}
+                      <SearchOutlined /> Tên Job{" "}
                     </Option>
                     <Option value="company">
-                      <ApartmentOutlined /> Công ty
+                      {" "}
+                      <ApartmentOutlined /> Công ty{" "}
                     </Option>
                     <Option value="ai">
-                      <FileTextOutlined /> Dùng AI
+                      {" "}
+                      <FileTextOutlined /> Dùng AI{" "}
                     </Option>
                   </Select>
                   {renderSearchInput()}
@@ -268,29 +282,24 @@ const SearchClient = () => {
                       options={LOCATION_LIST}
                       className="location-select-standalone"
                       dropdownClassName="search-type-dropdown"
-                      style={{
-                        width: "100%",
-                        paddingLeft: "6px",
-                      }}
+                      style={{ width: "100%", paddingLeft: "6px" }}
                     />
                   </Form.Item>
                 </div>
               </div>
             </Col>
             <Col xs={24} md={3}>
-              {/* BƯỚC 3: Thêm prop `loading` và `htmlType` cho Button */}
               <Button
                 type="primary"
                 onClick={() => form.submit()}
                 className="search-action-button"
-                // Thêm prop loading
                 loading={isLoading}
               >
                 Tìm kiếm
               </Button>
             </Col>
           </Row>
-        </ProForm>
+        </Form>
       </div>
     </div>
   );
