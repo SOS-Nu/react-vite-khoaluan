@@ -209,7 +209,7 @@ const CompanyCard = (props: IProps) => {
                                   marginRight: "6px",
                                 }}
                               />
-                              {getLocationName(item.location)}
+                              {getLocationName(item?.location!)}
                             </p>
                             <div
                               className="total-job"

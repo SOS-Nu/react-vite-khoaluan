@@ -105,7 +105,7 @@ const JobCard = (props: IProps) => {
                                   }
                                 : { color: "#000" }),
                               fontWeight: 600,
-                              marginBottom: "0.5rem",
+                              marginBottom: "0.25rem",
                             }}
                           >
                             {item.name}
