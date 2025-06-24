@@ -17,11 +17,11 @@ import {
 } from "@ant-design/icons";
 import { LOCATION_LIST } from "@/config/utils";
 import { ProForm } from "@ant-design/pro-components";
-// BƯỚC 1: Import thêm useEffect
 import { useState, useEffect } from "react";
-// BƯỚC 2: Import thêm useSearchParams và useLocation để đọc URL
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { callFindJobsByAI } from "@/config/api";
+// BƯỚC 1: Bỏ import callFindJobsByAI, thay bằng import thunk và hook của Redux
+import { useAppDispatch } from "@/redux/hooks";
+import { findJobsByAI } from "@/redux/slice/jobSlide";
 import Typewriter from "typewriter-effect";
 import styles from "styles/client.module.scss";
 
@@ -33,17 +33,14 @@ const SearchClient = () => {
   const [searchType, setSearchType] = useState("job");
   const [fileList, setFileList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Khởi tạo các hook để đọc URL
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  // BƯỚC 3: Thêm useEffect để đồng bộ URL với Form
-  useEffect(() => {
-    // Lấy chuỗi filter từ URL
-    const filter = searchParams.get("filter");
+  // Khởi tạo dispatch
+  const dispatch = useAppDispatch();
 
-    // Xác định search type dựa trên đường dẫn URL
+  useEffect(() => {
+    const filter = searchParams.get("filter");
     if (location.pathname.startsWith("/job")) {
       setSearchType("job");
     } else if (location.pathname.startsWith("/company")) {
@@ -51,20 +48,16 @@ const SearchClient = () => {
     }
 
     if (filter) {
-      // Dùng regex để trích xuất giá trị từ chuỗi filter
       const nameMatch = filter.match(/name~'([^']*)'/);
       const locationMatch = filter.match(/location~'([^']*)'/);
-
       const searchQueryValue = nameMatch ? nameMatch[1] : null;
       const locationValue = locationMatch ? locationMatch[1] : null;
-
-      // Dùng setFieldsValue để điền dữ liệu vào form
       form.setFieldsValue({
         searchQuery: searchQueryValue,
         location: locationValue,
       });
     }
-  }, [searchParams, form, location.pathname]); // Chạy lại khi URL hoặc path thay đổi
+  }, [searchParams, form, location.pathname]);
 
   const onFinish = async (values: any) => {
     setIsLoading(true);
@@ -73,12 +66,12 @@ const SearchClient = () => {
       const { searchQuery, location } = values;
 
       if (searchType === "ai") {
-        // ... logic AI giữ nguyên
         if (!searchQuery && fileList.length === 0) {
           notification.error({
             message: "Lỗi",
             description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
           });
+          setIsLoading(false); // Nhớ tắt loading khi có lỗi
           return;
         }
         const formData = new FormData();
@@ -90,13 +83,16 @@ const SearchClient = () => {
         if (fileList.length > 0 && fileList[0].originFileObj) {
           formData.append("file", fileList[0].originFileObj);
         }
-        const res = await callFindJobsByAI(formData);
-        if (res && res.data && res.data.jobs) {
-          const jobIds = res.data.jobs.map((item: any) => item.job.id);
-          const query = `filter=id in (${jobIds.length > 0 ? jobIds.join(",") : "0"})`;
-          navigate(`/job?${query}`);
-        }
-        return;
+
+        // BƯỚC 2: Dispatch thunk findJobsByAI thay vì gọi API trực tiếp
+        // Redux sẽ tự gọi API và lưu kết quả vào store
+        await dispatch(findJobsByAI({ formData }));
+
+        // BƯỚC 3: Navigate tới trang job với tham số đặc biệt
+        // Để ClientJobPage biết không cần fetch lại dữ liệu
+        navigate("/job?search_type=ai");
+
+        return; // Kết thúc hàm tại đây
       }
 
       let filterParts = [];
@@ -106,7 +102,6 @@ const SearchClient = () => {
       if (location && location !== "tatca") {
         filterParts.push(`location~'${location}'`);
       }
-
       if (filterParts.length === 0) {
         if (searchType === "job") navigate("/job");
         if (searchType === "company") navigate("/company");
@@ -129,7 +124,7 @@ const SearchClient = () => {
     }
   };
 
-  // ... (các hàm khác giữ nguyên: handleUploadChange, handleRemoveFile, renderSearchInput)
+  // ...Phần render và các hàm khác giữ nguyên...
   const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
     setFileList(fileList.slice(-1));
   };

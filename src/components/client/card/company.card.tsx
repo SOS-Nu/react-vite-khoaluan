@@ -1,10 +1,8 @@
-import { callFetchCompany } from "@/config/api";
 import { convertSlug, getLocationName } from "@/config/utils";
 import { ICompany } from "@/types/backend";
-import { Button, Col, Row } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { Col, Row, Spin } from "antd"; // Sử dụng Spin của Antd
 import { isMobile } from "react-device-detect";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "styles/client.module.scss";
 import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
 import { useCurrentApp } from "components/context/app.context";
@@ -13,101 +11,49 @@ import upload3 from "assets/top-rated.png";
 import { BsGeoAlt, BsBriefcase, BsPeople } from "react-icons/bs";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+
 dayjs.extend(relativeTime);
 
+// Sửa lại props để nhận dữ liệu từ bên ngoài
 interface IProps {
-  showPagination?: boolean;
+  companies: ICompany[] | null;
+  isLoading: boolean;
+  title?: string;
 }
 
 const CompanyCard = (props: IProps) => {
-  const { showPagination = false } = props;
+  // Lấy dữ liệu từ props
+  const { companies, isLoading, title = "Nhà Tuyển Dụng Hàng Đầu" } = props;
   const { theme } = useCurrentApp();
 
-  const [displayCompany, setDisplayCompany] = useState<ICompany[] | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const [total, setTotal] = useState(0);
-  const [filter, setFilter] = useState("");
-  const [sortQuery, setSortQuery] = useState("sort=updatedAt,desc");
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchCompany();
-  }, [current, pageSize, filter, sortQuery]);
-
-  const fetchCompany = async () => {
-    setIsLoading(true);
-    let query = `page=${current}&size=${pageSize}`;
-    if (filter) {
-      query += `&${filter}`;
-    }
-    if (sortQuery) {
-      query += `&${sortQuery}`;
-    }
-
-    const res = await callFetchCompany(query);
-    if (res && res.data) {
-      setDisplayCompany(res.data.result);
-      setTotal(res.data.meta.total);
-    }
-    setIsLoading(false);
-  };
-
-  const handleOnchangePage = (page: number, pageSize: number) => {
-    setCurrent(page);
-    setPageSize(pageSize);
-  };
-
-  const handleViewDetailCompany = (item: ICompany) => {
-    if (item.name) {
-      const slug = convertSlug(item.name);
-      navigate(`/company/${slug}?id=${item.id}`);
-    }
-  };
+  // XÓA BỎ TOÀN BỘ LOGIC `useState` và `useEffect` fetch dữ liệu ở đây
 
   return (
     <div className={`${styles["company-section"]}`}>
       <div className={`${styles["company-content"]}`}>
         {isLoading ? (
-          <div className="text-center py-4">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+          <div style={{ textAlign: "center", margin: "50px 0" }}>
+            <Spin size="large" />
           </div>
         ) : (
-          <Row className="g-4">
-            <Col xs={12}>
+          <Row gutter={[24, 24]}>
+            <Col xs={24}>
               <div
                 className={
                   isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
                 }
               >
                 <span className={styles["title"]} id="company-title-new">
-                  Nhà Tuyển Dụng Hàng Đầu
+                  {title}
                 </span>
-                {!showPagination && (
-                  <Col xs={24} md={2}>
-                    <Link
-                      to="company"
-                      style={{ textDecoration: "none", padding: "0px" }}
-                    >
-                      <Button
-                        className="search-action-button"
-                        style={{ padding: "0px" }}
-                      >
-                        Xem tất cả
-                      </Button>
-                    </Link>
-                  </Col>
-                )}
               </div>
             </Col>
 
-            {displayCompany?.map((item) => (
-              <Col xs={12} md={4} key={item.id}>
+            {/* Sử dụng biến `companies` từ props */}
+            {companies?.map((item) => (
+              <Col xs={24} sm={12} md={8} key={item.id}>
                 <Link
-                  to={`/company/${convertSlug(item.name)}?id=${item.id}`}
+                  to={`/company/${convertSlug(item.name ?? "")}?id=${item.id}`}
                   style={{ textDecoration: "none" }}
                 >
                   <SimpleGlowCard identifier={`company-${item.id}`}>
@@ -166,7 +112,7 @@ const CompanyCard = (props: IProps) => {
                           <div className="icon">
                             <img
                               alt="company logo"
-                              src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.logo}`}
+                              src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${item?.logo}`}
                               style={{
                                 width: "140px",
                                 height: "140px",
@@ -190,7 +136,7 @@ const CompanyCard = (props: IProps) => {
                                   marginRight: "6px",
                                 }}
                               />
-                              Lĩnh vực: {item.field || "Công Nghệ Thông Tin"}
+                              Lĩnh vực: {item.field || "N/A"}
                             </p>
                             <p
                               className="company"
@@ -206,7 +152,7 @@ const CompanyCard = (props: IProps) => {
                                   marginRight: "6px",
                                 }}
                               />
-                              Quy mô: {item.scale || "100-500"}
+                              Quy mô: {item.scale || "N/A"}
                             </p>
                             <p
                               className="time"
@@ -267,7 +213,8 @@ const CompanyCard = (props: IProps) => {
                                 lineHeight: "1.2",
                               }}
                             >
-                              {item.totalJob || 10}
+                              {/* Sửa lại để lấy đúng trường totalJobs */}
+                              {item.totalJobs || 0}
                             </div>
                             <span
                               style={{
@@ -287,39 +234,18 @@ const CompanyCard = (props: IProps) => {
               </Col>
             ))}
 
-            {(!displayCompany || displayCompany.length === 0) && (
-              <Col xs={12} className="text-center">
-                <p>Không có dữ liệu</p>
+            {(!companies || companies.length === 0) && (
+              <Col
+                xs={24}
+                className="text-center"
+                style={{ padding: "50px 0" }}
+              >
+                <p>Không có dữ liệu công ty</p>
               </Col>
             )}
           </Row>
         )}
-        {showPagination && total > 0 && (
-          <Row className="mt-4">
-            <Col xs={12} className="d-flex justify-content-center">
-              <nav>
-                <ul className="pagination">
-                  {Array.from(
-                    { length: Math.ceil(total / pageSize) },
-                    (_, i) => (
-                      <li
-                        key={i}
-                        className={`page-item ${current === i + 1 ? "active" : ""}`}
-                      >
-                        <button
-                          className="page-link"
-                          onClick={() => handleOnchangePage(i + 1, pageSize)}
-                        >
-                          {i + 1}
-                        </button>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </nav>
-            </Col>
-          </Row>
-        )}
+        {/* XÓA BỎ PHẦN PAGINATION Ở ĐÂY, VÌ ĐÃ CHUYỂN LÊN TRANG CHA */}
       </div>
     </div>
   );

@@ -97,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     { label: t("appHeader.home"), key: "/", to: "/" },
     { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
     { label: "Tìm Công ty", key: "/company", to: "/company" },
-    { label: "Tạo CV Bởi AI", key: "/company", to: "/company", isNew: true },
+    { label: "Tạo CV Bởi AI", key: "/company", to: "/CVAI", isNew: true },
     {
       label: (
         <span>

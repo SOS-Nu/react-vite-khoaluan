@@ -64,6 +64,14 @@ export interface ICompany {
   deletedAt?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
+  field?: string;
+  website?: string;
+  scale?: string;
+  country?: string;
+  foundingYear?: number;
+  location?: string;
+  updatedBy?: string | null;
+  totalJobs?: number;
 }
 
 export interface ISkill {

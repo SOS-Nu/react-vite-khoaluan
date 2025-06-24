@@ -32,7 +32,7 @@ export const findJobsByAI = createAsyncThunk(
 );
 
 const initialState: IState = {
-  isFetching: true,
+  isFetching: false,
   meta: {
     page: 1,
     pageSize: 10,
@@ -50,6 +50,16 @@ export const jobSlide = createSlice({
     // Use the PayloadAction type to declare the contents of `action.payload`
     setActiveMenu: (state, action) => {
       // state.activeMenu = action.payload;
+    },
+    clearJobs: (state) => {
+      state.isFetching = false;
+      state.result = [];
+      state.meta = {
+        page: 1,
+        pageSize: 10,
+        pages: 0,
+        total: 0,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -111,6 +121,6 @@ export const jobSlide = createSlice({
   },
 });
 
-export const { setActiveMenu } = jobSlide.actions;
+export const { setActiveMenu, clearJobs } = jobSlide.actions;
 
 export default jobSlide.reducer;

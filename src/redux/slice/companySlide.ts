@@ -22,7 +22,7 @@ export const fetchCompany = createAsyncThunk(
 );
 
 const initialState: IState = {
-  isFetching: true,
+  isFetching: false,
   meta: {
     page: 1,
     pageSize: 10,
@@ -40,6 +40,16 @@ export const companySlide = createSlice({
     // Use the PayloadAction type to declare the contents of `action.payload`
     setActiveMenu: (state, action) => {
       // state.activeMenu = action.payload;
+    },
+    clearCompanies: (state) => {
+      state.isFetching = false;
+      state.result = [];
+      state.meta = {
+        page: 1,
+        pageSize: 10,
+        pages: 0,
+        total: 0,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -69,6 +79,6 @@ export const companySlide = createSlice({
   },
 });
 
-export const { setActiveMenu } = companySlide.actions;
+export const { setActiveMenu, clearCompanies } = companySlide.actions;
 
 export default companySlide.reducer;
