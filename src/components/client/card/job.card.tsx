@@ -60,6 +60,7 @@ const JobCard = (props: IProps) => {
                         <Button
                           className="search-action-button"
                           style={{ padding: "0px" }}
+                          variant="primary"
                         >
                           Xem tất cả
                         </Button>

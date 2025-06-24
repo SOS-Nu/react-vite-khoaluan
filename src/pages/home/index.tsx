@@ -41,7 +41,7 @@ const HomePage = () => {
         <SearchClient />
       </div>
 
-      <Partners />
+      {/* <Partners /> */}
 
       <ManageCV />
       <JobCard

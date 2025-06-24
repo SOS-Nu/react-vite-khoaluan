@@ -65,6 +65,7 @@ const ClientJobPage = () => {
             jobs={result}
             isLoading={isFetching}
             title="Kết Quả Tìm Kiếm"
+            showPagination={true}
           />
         </Col>
         <Col
