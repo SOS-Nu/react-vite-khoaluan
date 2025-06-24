@@ -61,6 +61,7 @@ const ClientCompanyPage = () => {
             companies={result}
             isLoading={isFetching}
             title="Danh sách công ty"
+            showPagination={true}
           />
         </Col>
 

@@ -54,7 +54,7 @@ const JobCard = (props: IProps) => {
                   {!showPagination && (
                     <Col xs={24} md={2}>
                       <Link
-                        to="company"
+                        to="job"
                         style={{ textDecoration: "none", padding: "0px" }}
                       >
                         <Button

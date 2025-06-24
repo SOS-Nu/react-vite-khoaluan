@@ -16,10 +16,8 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { LOCATION_LIST } from "@/config/utils";
-import { ProForm } from "@ant-design/pro-components";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-// BƯỚC 1: Bỏ import callFindJobsByAI, thay bằng import thunk và hook của Redux
 import { useAppDispatch } from "@/redux/hooks";
 import { findJobsByAI } from "@/redux/slice/jobSlide";
 import Typewriter from "typewriter-effect";
@@ -35,35 +33,43 @@ const SearchClient = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const location = useLocation();
-
-  // Khởi tạo dispatch
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const filter = searchParams.get("filter");
-    if (location.pathname.startsWith("/job")) {
-      setSearchType("job");
-    } else if (location.pathname.startsWith("/company")) {
-      setSearchType("company");
-    }
+    // CẬP NHẬT USEEFFECT ĐỂ ĐỌC CẢ THAM SỐ CỦA AI SEARCH
+    const searchTypeParam = searchParams.get("search_type");
+    const filterParam = searchParams.get("filter");
+    const promptParam = searchParams.get("prompt");
+    const locationParam = searchParams.get("location");
 
-    if (filter) {
-      const nameMatch = filter.match(/name~'([^']*)'/);
-      const locationMatch = filter.match(/location~'([^']*)'/);
+    if (searchTypeParam === "ai") {
+      // Trường hợp là AI Search
+      setSearchType("ai");
+      form.setFieldsValue({
+        searchQuery: promptParam,
+        location: locationParam,
+      });
+    } else if (filterParam) {
+      // Trường hợp là search thường
+      if (location.pathname.startsWith("/job")) setSearchType("job");
+      if (location.pathname.startsWith("/company")) setSearchType("company");
+
+      const nameMatch = filterParam.match(/name~'([^']*)'/);
+      const locationMatch = filterParam.match(/location~'([^']*)'/);
       const searchQueryValue = nameMatch ? nameMatch[1] : null;
-      const locationValue = locationMatch ? locationMatch[1] : null;
+      const savedLocationValue = locationMatch ? locationMatch[1] : null;
+
       form.setFieldsValue({
         searchQuery: searchQueryValue,
-        location: locationValue,
+        location: savedLocationValue,
       });
     }
   }, [searchParams, form, location.pathname]);
 
   const onFinish = async (values: any) => {
     setIsLoading(true);
-
     try {
-      const { searchQuery, location } = values;
+      const { searchQuery, location: locationValue } = values;
 
       if (searchType === "ai") {
         if (!searchQuery && fileList.length === 0) {
@@ -71,48 +77,62 @@ const SearchClient = () => {
             message: "Lỗi",
             description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
           });
-          setIsLoading(false); // Nhớ tắt loading khi có lỗi
+          setIsLoading(false);
           return;
         }
+
+        let promptText = searchQuery;
+        if (!promptText && fileList.length > 0) {
+          promptText = "Tìm công việc phù hợp dựa trên CV của tôi";
+        }
+
+        // Lưu lại prompt và location để tạo URL
+        const finalPrompt = promptText;
+
+        if (locationValue && locationValue !== "tatca") {
+          const locationObject = LOCATION_LIST.find(
+            (loc) => loc.value === locationValue
+          );
+          if (locationObject) {
+            promptText += ` ở ${locationObject.label}`;
+          }
+        }
+
         const formData = new FormData();
-        formData.append(
-          "skillsDescription",
-          searchQuery ||
-            "Tôi muốn tìm việc theo CV mà tôi đã upload lên với kỹ năng của tôi."
-        );
+        formData.append("skillsDescription", promptText);
         if (fileList.length > 0 && fileList[0].originFileObj) {
           formData.append("file", fileList[0].originFileObj);
         }
 
-        // BƯỚC 2: Dispatch thunk findJobsByAI thay vì gọi API trực tiếp
-        // Redux sẽ tự gọi API và lưu kết quả vào store
+        // CẬP NHẬT NAVIGATE ĐỂ LƯU LẠI GIÁ TRỊ TÌM KIẾM
+        const params = new URLSearchParams();
+        params.set("search_type", "ai");
+        if (finalPrompt) {
+          // Chỉ thêm prompt nếu có
+          params.set("prompt", finalPrompt);
+        }
+        if (locationValue) {
+          // Thêm cả location
+          params.set("location", locationValue);
+        }
+
         await dispatch(findJobsByAI({ formData }));
-
-        // BƯỚC 3: Navigate tới trang job với tham số đặc biệt
-        // Để ClientJobPage biết không cần fetch lại dữ liệu
-        navigate("/job?search_type=ai");
-
-        return; // Kết thúc hàm tại đây
+        navigate(`/job?${params.toString()}`);
+        return;
       }
 
       let filterParts = [];
-      if (searchQuery) {
-        filterParts.push(`name~'${searchQuery}'`);
-      }
-      if (location && location !== "tatca") {
-        filterParts.push(`location~'${location}'`);
-      }
+      if (searchQuery) filterParts.push(`name~'${searchQuery}'`);
+      if (locationValue && locationValue !== "tatca")
+        filterParts.push(`location~'${locationValue}'`);
       if (filterParts.length === 0) {
         if (searchType === "job") navigate("/job");
         if (searchType === "company") navigate("/company");
         return;
       }
       const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc`;
-      if (searchType === "job") {
-        navigate(`/job?${query}`);
-      } else if (searchType === "company") {
-        navigate(`/company?${query}`);
-      }
+      if (searchType === "job") navigate(`/job?${query}`);
+      if (searchType === "company") navigate(`/company?${query}`);
     } catch (error) {
       console.error("Search failed:", error);
       notification.error({
@@ -124,11 +144,8 @@ const SearchClient = () => {
     }
   };
 
-  // ...Phần render và các hàm khác giữ nguyên...
-  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
+  const handleUploadChange = ({ fileList }: { fileList: any[] }) =>
     setFileList(fileList.slice(-1));
-  };
-
   const handleRemoveFile = () => {
     setFileList([]);
     return false;
@@ -235,16 +252,13 @@ const SearchClient = () => {
                     dropdownClassName="search-type-dropdown"
                   >
                     <Option value="job">
-                      {" "}
-                      <SearchOutlined /> Tên Job{" "}
+                      <SearchOutlined /> Tên Job
                     </Option>
                     <Option value="company">
-                      {" "}
-                      <ApartmentOutlined /> Công ty{" "}
+                      <ApartmentOutlined /> Công ty
                     </Option>
                     <Option value="ai">
-                      {" "}
-                      <FileTextOutlined /> Dùng AI{" "}
+                      <FileTextOutlined /> Dùng AI
                     </Option>
                   </Select>
                   {renderSearchInput()}
@@ -284,11 +298,14 @@ const SearchClient = () => {
               </div>
             </Col>
             <Col xs={24} md={3}>
+              {/* CẬP NHẬT NÚT TÌM KIẾM */}
               <Button
                 type="primary"
-                onClick={() => form.submit()}
+                // Bỏ onClick vì Form sẽ tự xử lý
                 className="search-action-button"
                 loading={isLoading}
+                // Thêm htmlType="submit" để Form nhận diện Enter
+                htmlType="submit"
               >
                 Tìm kiếm
               </Button>

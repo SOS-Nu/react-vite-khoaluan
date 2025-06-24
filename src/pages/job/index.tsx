@@ -14,6 +14,12 @@ const ClientJobPage = () => {
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
+    if (searchParams.get("search_type") === "ai") {
+      // Đánh dấu là đã qua lần load đầu tiên để nếu người dùng
+      // thực hiện search thường ngay sau đó, logic sẽ chạy đúng
+      isInitialLoad.current = false;
+      return;
+    }
     const query = searchParams.toString();
 
     // BƯỚC 3: Áp dụng logic mới
