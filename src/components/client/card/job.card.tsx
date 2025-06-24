@@ -9,8 +9,9 @@ import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/new-badge-orange.png";
 import { BsGeoAlt, BsCurrencyDollar } from "react-icons/bs";
-import { Button, Col } from "react-bootstrap";
+import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
+import styles from "@/styles/client.module.scss";
 
 dayjs.extend(relativeTime);
 
@@ -48,9 +49,13 @@ const JobCard = (props: IProps) => {
           <div className="row g-4">
             {!isListPage && (
               <div className="col-12">
-                <Col xs={12}>
-                  <div className={isMobile ? "dflex-mobile" : "dflex-pc"}>
-                    <span className="title" id="company-title-new">
+                <Col xs={24}>
+                  <div
+                    className={
+                      isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
+                    }
+                  >
+                    <span className={styles["title"]} id="company-title-new">
                       {title}
                     </span>
                     {!showPagination && (
