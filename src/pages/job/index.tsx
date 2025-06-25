@@ -21,12 +21,21 @@ import SearchClient from "@/components/client/search.client";
 // KHÔNG CÒN IMPORT client.module.scss
 
 dayjs.extend(relativeTime);
+<<<<<<< HEAD
 
 const ClientJobPage = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+=======
+
+const ClientJobDetailPage = () => {
+  const [jobDetail, setJobDetail] = useState<IJob | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+>>>>>>> temp-branch
   const dispatch = useAppDispatch();
   const {
     result: jobList,
@@ -177,4 +186,4 @@ const ClientJobPage = () => {
   );
 };
 
-export default ClientJobPage;
+export default ClientJobDetailPage;
