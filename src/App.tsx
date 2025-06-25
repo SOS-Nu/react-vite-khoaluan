@@ -34,6 +34,7 @@ import { App as AntdApp } from "antd";
 
 import { AppContextProvider } from "./components/context/app.context";
 import RecruiterPage from "./pages/recruiter";
+import ScrollToTop from "./components/share/scroll.to.top";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,10 +45,11 @@ const LayoutClient = () => {
     if (rootRef && rootRef.current) {
       rootRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [location]);
+  }, []);
 
   return (
     <div className="layout-app" ref={rootRef}>
+      <ScrollToTop />
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <div>
         <div className={styles["content-app"]}>
@@ -87,7 +89,7 @@ export default function App() {
       children: [
         { index: true, element: <HomePage /> },
         { path: "job", element: <ClientJobPage /> },
-        { path: "job/:id", element: <ClientJobDetailPage /> },
+        // { path: "job/:id", element: <ClientJobDetailPage /> },
         { path: "company", element: <ClientCompanyPage /> },
         { path: "company/:id", element: <ClientCompanyDetailPage /> },
         {

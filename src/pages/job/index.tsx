@@ -1,35 +1,16 @@
-import { useEffect, useState } from "react";
+// src/pages/job/index.tsx
+
+import { useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IJob } from "@/types/backend";
-import { callFetchJobById } from "@/config/api";
-import parse from "html-react-parser";
-import { Divider, Skeleton, Tag, Pagination, Empty } from "antd";
-import {
-  DollarOutlined,
-  EnvironmentOutlined,
-  HistoryOutlined,
-  HomeOutlined,
-  TeamOutlined,
-  CalendarOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { getLocationName } from "@/config/utils";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import ApplyModal from "@/components/client/modal/apply.modal";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchJob } from "@/redux/slice/jobSlide";
-import JobCard from "@/components/client/card/job.card";
-import SearchClient from "@/components/client/search.client";
-import { useCurrentApp } from "@/components/context/app.context";
 
-dayjs.extend(relativeTime);
+import SearchClient from "@/components/client/search.client";
+import JobListPanel from "./JobListPanel";
+import JobDetailPanel from "./JobDetailPanel";
+import { Pagination } from "antd";
 
 const ClientJobPage = () => {
-  const [jobDetail, setJobDetail] = useState<IJob | null>(null);
-  const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const { theme } = useCurrentApp();
   const dispatch = useAppDispatch();
   const {
     result: jobList,
@@ -38,183 +19,65 @@ const ClientJobPage = () => {
   } = useAppSelector((state) => state.job);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const id = searchParams.get("id");
+
+  // Fetch danh sách job dựa trên URL (trừ param 'id')
+
+  // Lấy ra các giá trị query liên quan đến danh sách.
+  // Gán giá trị mặc định để đảm bảo chúng luôn là string và ổn định.
+  const filter = searchParams.get("filter") || "";
+  const page = searchParams.get("page") || "1";
+  const size = searchParams.get("size") || "10";
+  // Bạn có thể thêm các param khác như sort, skills,... nếu có
 
   useEffect(() => {
-    const query = searchParams.toString().replace(`id=${id}`, "");
-    dispatch(fetchJob({ query: query || "sort=updatedAt,desc&size=10" }));
-  }, [searchParams, dispatch]);
+    // Chỉ xây dựng query từ các biến đã được trích xuất ở trên
+    const params = new URLSearchParams();
+    if (filter) {
+      params.set("filter", filter);
+    }
+    params.set("page", page);
+    params.set("size", size);
 
-  useEffect(() => {
-    const fetchJobDetail = async () => {
-      if (id) {
-        setIsLoadingDetail(true);
-        const res = await callFetchJobById(id);
-        setJobDetail(res?.data ?? null);
-        setIsLoadingDetail(false);
-      }
-    };
-    fetchJobDetail();
-  }, [id]);
+    // Ví dụ nếu bạn có sort
+    // const sort = searchParams.get('sort') || "updatedAt,desc";
+    // params.set('sort', sort);
 
-  const handleOnchangePage = (page: number, pageSize: number) => {
-    setSearchParams((prev) => {
-      prev.set("page", page.toString());
-      prev.set("size", pageSize.toString());
-      if (id) {
-        prev.set("id", id);
-      }
-      return prev;
-    });
-  };
+    dispatch(fetchJob({ query: params.toString() }));
+
+    // Dependency array giờ đây là các giá trị nguyên thủy.
+    // useEffect này sẽ KHÔNG chạy lại khi 'id' trên URL thay đổi.
+  }, [filter, page, size, dispatch]);
+
+  // Dùng useCallback để ổn định tham chiếu của hàm onPageChange
+  const handleOnchangePage = useCallback(
+    (newPage: number, newPageSize: number) => {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev.toString());
+        newParams.set("page", newPage.toString());
+        newParams.set("size", newPageSize.toString());
+        return newParams;
+      });
+    },
+    [setSearchParams]
+  );
 
   return (
     <div className="container job-detail-page-container">
       <SearchClient />
       <div className="row g-4">
-        {/* Left Column: Job List */}
+        {/* Cột trái */}
         <div className="col-12 col-lg-4">
-          <div className="left-panel-container">
-            <div className="left-panel-header">Việc làm liên quan</div>
-            <div className="left-panel-body">
-              <JobCard
-                jobs={jobList}
-                isLoading={isLoadingList}
-                isListPage={true}
-                selectedJobId={id}
-              />
-            </div>
-          </div>
+          <JobListPanel
+            isLoading={isLoadingList}
+            jobList={jobList}
+            meta={meta}
+            onPageChange={handleOnchangePage}
+          />
         </div>
 
-        {/* Right Column: Job Detail */}
+        {/* Cột phải */}
         <div className="col-12 col-lg-8">
-          <div className="right-panel-container">
-            {isLoadingDetail ? (
-              <Skeleton active paragraph={{ rows: 15 }} />
-            ) : !id || !jobDetail ? (
-              <div
-                style={{
-                  display: "flex",
-                  minHeight: "300px",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Empty description="Chọn một công việc để xem chi tiết" />
-              </div>
-            ) : (
-              <>
-                <div className="job-detail-header">
-                  <div className="company-info">
-                    <img
-                      src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${jobDetail.company?.logo}`}
-                      alt="company logo"
-                      className="company-logo"
-                    />
-                    <div className="job-info">
-                      <h1
-                        className="header"
-                        style={{
-                          ...(theme === "dark"
-                            ? {
-                                background:
-                                  "linear-gradient(-45deg, #ff9100 10%, #ff9100 35%, #ff530f 70%, #e62c6d 100%)",
-                                WebkitBackgroundClip: "text",
-                                backgroundClip: "text",
-                                color: "transparent",
-                              }
-                            : { color: "#000" }),
-                          fontWeight: 700,
-                          marginBottom: "0.25rem",
-                        }}
-                      >
-                        {jobDetail.name}
-                      </h1>
-                      <div className="company-name">
-                        {jobDetail.company?.name}
-                      </div>
-                      {/* Thêm thông tin công ty */}
-                      {jobDetail.company && (
-                        <div className="company-details">
-                          <div className="company-address">
-                            <HomeOutlined />
-                            <span>
-                              {" "}
-                              {jobDetail.company.address ||
-                                "Không có thông tin"}{" "}
-                              {getLocationName(jobDetail.location)}
-                            </span>
-                          </div>
-                          <div className="company-scale">
-                            <TeamOutlined />
-                            <span>
-                              {" "}
-                              {jobDetail.company.scale || "Không có thông tin"}
-                            </span>
-                          </div>
-                          <div className="company-founding-year">
-                            <CalendarOutlined />
-                            <span>
-                              {" "}
-                              {jobDetail.company.foundingYear
-                                ? `Thành lập năm ${jobDetail.company.foundingYear}`
-                                : "Không có thông tin"}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="btn-apply"
-                  >
-                    Apply Now
-                  </button>
-                </div>
-
-                <Divider />
-                <div className="job-description">
-                  <div className="skills">
-                    Skill:
-                    {""} {""}
-                    {jobDetail?.skills?.map((item) => (
-                      <Tag key={item.id} color="gold">
-                        {item.name}
-                      </Tag>
-                    ))}
-                  </div>
-                  <div className="salary">
-                    <DollarOutlined />
-                    <span>
-                       
-                      {(jobDetail.salary + "").replace(
-                        /\B(?=(\d{3})+(?!\d))/g,
-                        ","
-                      )}{" "}
-                      đ
-                    </span>
-                  </div>
-                  <div className="quantity">
-                    <UserOutlined />
-                    <span>
-                      {" "}
-                      {jobDetail.quantity
-                        ? `${jobDetail.quantity} vị trí`
-                        : "Không có thông tin"}
-                    </span>
-                  </div>
-
-                  <div>
-                    <HistoryOutlined />{" "}
-                    {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
-                  </div>
-                  <span> {parse(jobDetail.description)}</span>
-                </div>
-              </>
-            )}
-          </div>
+          <JobDetailPanel />
         </div>
       </div>
       {!isLoadingList && meta.total > 0 && (
@@ -229,11 +92,6 @@ const ClientJobPage = () => {
           />
         </div>
       )}
-      <ApplyModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        jobDetail={jobDetail}
-      />
     </div>
   );
 };
