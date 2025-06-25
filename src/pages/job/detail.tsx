@@ -54,17 +54,6 @@ const ClientJobDetailPage = () => {
     fetchJobDetail();
   }, [id]);
 
-  const handleOnchangePage = (page: number, pageSize: number) => {
-    setSearchParams((prev) => {
-      prev.set("page", page.toString());
-      prev.set("size", pageSize.toString());
-      if (id) {
-        prev.set("id", id);
-      }
-      return prev;
-    });
-  };
-
   return (
     // SỬ DỤNG CLASS NAME DẠNG CHUỖI BÌNH THƯỜNG
 
@@ -72,31 +61,6 @@ const ClientJobDetailPage = () => {
       <SearchClient />
       <div className="row g-4">
         {/* Left Column: Job List */}
-        <div className="col-12 col-lg-4">
-          <div className="left-panel-container">
-            <div className="left-panel-header">Việc làm liên quan</div>
-            <div className="left-panel-body">
-              <JobCard
-                jobs={jobList}
-                isLoading={isLoadingList}
-                isListPage={true}
-                selectedJobId={id}
-              />
-            </div>
-            {!isLoadingList && meta.total > 0 && (
-              <div className="left-panel-pagination">
-                <Pagination
-                  size="small"
-                  current={meta.page}
-                  total={meta.total}
-                  pageSize={meta.pageSize}
-                  onChange={handleOnchangePage}
-                  responsive
-                />
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Right Column: Job Detail */}
         <div className="col-12 col-lg-8">
