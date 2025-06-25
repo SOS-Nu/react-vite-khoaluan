@@ -146,7 +146,7 @@ const JobCard = (props: IProps) => {
                               <div className="icon">
                                 <img
                                   alt="company logo"
-                                  src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${item?.company?.logo}`}
+                                  src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.company?.logo}`}
                                   style={{
                                     width: "80px",
                                     height: "80px",

@@ -133,7 +133,7 @@ const CompanyCard = (props: IProps) => {
                             <div className="icon">
                               <img
                                 alt="company logo"
-                                src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${item?.logo}`}
+                                src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.logo}`}
                                 style={{
                                   width: "140px",
                                   height: "140px",
