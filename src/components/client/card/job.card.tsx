@@ -93,7 +93,7 @@ const JobCard = (props: IProps) => {
               const newSearchParams = new URLSearchParams(
                 searchParams.toString()
               );
-              newSearchParams.set("id", item.id);
+              newSearchParams.set("id", item.id!);
               const linkTo = `/job?${newSearchParams.toString()}`;
 
               return (

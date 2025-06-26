@@ -71,13 +71,46 @@ const JobDetailPanel = () => {
                 </div>
               </div>
             </div>
+            {jobDetail.company && (
+              <div className="company-details-bottom">
+                <div className="company-scale">
+                  <TeamOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
+                  </span>
+                </div>
+                <div className="company-founding-year">
+                  <CalendarOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.foundingYear
+                      ? `Thành lập năm ${jobDetail.company.foundingYear}`
+                      : "Chưa cập nhật năm thành lập"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <button onClick={() => setIsModalOpen(true)} className="btn-apply">
               Apply Now
             </button>
           </div>
 
           <div className="job-detail-content">
-            <Divider />
+            {jobDetail.company && (
+              <div className="company-details-bottom">
+                <div className="company-address">
+                  <HomeOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.address ?? "Chưa cập nhật địa chỉ"} -{" "}
+                    {getLocationName(jobDetail.location)}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="skills">
               <strong>Kỹ năng:</strong>&nbsp;
               {jobDetail.skills && jobDetail.skills.length > 0
@@ -107,34 +140,6 @@ const JobDetailPanel = () => {
             </div>
             <Divider />
 
-            {jobDetail.company && (
-              <div className="company-details-bottom">
-                <div className="company-address">
-                  <HomeOutlined />
-                  &nbsp;
-                  <span>
-                    {jobDetail.company.address ?? "Chưa cập nhật địa chỉ"} -{" "}
-                    {getLocationName(jobDetail.location)}
-                  </span>
-                </div>
-                <div className="company-scale">
-                  <TeamOutlined />
-                  &nbsp;
-                  <span>
-                    {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
-                  </span>
-                </div>
-                <div className="company-founding-year">
-                  <CalendarOutlined />
-                  &nbsp;
-                  <span>
-                    {jobDetail.company.foundingYear
-                      ? `Thành lập năm ${jobDetail.company.foundingYear}`
-                      : "Chưa cập nhật năm thành lập"}
-                  </span>
-                </div>
-              </div>
-            )}
             <Divider />
 
             <div className="job-description">

@@ -54,7 +54,11 @@ const ClientJobPage = () => {
         {/* CỘT TRÁI (DANH SÁCH JOB): Chiếm 1/3 (col-lg-4) */}
         {/* Phần này sẽ cuộn cùng trang */}
         <div className="col-12 col-lg-4">
-          <JobListPanel isLoading={isLoadingList} jobList={jobList} />
+          <JobListPanel
+            isLoading={isLoadingList}
+            jobList={jobList}
+            showPagination={true}
+          />
         </div>
 
         {/* CỘT PHẢI (CHI TIẾT JOB): Chiếm 2/3 (col-lg-8) */}
