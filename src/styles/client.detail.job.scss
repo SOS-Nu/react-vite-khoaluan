@@ -11,7 +11,6 @@
 
 /* Panel trái (danh sách job) */
 .left-panel-container {
-  // Không cần style vị trí đặc biệt, nó sẽ cuộn tự nhiên theo trang.
   .left-panel-header {
     font-size: 1.5rem;
     font-weight: 600;
@@ -20,33 +19,91 @@
   }
 }
 
-/* Panel phải (chi tiết job) - Logic Sticky */
+/* Panel phải (chi tiết job) - Logic Sticky & Nested Scroll */
 .right-panel-container {
-  // Làm cho toàn bộ panel bên phải "dính" lại ở mép trên khi cuộn.
+  // 1. Vẫn giữ cho toàn bộ panel là sticky
   position: sticky;
   top: 10px;
+  max-height: calc(100vh - 20px);
 
-  // Nếu nội dung của panel phải dài hơn chiều cao màn hình,
-  // nó sẽ có thanh cuộn riêng để không làm ảnh hưởng đến trang chính.
-  max-height: calc(
-    100vh - 20px
-  ); // Chiều cao tối đa bằng chiều cao màn hình trừ đi khoảng đệm
-  overflow-y: auto; // Kích hoạt thanh cuộn nội bộ khi cần
+  // =======================================================
+  // THAY ĐỔI QUAN TRỌNG BẮT ĐẦU TỪ ĐÂY
+  // 2. Biến panel thành một flex container theo chiều dọc
+  display: flex;
+  flex-direction: column;
 
-  // Style nền và viền cho đẹp
+  // 3. XÓA thanh cuộn khỏi chính panel này...
+  // overflow-y: auto; // Dòng này bị xóa hoặc ghi đè
+
+  // =======================================================
+
+  // Style chung
   background-color: var(--background-body-tertiary);
   border-radius: 8px;
   border: 1px solid var(--border-hero-right);
   padding: 1rem;
+}
 
-  // Ẩn thanh cuộn cho giao diện sạch sẽ
+/* Header bên trong panel phải */
+.job-detail-header {
+  // Là một flex item, không co lại
+  flex-shrink: 0;
+}
+
+/* Content bên trong panel phải */
+.job-detail-content {
+  // =======================================================
+  // THAY ĐỔI QUAN TRỌNG
+  // 4. ...và CHUYỂN thanh cuộn vào đây
+  overflow-y: auto;
+
+  // 5. Yêu cầu nó giãn ra để chiếm hết không gian còn lại
+  flex-grow: 1;
+
+  // Kỹ thuật để đảm bảo overflow hoạt động tốt trong flexbox
+  min-height: 0;
+  // =======================================================
+
+  // Ẩn thanh cuộn cho đẹp
   scrollbar-width: none; // Firefox
   &::-webkit-scrollbar {
     display: none; // Chrome, Safari
   }
+
+  // Các style chi tiết khác...
+  .skills,
+  .salary,
+  .quantity,
+  div {
+    margin-bottom: 0.75rem;
+    color: var(--text-gray);
+  }
+
+  strong {
+    color: var(--text-white);
+  }
+
+  .company-details-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .job-description {
+    p,
+    li,
+    span,
+    div {
+      word-break: break-word;
+      white-space: normal;
+      max-width: 100%;
+      color: var(--text-white);
+    }
+  }
 }
 
-// Placeholder khi chưa chọn job cũng cần phải sticky
+// Placeholder khi chưa chọn job
 .empty-detail-placeholder {
   position: sticky;
   top: 10px;
@@ -59,7 +116,7 @@
   border: 1px solid var(--border-hero-right);
 }
 
-/* Các style chi tiết cho nội dung bên trong panel phải */
+// Style chi tiết cho header (lấy từ các phiên bản trước, không có logic mới)
 .job-detail-header {
   .company-info {
     display: flex;
@@ -100,39 +157,6 @@
     transition: all 0.2s ease-in-out;
     &:hover {
       transform: translateY(-2px);
-    }
-  }
-}
-
-.job-detail-content {
-  .skills,
-  .salary,
-  .quantity,
-  div {
-    margin-bottom: 0.75rem;
-    color: var(--text-gray);
-  }
-
-  strong {
-    color: var(--text-white);
-  }
-
-  .company-details-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .job-description {
-    p,
-    li,
-    span,
-    div {
-      word-break: break-word;
-      white-space: normal;
-      max-width: 100%;
-      color: var(--text-white);
     }
   }
 }
