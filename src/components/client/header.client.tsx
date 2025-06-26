@@ -69,6 +69,10 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     document.documentElement.setAttribute("data-bs-theme", mode);
     setTheme(mode);
   };
+  // Hàm cuộn về đầu trang
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleLogout = async () => {
     const res = await callLogout();
@@ -200,7 +204,12 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                         // Thêm class 'position-relative' để định vị cho nhãn "NEW"
                         `nav-link position-relative ${isActive && current === item.key ? "active" : ""}`
                       }
-                      onClick={() => setCurrent(item.key)}
+                      onClick={
+                        () => {
+                          setCurrent(item.key);
+                          scrollToTop();
+                        } // Cuộn về đầu trang
+                      }
                     >
                       {item.label}
                       {/* THÊM KHỐI LỆNH NÀY */}

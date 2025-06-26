@@ -301,3 +301,15 @@
     align-items: center;
   }
 }
+
+/* styles/modal-company.css */
+.modal-company .ant-pro-footer-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  z-index: 1000; /* Đảm bảo z-index cao hơn các thành phần khác */
+  padding: 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15); /* Tùy chọn: thêm bóng để dễ nhìn */
+}

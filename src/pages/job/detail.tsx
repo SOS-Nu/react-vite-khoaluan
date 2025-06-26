@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { IJob } from "@/types/backend";
 import { callFetchJobById } from "@/config/api";
 import parse from "html-react-parser";
@@ -8,6 +8,10 @@ import {
   DollarOutlined,
   EnvironmentOutlined,
   HistoryOutlined,
+  HomeOutlined,
+  TeamOutlined,
+  CalendarOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { getLocationName } from "@/config/utils";
 import dayjs from "dayjs";
@@ -17,8 +21,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchJob } from "@/redux/slice/jobSlide";
 import JobCard from "@/components/client/card/job.card";
 import SearchClient from "@/components/client/search.client";
-
-// KHÔNG CÒN IMPORT client.module.scss
+import { useCurrentApp } from "@/components/context/app.context";
 
 dayjs.extend(relativeTime);
 
@@ -26,7 +29,7 @@ const ClientJobDetailPage = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+  const { theme } = useCurrentApp();
   const dispatch = useAppDispatch();
   const {
     result: jobList,
@@ -55,8 +58,6 @@ const ClientJobDetailPage = () => {
   }, [id]);
 
   return (
-    // SỬ DỤNG CLASS NAME DẠNG CHUỖI BÌNH THƯỜNG
-
     <div className="container job-detail-page-container">
       <SearchClient />
       <div className="row g-4">
@@ -80,8 +81,67 @@ const ClientJobDetailPage = () => {
               </div>
             ) : (
               <>
-                <h1 className="header">{jobDetail.name}</h1>
-                <div>
+                <div className="job-detail-header">
+                  <div className="company-info">
+                    <img
+                      src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${jobDetail.company?.logo}`}
+                      alt="company logo"
+                      className="company-logo"
+                    />
+                    <div className="job-info">
+                      <h1
+                        className="header"
+                        style={{
+                          ...(theme === "dark"
+                            ? {
+                                background:
+                                  "linear-gradient(-45deg, #ff9100 10%, #ff9100 35%, #ff530f 70%, #e62c6d 100%)",
+                                WebkitBackgroundClip: "text",
+                                backgroundClip: "text",
+                                color: "transparent",
+                              }
+                            : { color: "#000" }),
+                          fontWeight: 700,
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        {jobDetail.name}
+                      </h1>
+                      <div className="company-name">
+                        {jobDetail.company?.name}
+                      </div>
+                      {/* Thêm thông tin công ty */}
+                      {jobDetail.company && (
+                        <div className="company-details">
+                          <div className="company-address">
+                            <HomeOutlined />
+                            <span>
+                              {" "}
+                              {jobDetail.company.address ||
+                                "Không có thông tin"}{" "}
+                              {getLocationName(jobDetail.location)}
+                            </span>
+                          </div>
+                          <div className="company-scale">
+                            <TeamOutlined />
+                            <span>
+                              {" "}
+                              {jobDetail.company.scale || "Không có thông tin"}
+                            </span>
+                          </div>
+                          <div className="company-founding-year">
+                            <CalendarOutlined />
+                            <span>
+                              {" "}
+                              {jobDetail.company.foundingYear
+                                ? `Thành lập năm ${jobDetail.company.foundingYear}`
+                                : "Không có thông tin"}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <button
                     onClick={() => setIsModalOpen(true)}
                     className="btn-apply"
@@ -89,49 +149,62 @@ const ClientJobDetailPage = () => {
                     Apply Now
                   </button>
                 </div>
+
                 <Divider />
-                <div className="skills">
-                  {jobDetail?.skills?.map((item) => (
-                    <Tag key={item.id} color="gold">
-                      {item.name}
-                    </Tag>
-                  ))}
-                </div>
-                <div className="salary">
-                  <DollarOutlined />
-                  <span>
-                    &nbsp;
-                    {(jobDetail.salary + "").replace(
-                      /\B(?=(\d{3})+(?!\d))/g,
-                      ","
-                    )}{" "}
-                    đ
-                  </span>
-                </div>
-                <div className="location">
-                  <EnvironmentOutlined style={{ color: "#58aaab" }} />
-                  &nbsp;{getLocationName(jobDetail.location)}
-                </div>
-                <div>
-                  <HistoryOutlined />{" "}
-                  {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
-                </div>
-                <Divider />
-                <div>{parse(jobDetail.description)}</div>
-                <Divider />
-                <div className="company-info">
-                  <img
-                    src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${jobDetail.company?.logo}`}
-                    alt="company logo"
-                    className="company-logo"
-                  />
-                  <div className="company-name">{jobDetail.company?.name}</div>
+                <div className="job-description">
+                  <div className="skills">
+                    Skill:
+                    {""} {""}
+                    {jobDetail?.skills?.map((item) => (
+                      <Tag key={item.id} color="gold">
+                        {item.name}
+                      </Tag>
+                    ))}
+                  </div>
+                  <div className="salary">
+                    <DollarOutlined />
+                    <span>
+                       
+                      {(jobDetail.salary + "").replace(
+                        /\B(?=(\d{3})+(?!\d))/g,
+                        ","
+                      )}{" "}
+                      đ
+                    </span>
+                  </div>
+                  <div className="quantity">
+                    <UserOutlined />
+                    <span>
+                      {" "}
+                      {jobDetail.quantity
+                        ? `${jobDetail.quantity} vị trí`
+                        : "Không có thông tin"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <HistoryOutlined />{" "}
+                    {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
+                  </div>
+                  <span> {parse(jobDetail.description)}</span>
                 </div>
               </>
             )}
           </div>
         </div>
       </div>
+      {!isLoadingList && meta.total > 0 && (
+        <div className="left-panel-pagination">
+          <Pagination
+            size="default"
+            current={meta.page}
+            total={meta.total}
+            pageSize={meta.pageSize}
+            onChange={handleOnchangePage}
+            responsive
+          />
+        </div>
+      )}
       <ApplyModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

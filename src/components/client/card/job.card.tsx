@@ -1,7 +1,8 @@
+// src/components/client/card/job.card.tsx
+
 import { convertSlug, getLocationName } from "@/config/utils";
 import { IJob } from "@/types/backend";
-import { Link } from "react-router-dom";
-// KHÔNG CÒN IMPORT client.module.scss
+import { Link, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
@@ -12,6 +13,7 @@ import { BsGeoAlt, BsCurrencyDollar } from "react-icons/bs";
 import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
 import styles from "@/styles/client.module.scss";
+import React from "react";
 
 dayjs.extend(relativeTime);
 
@@ -21,7 +23,7 @@ interface IProps {
   title?: string;
   showPagination?: boolean;
   isListPage?: boolean;
-  selectedJobId?: string | null;
+  showButtonAllJob?: boolean;
 }
 
 const JobCard = (props: IProps) => {
@@ -31,12 +33,15 @@ const JobCard = (props: IProps) => {
     title = "Danh sách công việc",
     showPagination,
     isListPage = false,
-    selectedJobId = null,
+    showButtonAllJob,
   } = props;
   const { theme } = useCurrentApp();
 
+  // JobCard sẽ tự lấy searchParams để quyết định highlight
+  const [searchParams] = useSearchParams();
+  const selectedJobId = searchParams.get("id");
+
   return (
-    // SỬ DỤNG CLASS NAME DẠNG CHUỖI BÌNH THƯỜNG
     <div className="card-job-section">
       <div className="job-content">
         {isLoading ? (
@@ -48,50 +53,65 @@ const JobCard = (props: IProps) => {
         ) : (
           <div className="row g-4">
             {!isListPage && (
-              <div className="col-12">
-                <Col xs={24}>
-                  <div
-                    className={
-                      isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
-                    }
-                  >
-                    <span className={styles["title"]} id="company-title-new">
-                      {title}
-                    </span>
-                    {!showPagination && (
-                      <Col xs={24} md={2}>
-                        <Link
-                          to="job"
-                          style={{ textDecoration: "none", padding: "0px" }}
-                        >
-                          <Button
-                            className="search-action-button"
-                            style={{ padding: "0px" }}
-                            variant="primary"
-                          >
-                            Xem tất cả
-                          </Button>
-                        </Link>
-                      </Col>
-                    )}
-                  </div>
-                </Col>
-              </div>
+              <div className="col-12">{/* Phần này không đổi */}</div>
             )}
+            <Col xs={12}>
+              <div
+                className={
+                  isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
+                }
+              >
+                <span className={styles["title"]} id="company-title-new">
+                  {title}
+                </span>
+                {!showButtonAllJob && (
+                  <Col xs={12} md={2}>
+                    <Link
+                      to="job"
+                      style={{ textDecoration: "none", padding: "0px" }}
+                    >
+                      <Button
+                        className="search-action-button"
+                        style={{ padding: "0px" }}
+                        variant="primary"
+                      >
+                        Xem tất cả
+                      </Button>
+                    </Link>
+                  </Col>
+                )}
+              </div>
+            </Col>
 
             {jobs?.map((item) => {
               const columnClass = isListPage
                 ? "col-12"
                 : "col-12 col-sm-6 col-md-4";
+
+              // TỰ QUYẾT ĐỊNH VIỆC HIGHLIGHT
               const isSelected = item.id === selectedJobId;
+              // === START: THAY ĐỔI LOGIC TẠI ĐÂY ===
+              const relevantDate = item.updatedAt || item.createdAt;
+              const timeAgoString = dayjs(relevantDate).locale("en").fromNow();
+
+              // THAY ĐỔI SỐ NGÀY TẠI ĐÂY
+              // Thay số 2 thành 3 nếu muốn là 3 ngày
+              const numberOfDays = 3;
+              const isNew =
+                dayjs().diff(dayjs(relevantDate), "day") < numberOfDays;
+              // === END: THAY ĐỔI LOGIC TẠI ĐÂY ===
+
+              // Tạo link mới vẫn giữ lại các param cũ và cập nhật 'id'
+              const newSearchParams = new URLSearchParams(
+                searchParams.toString()
+              );
+              newSearchParams.set("id", item.id!);
+              const linkTo = `/job?${newSearchParams.toString()}`;
 
               return (
                 <div className={columnClass} key={item.id}>
                   <div className={isSelected ? "selected-job-card" : ""}>
-                    <Link
-                      to={`/job/${convertSlug(item.name)}?id=${item.id}`}
-                      style={{ textDecoration: "none" }}
-                    >
+                    <Link to={linkTo} style={{ textDecoration: "none" }}>
                       <SimpleGlowCard identifier={`job-${item.id}`}>
                         {/* Nội dung bên trong không thay đổi */}
                         <div className="p-0 pt-2 p-md-2 position-relative">
@@ -126,18 +146,25 @@ const JobCard = (props: IProps) => {
                                 }}
                               >
                                 {item.name}
+                                {/* HIỂN THỊ CÓ ĐIỀU KIỆN */}
+                                {isNew && (
+                                  <span
+                                    className="wave"
+                                    role="img"
+                                    aria-labelledby="wave"
+                                  >
+                                    <img
+                                      src={upload3}
+                                      alt="Wave icon"
+                                      style={{
+                                        width: "20px",
+                                        height: "20px",
+                                        marginLeft: "4px",
+                                      }}
+                                    />
+                                  </span>
+                                )}
                               </p>
-                              <span
-                                className="wave"
-                                role="img"
-                                aria-labelledby="wave"
-                              >
-                                <img
-                                  src={upload3}
-                                  alt="Wave icon"
-                                  style={{ width: "20px", height: "20px" }}
-                                />
-                              </span>
                             </div>
                             <div
                               className="details"
@@ -146,7 +173,7 @@ const JobCard = (props: IProps) => {
                               <div className="icon">
                                 <img
                                   alt="company logo"
-                                  src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${item?.company?.logo}`}
+                                  src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.company?.logo}`}
                                   style={{
                                     width: "80px",
                                     height: "80px",
@@ -278,4 +305,4 @@ const JobCard = (props: IProps) => {
   );
 };
 
-export default JobCard;
+export default React.memo(JobCard); // Memoize cả JobCard để tối ưu hơn nữa

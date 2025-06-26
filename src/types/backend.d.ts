@@ -123,6 +123,9 @@ export interface IJob {
     id: string;
     name: string;
     logo?: string;
+    address?: string;
+    scale?: string;
+    foundingYear?: number;
   };
   location: string;
   salary: number;
