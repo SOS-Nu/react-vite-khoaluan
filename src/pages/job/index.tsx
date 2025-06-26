@@ -1,10 +1,11 @@
+// pages/job/index.tsx (Tên file có thể là ClientJobPage.tsx)
+
 import { useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchJob } from "@/redux/slice/jobSlide";
 
 import SearchClient from "@/components/client/search.client";
-
 import { Pagination } from "antd";
 import JobListPanel from "./JobListPanel";
 import JobDetailPanel from "./JobDetailPanel";
@@ -21,7 +22,7 @@ const ClientJobPage = () => {
 
   const filter = searchParams.get("filter") || "";
   const page = searchParams.get("page") || "1";
-  const size = searchParams.get("size") || "10";
+  const size = searchParams.get("size") || "6";
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -51,24 +52,22 @@ const ClientJobPage = () => {
       <SearchClient />
 
       <div className="row g-4">
-        {/* CỘT TRÁI (DANH SÁCH JOB): Chiếm 1/3 (col-lg-4) */}
-        {/* Phần này sẽ cuộn cùng trang */}
         <div className="col-12 col-lg-4">
           <JobListPanel
             isLoading={isLoadingList}
             jobList={jobList}
-            showPagination={true}
+            // THAY ĐỔI Ở ĐÂY: Truyền `false` để không hiển thị phân trang bên trong danh sách job
+            showPagination={false}
+            showButtonAllJob={true}
           />
         </div>
 
-        {/* CỘT PHẢI (CHI TIẾT JOB): Chiếm 2/3 (col-lg-8) */}
-        {/* Phần này sẽ được làm "dính" lại bằng CSS */}
         <div className="col-12 col-lg-8">
           <JobDetailPanel />
         </div>
       </div>
 
-      {/* PAGINATION: Nằm ở cuối cùng, sau khi cuộn hết cột trái */}
+      {/* PAGINATION CHÍNH: Nằm ở cuối cùng, sau khi cuộn hết cột trái */}
       {!isLoadingList && meta.total > 0 && (
         <div className="bottom-pagination-container">
           <Pagination
@@ -78,6 +77,8 @@ const ClientJobPage = () => {
             pageSize={meta.pageSize}
             onChange={handleOnchangePage}
             responsive
+            // Bạn có thể thêm showSizeChanger nếu muốn
+            showSizeChanger
           />
         </div>
       )}

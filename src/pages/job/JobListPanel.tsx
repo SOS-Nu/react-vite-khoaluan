@@ -1,3 +1,5 @@
+// components/client/JobListPanel.tsx (Hoặc tên file tương tự)
+
 import React from "react";
 import { IJob } from "@/types/backend";
 import JobCard from "@/components/client/card/job.card";
@@ -5,11 +7,12 @@ import JobCard from "@/components/client/card/job.card";
 interface IProps {
   jobList: IJob[] | null;
   isLoading: boolean;
-  showPagination?: boolean;
+  showPagination?: boolean; // Prop này vẫn giữ nguyên
+  showButtonAllJob: boolean;
 }
 
 const JobListPanel = (props: IProps) => {
-  const { jobList, isLoading, showPagination } = props;
+  const { jobList, isLoading, showPagination, showButtonAllJob } = props;
 
   return (
     <div className="left-panel-container">
@@ -18,7 +21,9 @@ const JobListPanel = (props: IProps) => {
           jobs={jobList}
           isLoading={isLoading}
           isListPage={true}
-          showPagination={true}
+          // THAY ĐỔI Ở ĐÂY: Truyền prop nhận được thay vì giá trị cứng
+          showPagination={showPagination}
+          showButtonAllJob={showButtonAllJob}
         />
       </div>
     </div>

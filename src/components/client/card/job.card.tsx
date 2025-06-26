@@ -23,6 +23,7 @@ interface IProps {
   title?: string;
   showPagination?: boolean;
   isListPage?: boolean;
+  showButtonAllJob?: boolean;
 }
 
 const JobCard = (props: IProps) => {
@@ -32,6 +33,7 @@ const JobCard = (props: IProps) => {
     title = "Danh sách công việc",
     showPagination,
     isListPage = false,
+    showButtonAllJob,
   } = props;
   const { theme } = useCurrentApp();
 
@@ -62,7 +64,7 @@ const JobCard = (props: IProps) => {
                 <span className={styles["title"]} id="company-title-new">
                   {title}
                 </span>
-                {!showPagination && (
+                {!showButtonAllJob && (
                   <Col xs={12} md={2}>
                     <Link
                       to="job"
@@ -88,6 +90,16 @@ const JobCard = (props: IProps) => {
 
               // TỰ QUYẾT ĐỊNH VIỆC HIGHLIGHT
               const isSelected = item.id === selectedJobId;
+              // === START: THAY ĐỔI LOGIC TẠI ĐÂY ===
+              const relevantDate = item.updatedAt || item.createdAt;
+              const timeAgoString = dayjs(relevantDate).locale("en").fromNow();
+
+              // THAY ĐỔI SỐ NGÀY TẠI ĐÂY
+              // Thay số 2 thành 3 nếu muốn là 3 ngày
+              const numberOfDays = 3;
+              const isNew =
+                dayjs().diff(dayjs(relevantDate), "day") < numberOfDays;
+              // === END: THAY ĐỔI LOGIC TẠI ĐÂY ===
 
               // Tạo link mới vẫn giữ lại các param cũ và cập nhật 'id'
               const newSearchParams = new URLSearchParams(
@@ -134,18 +146,25 @@ const JobCard = (props: IProps) => {
                                 }}
                               >
                                 {item.name}
+                                {/* HIỂN THỊ CÓ ĐIỀU KIỆN */}
+                                {isNew && (
+                                  <span
+                                    className="wave"
+                                    role="img"
+                                    aria-labelledby="wave"
+                                  >
+                                    <img
+                                      src={upload3}
+                                      alt="Wave icon"
+                                      style={{
+                                        width: "20px",
+                                        height: "20px",
+                                        marginLeft: "4px",
+                                      }}
+                                    />
+                                  </span>
+                                )}
                               </p>
-                              <span
-                                className="wave"
-                                role="img"
-                                aria-labelledby="wave"
-                              >
-                                <img
-                                  src={upload3}
-                                  alt="Wave icon"
-                                  style={{ width: "20px", height: "20px" }}
-                                />
-                              </span>
                             </div>
                             <div
                               className="details"
