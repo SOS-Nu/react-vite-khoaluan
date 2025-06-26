@@ -1,5 +1,3 @@
-// src/components/client/panel/JobDetailPanel.tsx
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IJob } from "@/types/backend";
@@ -8,7 +6,6 @@ import parse from "html-react-parser";
 import { Divider, Skeleton, Tag, Empty } from "antd";
 import {
   DollarOutlined,
-  EnvironmentOutlined,
   HistoryOutlined,
   HomeOutlined,
   TeamOutlined,
@@ -19,7 +16,6 @@ import { getLocationName } from "@/config/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ApplyModal from "@/components/client/modal/apply.modal";
-import { useCurrentApp } from "@/components/context/app.context";
 
 dayjs.extend(relativeTime);
 
@@ -27,7 +23,6 @@ const JobDetailPanel = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const { theme } = useCurrentApp();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
 
@@ -43,122 +38,123 @@ const JobDetailPanel = () => {
     fetchJobDetail();
   }, [id]);
 
+  // Hàm định dạng lương an toàn
+  const formatSalary = (salary: number | undefined | null) => {
+    if (salary === null || salary === undefined) {
+      return "Thoả thuận";
+    }
+    return (salary + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ";
+  };
+
   return (
     <div className="right-panel-container">
       {isLoading ? (
-        <Skeleton active paragraph={{ rows: 15 }} />
+        // Giữ nguyên Skeleton khi đang tải
+        <div className="job-detail-sticky-header">
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </div>
       ) : !id || !jobDetail ? (
-        <div
-          style={{
-            display: "flex",
-            minHeight: "300px",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        // Giữ nguyên Placeholder khi không có job nào được chọn
+        <div className="empty-detail-placeholder">
           <Empty description="Chọn một công việc để xem chi tiết" />
         </div>
       ) : (
+        // Phần hiển thị chi tiết job đã được làm cho an toàn hơn
         <>
-          <div className="job-detail-header">
+          {/* PHẦN 1: HEADER STICKY */}
+          <div className="job-detail-sticky-header">
             <div className="company-info">
               <img
-                src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${jobDetail.company?.logo}`}
-                alt="company logo"
+                src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${jobDetail.company?.logo ?? "default-logo.png"}`} // Thêm fallback cho logo
+                alt={jobDetail.company?.name ?? "company logo"}
                 className="company-logo"
               />
               <div className="job-info">
-                <h1
-                  className="header"
-                  style={{
-                    ...(theme === "dark"
-                      ? {
-                          background:
-                            "linear-gradient(-45deg, #ff9100 10%, #ff9100 35%, #ff530f 70%, #e62c6d 100%)",
-                          WebkitBackgroundClip: "text",
-                          backgroundClip: "text",
-                          color: "transparent",
-                        }
-                      : { color: "#000" }),
-                    fontWeight: 700,
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  {jobDetail.name}
-                </h1>
-                <div className="company-name">{jobDetail.company?.name}</div>
-                {/* Thêm thông tin công ty */}
-                {jobDetail.company && (
-                  <div className="company-details">
-                    <div className="company-address">
-                      <HomeOutlined />
-                      <span>
-                        {" "}
-                        {jobDetail.company.address || "Không có thông tin"}{" "}
-                        {getLocationName(jobDetail.location)}
-                      </span>
-                    </div>
-                    <div className="company-scale">
-                      <TeamOutlined />
-                      <span>
-                        {" "}
-                        {jobDetail.company.scale || "Không có thông tin"}
-                      </span>
-                    </div>
-                    <div className="company-founding-year">
-                      <CalendarOutlined />
-                      <span>
-                        {" "}
-                        {jobDetail.company.foundingYear
-                          ? `Thành lập năm ${jobDetail.company.foundingYear}`
-                          : "Không có thông tin"}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                {/* Xóa style inline bị lỗi, để CSSจัดการ */}
+                <h1 className="header">{jobDetail.name ?? "Tên công việc"}</h1>
+                <div className="company-name">
+                  {jobDetail.company?.name ?? "Tên công ty"}
+                </div>
               </div>
             </div>
             <button onClick={() => setIsModalOpen(true)} className="btn-apply">
               Apply Now
             </button>
+            <Divider />
           </div>
 
-          <Divider />
-          <div className="job-description">
+          {/* PHẦN 2: NỘI DUNG CUỘN */}
+          <div className="job-detail-scrollable-content">
+            {/* Sử dụng optional chaining (?.) và nullish coalescing (??) để tránh lỗi */}
             <div className="skills">
-              Skill:
-              {""} {""}
-              {jobDetail?.skills?.map((item) => (
-                <Tag key={item.id} color="gold">
-                  {item.name}
-                </Tag>
-              ))}
+              <strong>Kỹ năng:</strong>&nbsp;
+              {jobDetail.skills && jobDetail.skills.length > 0
+                ? jobDetail.skills.map((item) => (
+                    <Tag key={item.id} color="gold">
+                      {item.name}
+                    </Tag>
+                  ))
+                : "Chưa yêu cầu"}
             </div>
             <div className="salary">
               <DollarOutlined />
-              <span>
-                 {(jobDetail.salary + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")}{" "}
-                đ
-              </span>
+              &nbsp;
+              <strong>Lương:</strong>&nbsp;
+              <span>{formatSalary(jobDetail.salary)}</span>
             </div>
             <div className="quantity">
               <UserOutlined />
-              <span>
-                {" "}
-                {jobDetail.quantity
-                  ? `${jobDetail.quantity} vị trí`
-                  : "Không có thông tin"}
-              </span>
+              &nbsp;
+              <strong>Số lượng:</strong>&nbsp;
+              <span>{jobDetail.quantity ?? "Không giới hạn"}</span>
             </div>
-
             <div>
-              <HistoryOutlined />{" "}
+              <HistoryOutlined />
+              &nbsp; Cập nhật&nbsp;
               {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
             </div>
-            <span> {parse(jobDetail.description)}</span>
+            <Divider />
+
+            {/* Thông tin chi tiết công ty */}
+            {jobDetail.company && (
+              <div className="company-details-bottom">
+                <div className="company-address">
+                  <HomeOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.address ?? "Chưa cập nhật địa chỉ"} -{" "}
+                    {getLocationName(jobDetail.location)}
+                  </span>
+                </div>
+                <div className="company-scale">
+                  <TeamOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
+                  </span>
+                </div>
+                <div className="company-founding-year">
+                  <CalendarOutlined />
+                  &nbsp;
+                  <span>
+                    {jobDetail.company.foundingYear
+                      ? `Thành lập năm ${jobDetail.company.foundingYear}`
+                      : "Chưa cập nhật năm thành lập"}
+                  </span>
+                </div>
+              </div>
+            )}
+            <Divider />
+
+            {/* Xử lý an toàn cho `description` trước khi parse */}
+            <div className="job-description">
+              {parse(jobDetail.description || "<p>Chưa có mô tả chi tiết.</p>")}
+            </div>
           </div>
         </>
       )}
+
+      {/* Modal vẫn giữ nguyên, nhưng nó cần có khả năng xử lý jobDetail có thể là null */}
       <ApplyModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

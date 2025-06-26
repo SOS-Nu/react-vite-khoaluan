@@ -1,279 +1,143 @@
-// File: src/styles/page.detail-job.scss
-// File này chứa toàn bộ style cần thiết cho trang chi tiết công việc.
-
-// --- 1. LAYOUT CHÍNH CỦA TRANG ---
+/* ====================================================================
+  CẤU TRÚC LAYOUT CHUNG & PAGINATION
+  ====================================================================
+*/
 .job-detail-page-container {
   margin-top: 20px;
-
-  // Container cho panel trái và phải
-  .left-panel-container,
-  .right-panel-container {
-    border-radius: 8px;
-    padding: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-body-tertiary);
-    // Style cho phần description
-    .job-description {
-      max-height: 80vh; // Giới hạn chiều cao để kích hoạt cuộn
-      overflow-y: auto; // Kích hoạt cuộn dọc
-      overflow-x: hidden; // Ngăn cuộn ngang
-      word-break: break-word; // Tự động xuống dòng khi nội dung dài
-      white-space: normal; // Cho phép xuống dòng tự nhiên
-      padding: 1rem; // Thêm padding cho đẹp
-      border: 1px solid var(--border-hero-right); // Viền nhẹ để phân biệt
-      border-radius: 8px; // Bo góc
-      background-color: var(--background-body-secondary); // Nền nhẹ
-
-      // Tùy chỉnh thanh cuộn
-      scrollbar-width: thin;
-      -ms-overflow-style: none;
-      &::-webkit-scrollbar {
-        width: 8px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--brand-social);
-        border-radius: 4px;
-      }
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      // Đảm bảo nội dung HTML parse không tràn
-      p,
-      li,
-      span,
-      div {
-        word-break: break-word; // Đảm bảo xuống dòng
-        white-space: normal; // Cho phép xuống dòng tự nhiên
-        max-width: 100%; // Ngăn tràn ngang
-      }
-
-      // Xử lý các thẻ HTML phức tạp như bảng hoặc hình ảnh
-      table {
-        width: 100%;
-        table-layout: auto;
-      }
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-    }
-  }
-
-  // Header của panel trái
-  .left-panel-header {
-    padding: 1rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-bottom: 1px solid var(--border-hero-right);
-    flex-shrink: 0;
-    color: var(--text-white-0);
-  }
-
-  // Thân của panel trái (nơi chứa danh sách JobCard)
-  .left-panel-body {
-    padding: 1rem;
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-
-  // Khu vực phân trang
-  .left-panel-pagination {
-    padding: 1rem;
-    text-align: center;
-
-    flex-shrink: 0;
-    .ant-pagination-item,
-    .ant-pagination-prev,
-    .ant-pagination-next {
-      margin: 0 4px;
-    }
-  }
-
-  // Panel phải (chi tiết công việc)
-  .right-panel-container {
-    padding: 1.5rem 2rem;
-    overflow-y: auto;
-  }
-
-  // Ẩn thanh cuộn
-  .left-panel-body,
-  .right-panel-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 }
 
-// --- 2. STYLE RIÊNG CHO CÁC JOB CARD BÊN TRONG PANEL TRÁI ---
-.left-panel-body {
-  // Container chung của JobCard
-  .card-job-section {
-    .job-content {
-      // Bỏ qua tiêu đề mặc định của JobCard khi ở trong list
-      > .row > .col-12:first-child {
-        display: none;
-      }
-    }
-  }
-
-  // Card được chọn
-  .selected-job-card > a > .simple-glow-container > .simple-glow-card {
-    border: 2px solid var(--brand-social);
-    background-color: rgba(var(--brand-social-rgb, 139, 92, 246), 0.1);
-  }
-}
-
-// --- 3. CÁC CẢI TIẾN GIAO DIỆN KHÁC ---
-
-// Nút Apply
-.btn-apply {
-  width: 100%;
-  cursor: pointer;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px 20px;
-  border-radius: 8px;
-  color: white;
-  background-image: var(--resize-button);
-  border: none;
-  transition: all 0.2s ease-in-out;
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--brand-social-shadow, rgba(139, 92, 246, 0.4));
-  }
-}
-
-// Đồng bộ màu chữ cho panel phải
-.right-panel-container {
-  // Các dòng thông tin nhỏ
-  .salary,
-  .location,
-  .skills,
-  div[class*="styles-skills"] + div {
-    color: var(--text-pink-200);
-  }
-  // Nội dung parse từ HTML
-  h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    color: var(--text-white-0);
-  }
-  p,
-  li,
-  span {
-    color: var(--text-white);
-  }
-  // Đường kẻ
-  .ant-divider-horizontal {
-    border-top-color: var(--border-hero-right);
-  }
-}
-
-// Thông tin công ty ở cuối trang
-
-// Khu vực phân trang
-.left-panel-pagination {
-  padding: 1rem;
-  display: flex; /* Sử dụng flexbox để căn giữa */
-  justify-content: center; /* Căn giữa theo chiều ngang */
-  align-items: center; /* Căn giữa theo chiều dọc */
-  flex-shrink: 0;
-
-  .ant-pagination-item,
-  .ant-pagination-prev,
-  .ant-pagination-next {
-    margin: 0 4px;
-  }
-}
-
-// --- STYLE CHO HEADER CHI TIẾT CÔNG VIỆC ---
-.job-detail-header {
+// Container cho pagination ở cuối trang
+.bottom-pagination-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+
+/* ====================================================================
+  PANEL TRÁI (DANH SÁCH JOB) - Rất đơn giản
+  ====================================================================
+*/
+.left-panel-container {
+  // Không cần style layout đặc biệt, nó sẽ cuộn tự nhiên theo trang.
+  .left-panel-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-white-0);
+  }
+
+  // JobCard đã có style isListPage, không cần thêm ở đây.
+}
+
+/* ====================================================================
+  PANEL PHẢI (CHI TIẾT JOB) - Logic Sticky nằm ở đây
+  ====================================================================
+*/
+.right-panel-container {
+  // Container này không cần style đặc biệt,
+  // vì logic sticky nằm ở phần tử con bên trong nó.
+}
+
+// PHẦN 1: HEADER CỐ ĐỊNH CỦA PANEL PHẢI
+.job-detail-sticky-header {
+  position: sticky;
+  top: 10px; // Dính vào vị trí cách top 10px khi cuộn.
+  z-index: 10; // Đảm bảo nó luôn nằm trên các nội dung khác.
+
+  // Thêm background để nội dung bên dưới không bị nhìn xuyên qua khi cuộn
+  background-color: var(--background-body-tertiary);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-hero-right);
+
   .company-info {
     display: flex;
-    flex: 1;
     align-items: center;
     gap: 1rem;
-    padding: 0.5rem;
-    background-color: var(--background-body-tertiary);
-    border-radius: 8px;
-    margin-top: 1.5rem;
     .company-logo {
-      width: 130px; // Tăng kích thước logo
-      height: 130px;
+      width: 80px;
+      height: 80px;
       object-fit: contain;
       border-radius: 8px;
       background-color: white;
       padding: 1px;
     }
-    .company-name {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-gray);
+    .job-info {
+      .header {
+        font-size: 1.4rem;
+        margin-bottom: 0.25rem;
+      }
+      .company-name {
+        font-size: 1rem;
+        color: var(--text-gray);
+      }
     }
   }
-  .job-info {
+
+  .btn-apply {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    color: white;
+    background-image: var(--resize-button);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// PHẦN 2: NỘI DUNG CUỘN CỦA PANEL PHẢI
+.job-detail-scrollable-content {
+  // Phần này không cần style vị trí, nó sẽ tự động nằm dưới phần sticky header
+  // và cuộn theo thanh cuộn chính của trình duyệt.
+  padding: 1rem;
+  border: 1px solid var(--border-hero-right);
+  border-top: none; // Bỏ viền trên để nối liền với header
+  border-radius: 0 0 8px 8px;
+  margin-top: -1px; // Dịch lên một chút để che đường divider cuối cùng của header
+
+  .skills,
+  .salary,
+  .quantity,
+  div {
+    margin-bottom: 0.75rem;
+    color: var(--text-gray);
+  }
+
+  .company-details-bottom {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-  }
-}
-
-.btn-apply {
-  width: auto; // Chỉ chiếm không gian cần thiết
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  color: white;
-  background-image: var(--resize-button);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--brand-social-shadow, rgba(139, 92, 246, 0.4));
-  }
-}
-
-// Đảm bảo đồng bộ với panel phải
-.right-panel-container {
-  .header {
-    color: var(--text-white-0);
-  }
-  .salary,
-  .location,
-  .skills,
-  div[class*="styles-skills"] + div {
-    color: var(--text-pink-200);
-  }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    color: var(--text-white-0);
-  }
-  p,
-  li,
-  span {
     font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-gray);
   }
-  .ant-divider-horizontal {
-    border-top-color: var(--border-hero-right);
+
+  .job-description {
+    // Đảm bảo nội dung html parse xuống dòng đúng cách
+    p,
+    li,
+    span,
+    div {
+      word-break: break-word;
+      white-space: normal;
+      max-width: 100%;
+    }
   }
+}
+
+// Placeholder khi chưa chọn job
+.empty-detail-placeholder {
+  position: sticky;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background-color: var(--background-body-tertiary);
+  border-radius: 8px;
 }
