@@ -53,7 +53,10 @@ const JobDetailPanel = () => {
         </div>
       ) : !id || !jobDetail ? (
         <div className="empty-detail-placeholder">
-          <Empty description="Chọn một công việc để xem chi tiết" />
+          <Empty
+            description="Chọn một công việc để xem chi tiết"
+            className="empty-detail-placeholder-text"
+          />
         </div>
       ) : (
         <>

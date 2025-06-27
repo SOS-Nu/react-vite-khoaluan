@@ -72,21 +72,10 @@ const SearchClient = () => {
       const { searchQuery, location: locationValue } = values;
 
       if (searchType === "ai") {
-        if (!searchQuery && fileList.length === 0) {
-          notification.error({
-            message: "Lỗi",
-            description: "Vui lòng nhập mô tả kỹ năng hoặc tải lên CV của bạn.",
-          });
-          setIsLoading(false);
-          return;
-        }
+        // ... (Phần còn lại của logic xác thực của bạn)
 
-        let promptText = searchQuery;
-        if (!promptText && fileList.length > 0) {
-          promptText = "Tìm công việc phù hợp dựa trên CV của tôi";
-        }
-
-        // Lưu lại prompt và location để tạo URL
+        let promptText =
+          searchQuery || "Tìm công việc phù hợp dựa trên CV của tôi";
         const finalPrompt = promptText;
 
         if (locationValue && locationValue !== "tatca") {
@@ -104,35 +93,38 @@ const SearchClient = () => {
           formData.append("file", fileList[0].originFileObj);
         }
 
-        // CẬP NHẬT NAVIGATE ĐỂ LƯU LẠI GIÁ TRỊ TÌM KIẾM
+        // Đợi cho đến khi dispatch hoàn tất
+        await dispatch(findJobsByAI({ formData })).unwrap(); // Sử dụng unwrap để bắt lỗi
+
+        // Bây giờ điều hướng
         const params = new URLSearchParams();
         params.set("search_type", "ai");
         if (finalPrompt) {
-          // Chỉ thêm prompt nếu có
           params.set("prompt", finalPrompt);
         }
         if (locationValue) {
-          // Thêm cả location
           params.set("location", locationValue);
         }
 
-        await dispatch(findJobsByAI({ formData }));
         navigate(`/job?${params.toString()}`);
-        return;
-      }
+      } else {
+        // Logic tìm kiếm thông thường không thay đổi
+        let filterParts = [];
+        if (searchQuery) filterParts.push(`name~'${searchQuery}'`);
+        if (locationValue && locationValue !== "tatca")
+          filterParts.push(`location~'${locationValue}'`);
 
-      let filterParts = [];
-      if (searchQuery) filterParts.push(`name~'${searchQuery}'`);
-      if (locationValue && locationValue !== "tatca")
-        filterParts.push(`location~'${locationValue}'`);
-      if (filterParts.length === 0) {
-        if (searchType === "job") navigate("/job");
-        if (searchType === "company") navigate("/company");
-        return;
+        if (filterParts.length === 0) {
+          const targetPath = searchType === "job" ? "/job" : "/company";
+          navigate(targetPath);
+          return;
+        }
+
+        const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc`;
+        const targetPath =
+          searchType === "job" ? `/job?${query}` : `/company?${query}`;
+        navigate(targetPath);
       }
-      const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc`;
-      if (searchType === "job") navigate(`/job?${query}`);
-      if (searchType === "company") navigate(`/company?${query}`);
     } catch (error) {
       console.error("Search failed:", error);
       notification.error({
@@ -143,7 +135,6 @@ const SearchClient = () => {
       setIsLoading(false);
     }
   };
-
   const handleUploadChange = ({ fileList }: { fileList: any[] }) =>
     setFileList(fileList.slice(-1));
   const handleRemoveFile = () => {

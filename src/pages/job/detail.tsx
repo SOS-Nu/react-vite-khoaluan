@@ -42,7 +42,7 @@ const ClientJobDetailPage = () => {
 
   useEffect(() => {
     const query = searchParams.toString().replace(`id=${id}`, "");
-    dispatch(fetchJob({ query: query || "sort=updatedAt,desc&size=10" }));
+    dispatch(fetchJob({ query: query || "sort=updatedAt,desc&size=2" }));
   }, [searchParams, dispatch]);
 
   useEffect(() => {

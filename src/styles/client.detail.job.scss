@@ -146,6 +146,14 @@
   background-color: var(--background-body-tertiary);
   border-radius: 8px;
   border: 1px solid var(--border-hero-right);
+  color: var(--text-white) !important;
+
+  .empty-detail-placeholder-text .ant-empty-description {
+    color: var(--text-white); /* Đổi màu chữ */
+    font-size: 16px; /* Tăng kích thước chữ */
+    font-style: italic; /* In nghiêng chữ */
+    font-weight: 500; /* Tăng độ đậm của chữ */
+  }
 }
 
 // Style chi tiết cho header (lấy từ các phiên bản trước, không có logic mới)
