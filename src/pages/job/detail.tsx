@@ -200,7 +200,6 @@ const ClientJobDetailPage = () => {
             current={meta.page}
             total={meta.total}
             pageSize={meta.pageSize}
-            onChange={handleOnchangePage}
             responsive
           />
         </div>

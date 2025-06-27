@@ -1,25 +1,32 @@
-import SearchClient from "@/components/client/search.client";
-import { Col, Divider, Row, Pagination } from "antd";
-import styles from "styles/client.module.scss";
-import JobCard from "@/components/client/card/job.card";
+import { useEffect, useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { IJob } from "@/types/backend";
+import { callFetchJobById } from "@/config/api";
+import parse from "html-react-parser";
+import { Divider, Skeleton, Tag, Pagination, Empty } from "antd";
+import {
+  DollarOutlined,
+  EnvironmentOutlined,
+  HistoryOutlined,
+} from "@ant-design/icons";
+import { getLocationName } from "@/config/utils";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import ApplyModal from "@/components/client/modal/apply.modal";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
-import { clearJobs, fetchJob } from "@/redux/slice/jobSlide";
+import { fetchJob } from "@/redux/slice/jobSlide";
+import JobCard from "@/components/client/card/job.card";
+import SearchClient from "@/components/client/search.client";
 
-const ClientJobPage = () => {
-  const [jobDetail, setJobDetail] = useState<IJob | null>(null);
-  const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+// KHÔNG CÒN IMPORT client.module.scss
 
-=======
+dayjs.extend(relativeTime);
 
 const ClientJobDetailPage = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
->>>>>>> temp-branch
   const dispatch = useAppDispatch();
   const {
     result: jobList,
@@ -28,86 +35,144 @@ const ClientJobDetailPage = () => {
   } = useAppSelector((state) => state.job);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const isInitialLoad = useRef(true);
+  const id = searchParams.get("id");
 
   useEffect(() => {
-    if (searchParams.get("search_type") === "ai") {
-      // Đánh dấu là đã qua lần load đầu tiên để nếu người dùng
-      // thực hiện search thường ngay sau đó, logic sẽ chạy đúng
-      isInitialLoad.current = false;
-      return;
-    }
-    const query = searchParams.toString();
-
-    // BƯỚC 3: Áp dụng logic mới
-    // Trường hợp 1: Lần đầu tiên component được tải (truy cập mới hoặc refresh)
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false; // Đánh dấu không còn là lần đầu nữa
-      // Luôn fetch dữ liệu: hoặc theo query trên URL (nếu có), hoặc fetch mặc định
-      dispatch(fetchJob({ query: query || "sort=updatedAt,desc&size=6" }));
-    } else {
-      // Trường hợp 2: Component re-render do URL thay đổi (tức là người dùng vừa thực hiện hành động)
-      if (query) {
-        // Nếu có query mới -> là một lần tìm kiếm mới
-        if (searchParams.get("search_type") === "ai") {
-          return; // AI search đã có dữ liệu, không làm gì
-        } else {
-          dispatch(fetchJob({ query })); // Search thường
-        }
-      } else {
-        // Nếu query rỗng -> người dùng vừa xóa tìm kiếm (vd: click header)
-        // -> Chỉ xóa kết quả cũ, không fetch mặc định
-        dispatch(clearJobs());
-      }
-    }
+    const query = searchParams.toString().replace(`id=${id}`, "");
+    dispatch(fetchJob({ query: query || "sort=updatedAt,desc&size=10" }));
   }, [searchParams, dispatch]);
+
+  useEffect(() => {
+    const fetchJobDetail = async () => {
+      if (id) {
+        setIsLoadingDetail(true);
+        const res = await callFetchJobById(id);
+        setJobDetail(res?.data ?? null);
+        setIsLoadingDetail(false);
+      }
+    };
+    fetchJobDetail();
+  }, [id]);
 
   const handleOnchangePage = (page: number, pageSize: number) => {
     setSearchParams((prev) => {
       prev.set("page", page.toString());
       prev.set("size", pageSize.toString());
+      if (id) {
+        prev.set("id", id);
+      }
       return prev;
     });
   };
 
   return (
-    <div className={styles["container"]} style={{ marginTop: 20 }}>
-      <Row gutter={[20, 20]}>
-        <Col span={24}>
-          <SearchClient />
-        </Col>
-        <Divider />
-        <Col span={24}>
-          <JobCard
-            jobs={result}
-            isLoading={isFetching}
-            title="Kết Quả Tìm Kiếm"
-            showPagination={true}
-          />
-        </Col>
-        <Col
-          span={24}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            padding: "20px 0",
-          }}
-        >
-          {/* BƯỚC 5: Chỉ hiển thị pagination nếu không phải AI search */}
-          {!isFetching &&
-            meta.total > 0 &&
-            searchParams.get("search_type") !== "ai" && (
-              <Pagination
-                current={meta.page}
-                total={meta.total}
-                pageSize={meta.pageSize}
-                onChange={handleOnchangePage}
-                responsive
-                showSizeChanger
+    // SỬ DỤNG CLASS NAME DẠNG CHUỖI BÌNH THƯỜNG
+
+    <div className="container job-detail-page-container">
+      <SearchClient />
+      <div className="row g-4">
+        {/* Left Column: Job List */}
+        <div className="col-12 col-lg-4">
+          <div className="left-panel-container">
+            <div className="left-panel-header">Việc làm liên quan</div>
+            <div className="left-panel-body">
+              <JobCard
+                jobs={jobList}
+                isLoading={isLoadingList}
+                isListPage={true}
+                selectedJobId={id}
               />
+            </div>
+            {!isLoadingList && meta.total > 0 && (
+              <div className="left-panel-pagination">
+                <Pagination
+                  size="small"
+                  current={meta.page}
+                  total={meta.total}
+                  pageSize={meta.pageSize}
+                  onChange={handleOnchangePage}
+                  responsive
+                />
+              </div>
             )}
-        </Col>
-      </Row>
+          </div>
+        </div>
+
+        {/* Right Column: Job Detail */}
+        <div className="col-12 col-lg-8">
+          <div className="right-panel-container">
+            {isLoadingDetail ? (
+              <Skeleton active paragraph={{ rows: 15 }} />
+            ) : !id || !jobDetail ? (
+              <div
+                style={{
+                  display: "flex",
+                  minHeight: "300px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Empty description="Chọn một công việc để xem chi tiết" />
+              </div>
+            ) : (
+              <>
+                <h1 className="header">{jobDetail.name}</h1>
+                <div>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="btn-apply"
+                  >
+                    Apply Now
+                  </button>
+                </div>
+                <Divider />
+                <div className="skills">
+                  {jobDetail?.skills?.map((item) => (
+                    <Tag key={item.id} color="gold">
+                      {item.name}
+                    </Tag>
+                  ))}
+                </div>
+                <div className="salary">
+                  <DollarOutlined />
+                  <span>
+                    &nbsp;
+                    {(jobDetail.salary + "").replace(
+                      /\B(?=(\d{3})+(?!\d))/g,
+                      ","
+                    )}{" "}
+                    đ
+                  </span>
+                </div>
+                <div className="location">
+                  <EnvironmentOutlined style={{ color: "#58aaab" }} />
+                  &nbsp;{getLocationName(jobDetail.location)}
+                </div>
+                <div>
+                  <HistoryOutlined />{" "}
+                  {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
+                </div>
+                <Divider />
+                <div>{parse(jobDetail.description)}</div>
+                <Divider />
+                <div className="company-info">
+                  <img
+                    src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${jobDetail.company?.logo}`}
+                    alt="company logo"
+                    className="company-logo"
+                  />
+                  <div className="company-name">{jobDetail.company?.name}</div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <ApplyModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        jobDetail={jobDetail}
+      />
     </div>
   );
 };
