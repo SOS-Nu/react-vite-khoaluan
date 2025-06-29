@@ -1,0 +1,143 @@
+// src/styles/components/_reviews.scss
+
+.company-reviews-container {
+  // --- Style cho Form Gửi Review ---
+  .ant-comment {
+    // Nền của toàn bộ component Comment (chứa cả form và list)
+    background-color: transparent;
+  }
+
+  // Nội dung của form
+  .ant-comment-content-detail {
+    // Ô nhập liệu
+    .ant-input,
+    textarea.ant-input {
+      background-color: var(--background-input-search);
+      border: 1px solid var(--border-input-search);
+      color: var(--text-white);
+      transition: all 0.3s ease;
+
+      &::placeholder {
+        color: var(--text-gray);
+      }
+
+      &:focus,
+      &:hover {
+        border-color: var(--text-pink-100);
+        box-shadow: 0 0 0 2px rgba(var(--brand-social-rgb), 0.2);
+      }
+    }
+
+    // Các ngôi sao đánh giá
+    .ant-rate {
+      .ant-rate-star-full .anticon,
+      .ant-rate-star-half .anticon-star {
+        color: var(--glow-1); // Màu vàng đặc trưng của bạn
+      }
+      .ant-rate-star-zero .anticon {
+        color: var(--border-input-search);
+      }
+    }
+
+    // Nút bấm "Gửi đánh giá"
+    .ant-btn-primary {
+      background-image: var(--resize-button);
+      border: none;
+      font-weight: 600;
+
+      &:hover,
+      &:focus {
+        opacity: 0.9;
+        box-shadow: 0 0 10px rgba(var(--brand-social-rgb), 0.5);
+      }
+    }
+  }
+
+  // --- Style cho Danh sách Review đã có ---
+  .ant-list {
+    .ant-list-header {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-white);
+      border-bottom: 1px solid var(--border-input-search);
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    // Mỗi item trong list
+    .ant-list-item {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-input-search);
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  // Style cho từng comment trong danh sách
+  .comment-list {
+    .ant-comment-inner {
+      padding: 0;
+    }
+    // Tên tác giả
+    .ant-comment-content-author-name {
+      color: var(--text-white);
+      font-weight: 500;
+    }
+    // Thời gian đăng
+    .ant-comment-content-author-time {
+      color: var(--text-gray);
+    }
+    // Nội dung bình luận
+    .ant-comment-content-detail p {
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+  }
+
+  // Style cho phần Phân trang
+  .ant-pagination {
+    .ant-pagination-item {
+      background-color: transparent;
+      border: 1px solid var(--border-input-search);
+      a {
+        color: var(--text-gray);
+      }
+    }
+
+    .ant-pagination-item-active {
+      border-color: var(--text-pink-100);
+      a {
+        color: var(--text-pink-100);
+      }
+    }
+
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      .ant-pagination-item-link {
+        color: var(--text-gray);
+        background-color: transparent;
+        border: 1px solid var(--border-input-search);
+      }
+    }
+
+    .ant-pagination-disabled .ant-pagination-item-link {
+      color: rgba(var(--text-gray), 0.5);
+      border-color: transparent;
+    }
+  }
+
+  // Style cho Empty state
+  .ant-empty-description {
+    color: var(--text-gray);
+  }
+}
+
+.review-public {
+  word-break: break-word;
+
+  max-width: 100%;
+  color: var(--text-white);
+}

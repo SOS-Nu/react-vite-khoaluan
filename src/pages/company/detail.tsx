@@ -1,75 +1,47 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react';
-import { ICompany } from "@/types/backend";
-import { callFetchCompanyById } from "@/config/api";
-import styles from 'styles/client.module.scss';
-import parse from 'html-react-parser';
-import { Col, Divider, Row, Skeleton } from "antd";
-import { EnvironmentOutlined } from "@ant-design/icons";
+// src/pages/company/detail.tsx
 
+import { useSearchParams } from "react-router-dom";
+import { Col, Row, Empty } from "antd";
 
-const ClientCompanyDetailPage = (props: any) => {
-    const [companyDetail, setCompanyDetail] = useState<ICompany | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+// Đừng quên import file css chính
+import "styles/panel-detail.scss";
+import JobListByCompany from "./JobListByCompany";
+import CompanyDetailPanel from "./CompanyDetailPanel";
 
-    let location = useLocation();
-    let params = new URLSearchParams(location.search);
-    const id = params?.get("id"); // job id
+const ClientCompanyDetailPage = () => {
+  const [searchParams] = useSearchParams();
+  const companyId = searchParams.get("id");
 
-    useEffect(() => {
-        const init = async () => {
-            if (id) {
-                setIsLoading(true)
-                const res = await callFetchCompanyById(id);
-                if (res?.data) {
-                    setCompanyDetail(res.data)
-                }
-                setIsLoading(false)
-            }
-        }
-        init();
-    }, [id]);
-
+  if (!companyId) {
     return (
-        <div className={`${styles["container"]} ${styles["detail-job-section"]}`}>
-            {isLoading ?
-                <Skeleton />
-                :
-                <Row gutter={[20, 20]}>
-                    {companyDetail && companyDetail.id &&
-                        <>
-                            <Col span={24} md={16}>
-                                <div className={styles["header"]}>
-                                    {companyDetail.name}
-                                </div>
+      <div
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Empty description="URL không hợp lệ. Vui lòng chọn một công ty để xem chi tiết." />
+      </div>
+    );
+  }
 
-                                <div className={styles["location"]}>
-                                    <EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{(companyDetail?.address)}
-                                </div>
+  return (
+    <div className="container" style={{ marginTop: 20 }}>
+      <Row gutter={[30, 30]}>
+        {/* Cột Trái: Danh sách Jobs */}
+        <Col span={24} lg={9}>
+          <JobListByCompany companyId={companyId} />
+        </Col>
 
-                                <Divider />
-                                {parse(companyDetail?.description ?? "")}
-                            </Col>
+        {/* Cột Phải: Chi tiết Công ty (Sticky) */}
+        <Col span={24} lg={15}>
+          <CompanyDetailPanel companyId={companyId} />
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
-                            <Col span={24} md={8}>
-                                <div className={styles["company"]}>
-                                    <div>
-                                        <img
-                                            width={200}
-                                            alt="example"
-                                            src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${companyDetail?.logo}`}
-                                        />
-                                    </div>
-                                    <div>
-                                        {companyDetail?.name}
-                                    </div>
-                                </div>
-                            </Col>
-                        </>
-                    }
-                </Row>
-            }
-        </div>
-    )
-}
 export default ClientCompanyDetailPage;

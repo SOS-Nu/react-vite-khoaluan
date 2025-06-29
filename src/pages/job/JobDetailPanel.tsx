@@ -12,10 +12,11 @@ import {
   CalendarOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { getLocationName } from "@/config/utils";
+import { convertSlug, getLocationName } from "@/config/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ApplyModal from "@/components/client/modal/apply.modal";
+import { Link } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 
@@ -69,9 +70,29 @@ const JobDetailPanel = () => {
               />
               <div className="job-info">
                 <h1 className="header">{jobDetail.name ?? "Tên công việc"}</h1>
-                <div className="company-name">
-                  {jobDetail.company?.name ?? "Tên công ty"}
-                </div>
+                {jobDetail.company ? (
+                  <a
+                    href={`/company/${convertSlug(jobDetail.company.name ?? "")}?id=${jobDetail.company.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="company-name"
+                    style={{
+                      textDecoration: "none",
+                      color: "var(--text-gray)",
+                      cursor: "pointer",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.textDecoration = "underline")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.textDecoration = "none")
+                    }
+                  >
+                    {jobDetail.company.name}
+                  </a>
+                ) : (
+                  <div className="company-name">Tên công ty</div>
+                )}
               </div>
             </div>
             {jobDetail.company && (

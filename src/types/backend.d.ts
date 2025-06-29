@@ -219,3 +219,18 @@ export interface IDashboardData {
   totalJobs: number;
   totalResumesApproved: number; // Thêm key mới
 }
+
+export interface ICommentUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface IComment {
+  id: number;
+  comment: string;
+  rating: number;
+  user: ICommentUser;
+  createdAt: string;
+  createdBy: string;
+}

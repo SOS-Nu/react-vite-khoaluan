@@ -13,6 +13,7 @@ import {
   ISubscribers,
   IResponseImport,
   IDashboardData,
+  IComment,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -130,6 +131,26 @@ export const callFetchCompany = (query: string) => {
 
 export const callFetchCompanyById = (id: string) => {
   return axios.get<IBackendRes<ICompany>>(`/api/v1/companies/${id}`);
+};
+
+export const callFetchJobsByCompany = (id: string, query: string) => {
+  return axios.get<IBackendRes<IModelPaginate<IJob>>>(
+    `/api/v1/jobs/by-company/${id}?${query}`
+  );
+};
+
+export const callCreateComment = (data: {
+  comment: string;
+  rating: number;
+  companyId: number;
+}) => {
+  return axios.post("/api/v1/comments", data);
+};
+
+export const callFetchCommentsByCompany = (id: string, query: string) => {
+  return axios.get<IBackendRes<IModelPaginate<IComment>>>(
+    `/api/v1/comments/by-company/${id}?${query}`
+  );
 };
 
 /**
