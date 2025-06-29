@@ -211,3 +211,41 @@
     }
   }
 }
+
+.job-filter-container {
+  // Ghi đè màu nền nếu cần, Bootstrap 'bg-dark' đã khá tốt
+  // background-color: #2a2a3e;
+
+  .form-check-input {
+    background-color: #404058;
+    border-color: #5a5a78;
+
+    &:checked {
+      background-color: #a97af5; // Màu thương hiệu của bạn
+      border-color: #a97af5;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.25rem rgba(169, 122, 245, 0.35);
+    }
+  }
+
+  .form-control {
+    background-color: #212130;
+    color: white;
+    border: 1px solid #444;
+    &:focus {
+      background-color: #212130;
+      color: white;
+      border-color: #a97af5;
+      box-shadow: none;
+    }
+  }
+
+  .input-group-text {
+    background-color: #212130;
+    border: 1px solid #444;
+    color: #a97af5;
+    font-weight: bold;
+  }
+}

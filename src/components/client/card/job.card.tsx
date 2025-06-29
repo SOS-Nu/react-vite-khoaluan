@@ -9,7 +9,7 @@ import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
 import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/new-badge-orange.png";
-import { BsGeoAlt, BsCurrencyDollar } from "react-icons/bs";
+import { BsGeoAlt, BsCurrencyDollar, BsClock } from "react-icons/bs";
 import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
 import styles from "@/styles/client.module.scss";
@@ -61,9 +61,7 @@ const JobCard = (props: IProps) => {
                   isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
                 }
               >
-                <span className={styles["title"]} id="company-title-new">
-                  {title}
-                </span>
+                <span className={styles["title"]} id="company-title-new"></span>
                 {!showButtonAllJob && (
                   <Col xs={12} md={2}>
                     <Link
@@ -233,6 +231,28 @@ const JobCard = (props: IProps) => {
                                   )}{" "}
                                   đ
                                 </p>
+                                {/* Thêm phần level */}
+                                <p
+                                  className="company"
+                                  style={{
+                                    color: theme === "dark" ? "#ccc" : "#666",
+                                    fontSize: "0.875rem",
+                                    marginBottom: "0.25rem",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      color:
+                                        theme === "dark" ? "#58aaab" : "#000",
+                                      marginRight: "6px",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    📊{" "}
+                                    {/* Icon tùy chọn, có thể thay bằng icon khác */}
+                                  </span>
+                                  {item.level || "Không xác định"}
+                                </p>
                                 <p
                                   className="time"
                                   style={{
@@ -241,6 +261,14 @@ const JobCard = (props: IProps) => {
                                     marginBottom: "0.25rem",
                                   }}
                                 >
+                                  <BsClock
+                                    style={{
+                                      color:
+                                        theme === "dark" ? "#58aaab" : "#000",
+                                      marginRight: "6px",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  />
                                   {item.updatedAt
                                     ? dayjs(item.updatedAt)
                                         .locale("en")
