@@ -24,12 +24,14 @@
 @use "./manage.cv.scss";
 @use "./job.glowcard.scss";
 @use "./simple.glowcard.scss";
-@use "./skill.scss";
 @use "./company.glow-card.scss";
 @use "./pagination.scss";
 @use "../client.detail.job.scss";
 @use "../panel-detail.scss";
 @use "./company/reviews";
+@use "./create-online-resume.scss";
+@use "./public-cv.scss";
+@use "./skill.scss";
 
 * {
   margin: 0;

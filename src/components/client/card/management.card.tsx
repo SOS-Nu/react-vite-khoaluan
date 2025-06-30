@@ -46,7 +46,7 @@ const ManageCV = () => {
           <div className="d-flex flex-column gap-4">
             {EXPERIENCES.map((experience) => (
               <Link
-                to="/crudCV"
+                to="/resume/create"
                 key={experience.id}
                 style={{ textDecoration: "none" }}
               >

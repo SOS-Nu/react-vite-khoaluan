@@ -40,7 +40,7 @@ interface NavItem {
 }
 
 interface DropdownItem {
-  label: string | JSX.Element;
+  label: string | any;
   key: string;
   to?: string;
   onClick?: () => void;
@@ -110,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
       ),
       key: "/profile-cv",
       dropdownItems: [
-        { label: "Online Resume", key: "online-resume" },
+        { label: "Online Resume", key: "/resume/create", to: "/resume/create" },
         { label: "Create CV", key: "create-cv" },
         { label: "Evaluation CV By AI", key: "evaluation-cv" },
         { label: "AI Roadmap", key: "ai-roadmap" },
@@ -119,8 +119,14 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   ];
 
   const dropdownItems: DropdownItem[] = [
-    ...(!user?.role?.permissions?.length
-      ? [{ label: "Trang Cá Nhân CV", key: "pagecv", to: "/admin" }]
+    ...(user?.role?.permissions?.length
+      ? [
+          {
+            label: "Trang Cá Nhân CV",
+            key: "pagecv",
+            to: `/user/online-resumes/${user.id}`,
+          },
+        ]
       : []),
     {
       label: (
@@ -187,14 +193,24 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                         item.key === "/profile-cv" ? "profile-cv-dropdown" : ""
                       }`} // Thêm class cho Profile CV
                     >
-                      {item.dropdownItems.map((dropdownItem) => (
-                        <NavDropdown.Item
-                          key={dropdownItem.key}
-                          onClick={dropdownItem.onClick}
-                        >
-                          {dropdownItem.label}
-                        </NavDropdown.Item>
-                      ))}
+                      {item.dropdownItems.map((dropdownItem) =>
+                        dropdownItem.to ? (
+                          <NavDropdown.Item
+                            key={dropdownItem.key}
+                            as={Link}
+                            to={dropdownItem.to}
+                          >
+                            {dropdownItem.label}
+                          </NavDropdown.Item>
+                        ) : (
+                          <NavDropdown.Item
+                            key={dropdownItem.key}
+                            onClick={dropdownItem.onClick}
+                          >
+                            {dropdownItem.label}
+                          </NavDropdown.Item>
+                        )
+                      )}
                     </NavDropdown>
                   ) : (
                     <NavLink

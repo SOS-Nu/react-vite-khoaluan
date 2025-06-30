@@ -14,6 +14,8 @@ import {
   IResponseImport,
   IDashboardData,
   IComment,
+  IOnlineResume,
+  IWorkExperience,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -421,6 +423,39 @@ export const callFetchSubscriber = (query: string) => {
   );
 };
 
+export const callCreateWorkExperience = (data: IWorkExperience) => {
+  return axios.post<IBackendRes<IWorkExperience>>(
+    "/api/v1/work-experiences",
+    data
+  );
+};
+
+export const callUpdateWorkExperience = (data: IWorkExperience) => {
+  return axios.put<IBackendRes<IWorkExperience>>(
+    `/api/v1/work-experiences`,
+    data
+  );
+};
+
+export const callDeleteWorkExperience = (id: number) => {
+  return axios.delete<IBackendRes<null>>(`/api/v1/work-experiences/${id}`);
+};
+
+/**
+ *
+Module Online Resume
+ */
+export const callCreateOnlineResume = (data: IOnlineResume) => {
+  return axios.post<IBackendRes<IOnlineResume>>("/api/v1/online-resumes", data);
+};
+
+export const callUpdateOnlineResume = (data: IOnlineResume) => {
+  return axios.put<IBackendRes<IOnlineResume>>("/api/v1/online-resumes", data);
+};
+
+export const callDeleteOnlineResume = (id: number) => {
+  return axios.delete<IBackendRes<null>>(`/api/v1/online-resumes/${id}`);
+};
 export const callFetchSubscriberById = (id: string) => {
   return axios.get<IBackendRes<ISubscribers>>(`/api/v1/subscribers/${id}`);
 };
@@ -432,5 +467,24 @@ export const callGetDashboard = () => {
 export const callLoginWithGoogle = (credential: string) => {
   return axios.post<IBackendRes<IAccount>>("/api/v1/auth/google", {
     credential,
+  });
+};
+
+export const callFetchUserDetailById = (id: string | number) => {
+  return axios.get<IBackendRes<IUser>>(`/api/v1/users/detail/${id}`);
+};
+
+export const callUploadMainResume = (file: File) => {
+  const bodyFormData = new FormData();
+  bodyFormData.append("file", file);
+  bodyFormData.append("folder", "resumeInfor"); // folder value as specified
+
+  return axios<IBackendRes<{ fileName: string; uploadedAt: string }>>({
+    method: "post",
+    url: "/api/v1/users/main-resume",
+    data: bodyFormData,
+    headers: {
+      "Content-Type": "multipart/form-data", // Important for file uploads
+    },
   });
 };

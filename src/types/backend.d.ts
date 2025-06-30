@@ -85,18 +85,22 @@ export interface ISkill {
 }
 
 export interface IUser {
-  id?: string;
+  id: number;
   name: string;
-  email: string;
+  email: string | null;
   password?: string;
   age: number;
   gender: string;
-  address: string;
+  address: string | null;
+  avatar?: string | null;
+  mainResume: string | null;
+  onlineResume?: IOnlineResume | null;
+  workExperiences?: IWorkExperience[];
+  public: boolean;
   role?: {
     id: string;
     name: string;
   };
-
   company?: {
     id: string;
     name: string;
@@ -233,4 +237,38 @@ export interface IComment {
   user: ICommentUser;
   createdAt: string;
   createdBy: string;
+}
+
+export interface IWorkExperience {
+  id?: number;
+  companyName: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  location: string;
+  // Thêm các trường khác nếu cần
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface IOnlineResume {
+  id?: number;
+  title: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  address: string;
+  summary: string;
+  certifications: string;
+  educations: string;
+  languages: string;
+  skills: { id: number; name?: string }[];
+  workExperiences?: IWorkExperience[]; // có thể thêm sau này
+  user?: {
+    id: number;
+    email: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }

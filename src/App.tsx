@@ -26,7 +26,7 @@ import { fetchAccount } from "./redux/slice/accountSlide";
 import LayoutApp from "./components/share/layout.app";
 import ViewUpsertJob from "./components/admin/job/upsert.job";
 import ClientJobPage from "./pages/job";
-import ClientJobDetailPage from "./pages/job/detail";
+
 import ClientCompanyPage from "./pages/company";
 import ClientCompanyDetailPage from "./pages/company/detail";
 import JobTabs from "./pages/admin/job/job.tabs";
@@ -35,6 +35,8 @@ import { App as AntdApp } from "antd";
 import { AppContextProvider } from "./components/context/app.context";
 import RecruiterPage from "./pages/recruiter";
 import ScrollToTop from "./components/share/scroll.to.top";
+import CreateOnlineResumePage from "./pages/resume/create-online";
+import PublicCvPage from "./pages/user/public-cv";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,10 +53,9 @@ const LayoutClient = () => {
     <div className="layout-app" ref={rootRef}>
       <ScrollToTop />
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <div>
-        <div className={styles["content-app"]}>
-          <Outlet context={[searchTerm, setSearchTerm]} />
-        </div>
+
+      <div className={styles["content-app"]}>
+        <Outlet context={[searchTerm, setSearchTerm]} />
       </div>
 
       <Footer />
@@ -99,6 +100,18 @@ export default function App() {
               <RecruiterPage />
             </ProtectedRoute>
           ),
+        },
+        {
+          path: "resume/create",
+          element: (
+            <ProtectedRoute>
+              <CreateOnlineResumePage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "user/online-resumes/:id",
+          element: <PublicCvPage />,
         },
         // { path: "chat", element: <ChatPage /> },
       ],

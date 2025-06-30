@@ -13,6 +13,8 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { fetchJob } from "@/redux/slice/jobSlide";
 import { fetchCompany } from "@/redux/slice/companySlide";
+import { Container } from "react-bootstrap";
+import Skill from "../skill";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -61,6 +63,11 @@ const HomePage = () => {
       <Divider />
       <Introduction />
       <Banner />
+      <section>
+        <Container>
+          <Skill />
+        </Container>
+      </section>
     </div>
   );
 };
