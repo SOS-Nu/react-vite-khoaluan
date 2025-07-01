@@ -488,3 +488,25 @@ export const callUploadMainResume = (file: File) => {
     },
   });
 };
+
+export const callChangePassword = (oldPassword: string, newPassword: string) =>
+  axios.post<IBackendRes<null>>("/api/v1/auth/change-password", {
+    oldPassword,
+    newPassword,
+  });
+
+export const callSendOtpChangePassword = (email: string) =>
+  axios.post<IBackendRes<null>>("/api/v1/auth/send-otp", {
+    email,
+  });
+
+export const callVerifyOtpAndChangePassword = (
+  email: string,
+  otpCode: string,
+  newPassword: string
+) =>
+  axios.post<IBackendRes<null>>("/api/v1/auth/verify-otp-change-password", {
+    email,
+    otpCode,
+    newPassword,
+  });

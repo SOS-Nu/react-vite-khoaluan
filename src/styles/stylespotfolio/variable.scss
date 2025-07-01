@@ -37,7 +37,7 @@ $light-theme: (
   brand-name-400: black,
 
   brand-social: #ec4899,
-
+  option-skill-managecard: #28b7fe63,
   border-hero-right: #494545,
   background-hero-right: "linear-gradient(to right, #fff, #eee)",
   border-top-hero-right:
@@ -61,6 +61,7 @@ $light-theme: (
 );
 
 $dark-theme: (
+  option-skill-managecard: #ff5411da,
   brand-social-rgb: rgb(236, 72, 153),
   background-file-search:
     "linear-gradient(to right, transparent,#8b5cf6, #8b5cf6, transparent)",
