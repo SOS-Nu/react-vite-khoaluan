@@ -173,24 +173,6 @@
       background-color: white;
       padding: 1px;
     }
-    .job-info {
-      .header {
-        font-size: 1.75rem;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-        /* Đây là dải màu gradient giống hệt "Hello, SOS" */
-        background: var(--text-title-managecv);
-
-        /* Các thuộc tính để áp dụng gradient vào chữ */
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-      .company-name {
-        font-size: 1rem;
-        color: var(--text-gray);
-      }
-    }
   }
 
   .btn-apply {
@@ -247,5 +229,34 @@
     border: 1px solid #444;
     color: #a97af5;
     font-weight: bold;
+  }
+}
+
+[data-bs-theme="dark"] {
+  .job-info {
+    .header {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      /* Đây là dải màu gradient giống hệt "Hello, SOS" */
+      background: var(--text-title-managecv) !important;
+
+      /* Các thuộc tính để áp dụng gradient vào chữ */
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+}
+
+[data-bs-theme="light"] {
+  .job-info {
+    .header {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      /* Đây là dải màu gradient giống hệt "Hello, SOS" */
+      color: black;
+    }
   }
 }

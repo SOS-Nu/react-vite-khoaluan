@@ -99,7 +99,7 @@ const CompanyCard = (props: IProps) => {
                                 ...(theme === "dark"
                                   ? {
                                       background:
-                                        "linear-gradient(-45deg, #ff9100 10%, #ff9100 35%, #ff530f 70%, #e62c6d 100%)",
+                                        "linear-gradient(90deg, #1b74ff, #a880ff 96.79%)",
                                       WebkitBackgroundClip: "text",
                                       backgroundClip: "text",
                                       color: "transparent",

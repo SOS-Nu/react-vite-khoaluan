@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ApplyModal from "@/components/client/modal/apply.modal";
 import { Link } from "react-router-dom";
+import { useCurrentApp } from "@/components/context/app.context";
 
 dayjs.extend(relativeTime);
 
@@ -26,6 +27,7 @@ const JobDetailPanel = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const { theme } = useCurrentApp();
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -77,9 +79,17 @@ const JobDetailPanel = () => {
                     rel="noopener noreferrer"
                     className="company-name"
                     style={{
-                      textDecoration: "none",
-                      color: "var(--text-gray)",
-                      cursor: "pointer",
+                      ...(theme === "dark"
+                        ? {
+                            background:
+                              "linear-gradient(90deg, #1b74ff, #a880ff 96.79%)",
+                            WebkitBackgroundClip: "text",
+                            backgroundClip: "text",
+                            color: "transparent",
+                            textDecoration: "none",
+                          }
+                        : { color: "#000", textDecoration: "none" }),
+                      fontWeight: 600,
                     }}
                     onMouseOver={(e) =>
                       (e.currentTarget.style.textDecoration = "underline")

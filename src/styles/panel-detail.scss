@@ -36,8 +36,15 @@
         font-size: 1.75rem;
         margin-bottom: 0.5rem;
         font-weight: 600;
-        color: var(--text-white);
+        background: var(--linear-gradient-blue-purple-company);
         line-height: 1.2;
+
+        -webkit-background-clip: text;
+        /* Dành cho trình duyệt Chrome/Safari */
+        background-clip: text;
+
+        /* Làm cho màu của chữ trở nên trong suốt để nền hiện ra */
+        color: transparent;
       }
       .location {
         font-size: 0.9rem;
@@ -103,4 +110,39 @@
 /* Hoặc nếu bạn muốn chỉ áp dụng cho thẻ strong */
 [data-bs-theme="dark"] strong[style*="color"] {
   color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] {
+  .company-title {
+    .name {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      background: var(--linear-gradient-blue-purple);
+      line-height: 1.2;
+
+      -webkit-background-clip: text;
+      /* Dành cho trình duyệt Chrome/Safari */
+      background-clip: text;
+
+      /* Làm cho màu của chữ trở nên trong suốt để nền hiện ra */
+      color: transparent;
+    }
+    .location {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+    }
+  }
+}
+
+[data-bs-theme="light"] {
+  .company-title {
+    .name {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      /* Làm cho màu của chữ trở nên trong suốt để nền hiện ra */
+      color: black;
+    }
+  }
 }

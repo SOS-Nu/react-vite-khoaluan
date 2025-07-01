@@ -21,7 +21,8 @@ import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAppDispatch } from "@/redux/hooks";
 import { findJobsByAI } from "@/redux/slice/jobSlide";
 import Typewriter from "typewriter-effect";
-import styles from "styles/client.module.scss";
+import "@/styles/stylespotfolio/search.client.scss";
+import { useCurrentApp } from "../context/app.context";
 
 const { Option } = Select;
 
@@ -34,6 +35,7 @@ const SearchClient = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const { theme } = useCurrentApp();
 
   useEffect(() => {
     // CẬP NHẬT USEEFFECT ĐỂ ĐỌC CẢ THAM SỐ CỦA AI SEARCH
@@ -215,7 +217,22 @@ const SearchClient = () => {
       <div className="search-form-overlay">
         <Row justify="center">
           <Col span={24} style={{ textAlign: "center", marginBottom: "20px" }}>
-            <h2 className="typewriter-title">
+            <h2
+              style={{
+                ...(theme === "dark"
+                  ? {
+                      background:
+                        "linear-gradient(90deg, #1b74ff, #a880ff 96.79%)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent",
+                      fontWeight: 500,
+                    }
+                  : { color: "#000" }),
+                fontWeight: 600,
+                marginBottom: "0.25rem",
+              }}
+            >
               <Typewriter
                 options={{
                   strings: [

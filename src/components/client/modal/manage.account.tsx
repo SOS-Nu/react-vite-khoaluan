@@ -99,10 +99,10 @@ const UserResume = () => {
                 <td>{dayjs(cv.createdAt).format("DD-MM-YYYY HH:mm:ss")}</td>
                 <td className="text-center">
                   <Button
-                    variant="outline-info"
                     size="sm"
                     href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${cv?.url}`}
                     target="_blank"
+                    className="update-btn"
                   >
                     Chi tiết
                   </Button>
@@ -235,16 +235,17 @@ const JobByEmail = () => {
     }),
     option: (provided: any, state: any) => ({
       ...provided,
-      backgroundColor: state.isSelected
-        ? getCssVar("--brand-social")
+      background: state.isSelected
+        ? getCssVar("--linear-gradient-blue-purple")
         : state.isFocused
-          ? getCssVar("--option-skill-managecard")
+          ? getCssVar("--linear-gradient-blue-purple")
           : "transparent",
       color: getCssVar("--text-white"),
     }),
     multiValue: (provided: any) => ({
       ...provided,
-      backgroundColor: `rgba(${getCssVar("--brand-social-rgb")}, 0.3)`,
+      background: getCssVar("--linear-gradient-blue-purple"),
+      borderRadius: "30px",
     }),
     multiValueLabel: (provided: any) => ({
       ...provided,

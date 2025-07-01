@@ -30,19 +30,6 @@
     padding: 2rem;
     border-radius: 12px;
   }
-
-  h2 {
-    font-size: 2.5rem; // tương đương 40px
-    font-weight: 500; // Có thể dùng 500 hoặc bold tùy ý
-
-    /* Đây là dải màu gradient giống hệt "Hello, SOS" */
-    background: var(--text-color-nobackground);
-
-    /* Các thuộc tính để áp dụng gradient vào chữ */
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
 }
 
 // 3. Wrapper cho hiệu ứng viền (sửa đổi và bổ sung)

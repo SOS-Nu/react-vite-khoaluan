@@ -230,7 +230,12 @@ const ChangePasswordTab = () => {
           </Form.Group>
         </Col>
       </Row>
-      <Button variant="primary" type="submit" disabled={isSubmitting}>
+      <Button
+        variant="primary"
+        type="submit"
+        disabled={isSubmitting}
+        className="update-btn"
+      >
         {isSubmitting ? (
           <>
             <Spinner as="span" animation="border" size="sm" /> &nbsp; Đang xử
@@ -280,6 +285,7 @@ const ChangePasswordTab = () => {
                     type="submit"
                     variant="primary"
                     disabled={isRequestingOtp}
+                    className="update-btn"
                   >
                     {isRequestingOtp ? "Đang gửi..." : "Gửi mã"}
                   </Button>

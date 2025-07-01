@@ -18,6 +18,7 @@
   --capra-ramp-5: #b25aff; /* Màu mới */
 }
 $light-theme: (
+  linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
   text-tilte-newjob: black,
   background-dropdown-search: white,
   background-input-search: #e3dddd,
@@ -58,9 +59,16 @@ $light-theme: (
   skill-card-background: #f5f6f7,
   border-top-skill-card:
     "linear-gradient(to right, transparent, #fff, #fff, transparent)",
+  linear-gradient-blue-purple-company: black,
 );
 
 $dark-theme: (
+  linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
+  linear-gradient-blue-purple-company: linear-gradient(
+      90deg,
+      #1b74ff,
+      #a880ff 96.79%
+    ),
   option-skill-managecard: #ff5411da,
   brand-social-rgb: rgb(236, 72, 153),
   background-file-search:

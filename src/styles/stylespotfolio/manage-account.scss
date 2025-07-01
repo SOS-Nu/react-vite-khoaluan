@@ -61,19 +61,19 @@
     .form-text {
       color: var(--text-gray); // Dùng biến cho text phụ
     }
+  }
+}
+.update-btn {
+  // Dùng biến --resize-button cho đồng bộ
+  background: var(--resize-button);
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+  border-radius: 30px;
 
-    .update-btn {
-      // Dùng biến --resize-button cho đồng bộ
-      background: var(--resize-button);
-      border: none;
-      font-weight: 600;
-      padding: 0.5rem 1.5rem;
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(var(--brand-social-rgb), 0.4);
-      }
-    }
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(var(--brand-social-rgb), 0.4);
   }
 }
