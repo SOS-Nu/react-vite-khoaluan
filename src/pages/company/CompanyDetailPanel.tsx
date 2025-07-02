@@ -17,6 +17,9 @@ import { getLocationName } from "@/config/utils";
 import "styles/panel-detail.scss";
 import { callFetchCompanyById } from "@/config/api";
 import CompanyReviews from "./CompanyReviews";
+import { Button } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAppSelector } from "@/redux/hooks";
 
 interface IProps {
   companyId: string;
@@ -25,6 +28,7 @@ interface IProps {
 const CompanyDetailPanel = ({ companyId }: IProps) => {
   const [companyDetail, setCompanyDetail] = useState<ICompany | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCompanyDetail = async () => {
@@ -85,6 +89,17 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                 </div>
               )}
             </div>
+            <Button
+              onClick={() => {
+                navigate("/chat/detail", {
+                  state: { receiver: companyDetail ?? {} },
+                });
+              }}
+              color="light"
+              className="mt-4"
+            >
+              nhan tin
+            </Button>
           </div>
 
           {/* PHẦN NỘI DUNG CUỘN */}

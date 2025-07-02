@@ -228,7 +228,7 @@ const SearchClient = () => {
                       color: "transparent",
                       fontWeight: 500,
                     }
-                  : { color: "#000" }),
+                  : { color: "white" }),
                 fontWeight: 600,
                 marginBottom: "0.25rem",
               }}

@@ -37,6 +37,9 @@ import RecruiterPage from "./pages/recruiter";
 import ScrollToTop from "./components/share/scroll.to.top";
 import CreateOnlineResumePage from "./pages/resume/create-online";
 import PublicCvPage from "./pages/user/public-cv";
+import ChatPage from "./pages/chat/ChatPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,6 +56,18 @@ const LayoutClient = () => {
     <div className="layout-app" ref={rootRef}>
       <ScrollToTop />
       <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
       <div className={styles["content-app"]}>
         <Outlet context={[searchTerm, setSearchTerm]} />
@@ -62,6 +77,8 @@ const LayoutClient = () => {
     </div>
   );
 };
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -80,11 +97,13 @@ export default function App() {
     {
       path: "/",
       element: (
-        <AppContextProvider>
-          <LayoutApp>
-            <LayoutClient />
-          </LayoutApp>
-        </AppContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContextProvider>
+            <LayoutApp>
+              <LayoutClient />
+            </LayoutApp>
+          </AppContextProvider>
+        </QueryClientProvider>
       ),
       errorElement: <NotFound />,
       children: [
@@ -112,6 +131,14 @@ export default function App() {
         {
           path: "user/online-resumes/:id",
           element: <PublicCvPage />,
+        },
+        {
+          path: "chat/detail",
+          element: (
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          ),
         },
         // { path: "chat", element: <ChatPage /> },
       ],

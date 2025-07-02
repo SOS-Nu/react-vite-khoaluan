@@ -510,3 +510,11 @@ export const callVerifyOtpAndChangePassword = (
     otpCode,
     newPassword,
   });
+
+export const getUsersConnected = (id: number) => {
+  return axios.get(`/users-connected?id=${id}`);
+};
+
+export const getAllMessages = (senderId: number, recipientId: number) => {
+  return axios.get(`/messages/${senderId}/${recipientId}`);
+};

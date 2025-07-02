@@ -143,7 +143,14 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     ...(user?.role?.permissions?.length
       ? [{ label: "Trang Quản Trị", key: "admin", to: "/admin" }]
       : []),
-
+    {
+      label: (
+        <label style={{ cursor: "pointer" }} onClick={handleLogout}>
+          Tin Nhắn
+        </label>
+      ),
+      key: "logout",
+    },
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={handleLogout}>

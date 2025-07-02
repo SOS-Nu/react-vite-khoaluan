@@ -102,7 +102,6 @@ const UserResume = () => {
                     size="sm"
                     href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${cv?.url}`}
                     target="_blank"
-                    className="update-btn"
                   >
                     Chi tiết
                   </Button>
