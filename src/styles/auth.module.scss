@@ -49,24 +49,6 @@
   }
 }
 
-// "Nhuộm màu" cho nút Primary
-:global(.btn-primary) {
-  // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
-  background: var(--resize-button) !important;
-  border: none !important;
-  transition: opacity 0.3s ease;
-  padding: 0.75rem;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    background: var(--resize-button) !important;
-    opacity: 0.65;
-  }
-}
-
 // "Nhuộm màu" cho đường kẻ
 .login-card hr {
   border-top: 1px solid var(--border-hero-right);

@@ -144,12 +144,9 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
       ? [{ label: "Trang Quản Trị", key: "admin", to: "/admin" }]
       : []),
     {
-      label: (
-        <label style={{ cursor: "pointer" }} onClick={handleLogout}>
-          Tin Nhắn
-        </label>
-      ),
-      key: "logout",
+      label: <label style={{ cursor: "pointer" }}>Tin Nhắn</label>,
+      key: "chat",
+      to: "/chat/detail",
     },
     {
       label: (

@@ -9,7 +9,7 @@
   --input-background: var(--background-input-search);
   --text-color: #e1dfdf;
   --brand-social-rgb: 236, 72, 153;
-
+  --brand-social-blue: 27, 116, 255;
   /* THÊM CÁC BIẾN MÀU MỚI TỪ FILE MẪU */
   --capra-ramp-1: #ffc400;
   --capra-ramp-2: #ff9100;
@@ -19,6 +19,7 @@
 }
 $light-theme: (
   linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
+  linear-gradient-failure: linear-gradient(to right, #dc3545, #6c757d),
   text-tilte-newjob: black,
   background-dropdown-search: white,
   background-input-search: #e3dddd,
@@ -32,6 +33,7 @@ $light-theme: (
   scroll-thumb-background: "#ccc",
   scroll-thumb-hover: "#9e9e9e",
   brand-social-rgb: rgb(236, 72, 153),
+  brand-social-blue: rgb(27, 116, 255),
   brand-name-100: black,
   brand-name-200: black,
   brand-name-300: black,
@@ -63,6 +65,8 @@ $light-theme: (
 );
 
 $dark-theme: (
+  linear-gradient-failure: linear-gradient(to right, #b3535d, #fd0000),
+  brand-social-blue: rgb(27, 116, 255),
   linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
   linear-gradient-blue-purple-company: linear-gradient(
       90deg,
@@ -132,4 +136,5 @@ $dark-theme: (
     --#{$name}: #{$color};
   }
   --brand-social-rgb: 255, 77, 166;
+  --brand-social-blue: 27, 116, 255;
 }

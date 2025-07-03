@@ -40,6 +40,7 @@ import PublicCvPage from "./pages/user/public-cv";
 import ChatPage from "./pages/chat/ChatPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
+import PaymentResult from "./components/payment/PaymentResult";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,6 +138,14 @@ export default function App() {
           element: (
             <ProtectedRoute>
               <ChatPage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/payment/result",
+          element: (
+            <ProtectedRoute>
+              <PaymentResult />
             </ProtectedRoute>
           ),
         },
