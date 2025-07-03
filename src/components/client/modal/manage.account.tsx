@@ -27,6 +27,8 @@ import Select from "react-select"; // Import react-select
 import { MonitorOutlined } from "@ant-design/icons"; // Có thể giữ lại icon nếu muốn
 import "@/styles/stylespotfolio/manage-account.scss"; // File SCSS mới cho component này
 import ChangePasswordTab from "@/components/account/ChangePasswordTab";
+import UpdateInfoTab from "@/components/account/UpdateInfoTab";
+import VipAccountTab from "@/components/account/VipAccountTab";
 
 // Giao diện cho props
 interface IProps {
@@ -375,9 +377,10 @@ const ManageAccount = (props: IProps) => {
             <JobByEmail />
           </Tab>
           <Tab eventKey="user-update-info" title="Cập nhật thông tin">
-            <div className="text-center py-5">
-              // TODO: Xây dựng giao diện cập nhật thông tin
-            </div>
+            <UpdateInfoTab />
+          </Tab>
+          <Tab eventKey="vip-account" title="Tài khoản VIP">
+            <VipAccountTab />
           </Tab>
           {/* SỬA ĐỔI Ở ĐÂY */}
           <Tab eventKey="user-password" title="Thay đổi mật khẩu">

@@ -518,3 +518,19 @@ export const getUsersConnected = (id: number) => {
 export const getAllMessages = (senderId: number, recipientId: number) => {
   return axios.get(`/messages/${senderId}/${recipientId}`);
 };
+
+export const callUpdateOwnInfo = (data: Partial<IUser>) => {
+  return axios.put<IBackendRes<IUser>>(`/api/v1/users/update-own-info`, data);
+};
+
+export const callUpdatePublicStatus = (isPublic: boolean) => {
+  return axios.put<IBackendRes<null>>(`/api/v1/users/is-public`, {
+    public: isPublic,
+  });
+};
+
+export const callCreateVipPaymentUrl = () => {
+  // Kiểu 'any' được dùng ở đây vì response trả về có cấu trúc lồng nhau phức tạp.
+  // Component sẽ tự xử lý việc truy cập vào dữ liệu cần thiết.
+  return axios.post<any>("/api/v1/payment/vnpay/create");
+};

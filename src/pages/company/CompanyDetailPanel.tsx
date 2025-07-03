@@ -1,7 +1,7 @@
 // src/components/company/CompanyDetailPanel.tsx
 
 import { useEffect, useState } from "react";
-import { ICompany } from "@/types/backend";
+import { hrCompany, ICompany } from "@/types/backend";
 import { Skeleton, Divider, Tag, Empty } from "antd";
 import {
   EnvironmentOutlined,
@@ -29,12 +29,14 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
   const [companyDetail, setCompanyDetail] = useState<ICompany | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const [hrCompany, setHrCompany] = useState<hrCompany | null>(null);
 
   useEffect(() => {
     const fetchCompanyDetail = async () => {
       setIsLoading(true);
       const res = await callFetchCompanyById(companyId);
       setCompanyDetail(res?.data ?? null);
+      setHrCompany(res?.data?.hrCompany ?? null);
       setIsLoading(false);
     };
 
@@ -92,7 +94,7 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
             <Button
               onClick={() => {
                 navigate("/chat/detail", {
-                  state: { receiver: companyDetail ?? {} },
+                  state: { receiver: hrCompany ?? {} },
                 });
               }}
               color="light"

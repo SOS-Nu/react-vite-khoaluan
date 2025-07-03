@@ -21,6 +21,14 @@ export interface IAccount {
     id: string | number;
     email: string;
     name: string;
+    age?: number;
+    gender?: string;
+    address?: string | null;
+    avatar?: string | null;
+    mainResume?: string | null;
+    onlineResume?: IOnlineResume | null;
+    workExperiences?: IWorkExperience[];
+    public?: boolean;
     role: {
       id: string | number;
       name: string;
@@ -72,6 +80,13 @@ export interface ICompany {
   location?: string;
   updatedBy?: string | null;
   totalJobs?: number;
+  hrCompany?: hrCompany;
+}
+
+export interface hrCompany {
+  id?: number;
+  name?: string;
+  email?: string;
 }
 
 export interface ISkill {
@@ -87,16 +102,16 @@ export interface ISkill {
 export interface IUser {
   id: number;
   name: string;
-  email: string | null;
+  email?: string | null;
   password?: string;
-  age: number;
-  gender: string;
-  address: string | null;
+  age?: number;
+  gender?: string;
+  address?: string | null;
   avatar?: string | null;
-  mainResume: string | null;
+  mainResume?: string | null;
   onlineResume?: IOnlineResume | null;
   workExperiences?: IWorkExperience[];
-  public: boolean;
+  public?: boolean;
   role?: {
     id: string;
     name: string;

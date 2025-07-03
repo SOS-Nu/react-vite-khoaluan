@@ -1,5 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { callFetchAccount } from "@/config/api";
+import {
+  callFetchAccount,
+  callUpdateOwnInfo,
+  callUpdatePublicStatus,
+} from "@/config/api";
+import { IOnlineResume, IUser, IWorkExperience } from "@/types/backend";
 
 // First, create the thunk
 export const fetchAccount = createAsyncThunk(
@@ -7,6 +12,27 @@ export const fetchAccount = createAsyncThunk(
   async () => {
     const response = await callFetchAccount();
     return response.data;
+  }
+);
+
+export const updateOwnInfo = createAsyncThunk(
+  "account/updateOwnInfo",
+  async (payload: Partial<IUser>) => {
+    const response = await callUpdateOwnInfo(payload);
+    return response.data;
+  }
+);
+
+export const updatePublicStatus = createAsyncThunk(
+  "account/updatePublicStatus",
+  async (payload: { public: boolean }, { rejectWithValue }) => {
+    try {
+      await callUpdatePublicStatus(payload.public);
+      // Trả về trạng thái đã gửi đi để cập nhật state trong reducer
+      return payload.public;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
   }
 );
 
@@ -19,6 +45,16 @@ interface IState {
     id: number | string;
     email: string;
     name: string;
+    age: number;
+    gender: string;
+    address: string | null;
+    avatar?: string | null;
+    public: boolean;
+    vip?: boolean;
+    company?: {
+      id: number | string;
+      name: string;
+    } | null;
     role?: {
       id?: string | number;
       name?: string;
@@ -55,13 +91,19 @@ const initialState: IState = {
     id: "",
     email: "",
     name: "",
+    age: 0,
+    gender: "",
+    address: "",
+    avatar: null,
+    public: false,
+    vip: false,
+    company: null,
     role: {
       id: "",
       name: "",
       permissions: [],
     },
   },
-
   activeMenu: "home",
 };
 
@@ -80,18 +122,34 @@ export const accountSlide = createSlice({
       state.user.id = action?.payload?.id;
       state.user.email = action.payload.email;
       state.user.name = action.payload.name;
+      state.user.age = action.payload.age;
+      state.user.gender = action.payload.gender;
+      state.user.avatar = action.payload.avatar;
+      state.user.address = action.payload.address;
+      state.user.avatar = action.payload.avatar;
+      state.user.public = action.payload.public;
+      state.user.vip = action.payload.vip;
+      state.user.company = action.payload.company;
       state.user.role = action?.payload?.role;
-
-      if (!action?.payload?.user?.role) state.user.role = {};
-      state.user.role.permissions = action?.payload?.role?.permissions ?? [];
+      if (!action?.payload?.role) state.user.role = { permissions: [] };
+      if (state.user.role != null) {
+        state.user.role.permissions = action?.payload?.role?.permissions ?? [];
+      }
     },
-    setLogoutAction: (state, action) => {
+    setLogoutAction: (state) => {
       localStorage.removeItem("access_token");
       state.isAuthenticated = false;
       state.user = {
         id: "",
         email: "",
         name: "",
+        age: 0,
+        gender: "",
+        address: null,
+        avatar: null,
+        public: false,
+        vip: false,
+        company: null,
         role: {
           id: "",
           name: "",
@@ -120,8 +178,15 @@ export const accountSlide = createSlice({
         state.user.id = action?.payload?.user?.id;
         state.user.email = action.payload.user?.email;
         state.user.name = action.payload.user?.name;
+        state.user.age = action.payload.user?.age;
+        state.user.gender = action.payload.user?.gender;
+        state.user.address = action.payload.user?.address;
+        state.user.avatar = action.payload.user?.avatar;
+        state.user.public = action.payload.user?.public;
+        state.user.vip = action.payload.user?.vip;
+        state.user.company = action.payload.user?.company;
         state.user.role = action?.payload?.user?.role;
-        if (!action?.payload?.user?.role) state.user.role = {};
+        if (!action?.payload?.user?.role) state.user.role = { permissions: [] };
         state.user.role.permissions =
           action?.payload?.user?.role?.permissions ?? [];
       }
@@ -132,6 +197,30 @@ export const accountSlide = createSlice({
         state.isAuthenticated = false;
         state.isLoading = false;
       }
+    });
+    // Add these cases to the builder to handle the new thunk
+    builder.addCase(updateOwnInfo.pending, (state, action) => {
+      // You can set a specific loading state for the update if needed
+      state.isLoading = true;
+    });
+
+    builder.addCase(updateOwnInfo.fulfilled, (state, action) => {
+      state.isLoading = false;
+      if (action.payload) {
+        // Merge the updated fields into the existing user state
+        // The spread operator ensures we only overwrite the changed fields
+        state.user = { ...state.user, ...action.payload };
+      }
+    });
+
+    builder.addCase(updateOwnInfo.rejected, (state, action) => {
+      state.isLoading = false;
+      // You can handle errors here, for example by setting an error message in the state
+    });
+    // ADDED: Xử lý cho thunk updatePublicStatus
+    builder.addCase(updatePublicStatus.fulfilled, (state, action) => {
+      // Cập nhật trạng thái public của user với giá trị từ payload
+      state.user.public = action.payload;
     });
   },
 });

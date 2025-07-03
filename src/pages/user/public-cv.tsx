@@ -1,7 +1,7 @@
 // src/pages/user/public-cv.tsx
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Image } from "react-bootstrap";
 import { Spin, notification, Result, Tag } from "antd";
 import { callFetchUserDetailById } from "@/config/api";
@@ -21,6 +21,7 @@ const PublicCvPage = () => {
   const [userData, setUserData] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -130,6 +131,17 @@ const PublicCvPage = () => {
                       <HomeOutlined /> &nbsp; {userData.address}
                     </p>
                   )}
+                  <Button
+                    onClick={() => {
+                      navigate("/chat/detail", {
+                        state: { receiver: userData ?? {} },
+                      });
+                    }}
+                    color="light"
+                    className="mt-4"
+                  >
+                    nhan tin
+                  </Button>
                 </div>
 
                 <hr />
