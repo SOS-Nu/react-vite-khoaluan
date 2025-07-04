@@ -59,6 +59,10 @@ export interface IAccount {
   };
 }
 
+export interface ICandidate {
+  score: number;
+  user: IUser; // Dùng lại interface IUser đã có
+}
 export interface IGetAccount extends Omit<IAccount, "access_token"> {}
 
 export interface ICompany {

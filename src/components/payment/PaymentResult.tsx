@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Spinner, Alert, Button, Card } from "react-bootstrap";
+import { Spinner, Alert, Button, Card, Stack } from "react-bootstrap";
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import axios from "@/config/axios-customize"; // Dùng axios đã cấu hình của bạn
 import { useAppDispatch } from "@/redux/hooks";
@@ -15,6 +15,7 @@ const PaymentResult = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
   useEffect(() => {
     // Lấy tất cả các query params từ URL mà VNPay trả về
@@ -32,8 +33,14 @@ const PaymentResult = () => {
         if (res.data.status === "success") {
           setPaymentStatus("success");
           setMessage(res.data.message);
+
           // QUAN TRỌNG: Lấy lại thông tin user để cập nhật trạng thái VIP trong Redux
           dispatch(fetchAccount());
+          const source = sessionStorage.getItem("payment_redirect_source");
+          if (source) {
+            setRedirectPath(source); // Lưu lại đường dẫn để hiển thị nút
+            sessionStorage.removeItem("payment_redirect_source"); // 2. Xóa đi để không ảnh hưởng lần sau
+          }
         } else {
           setPaymentStatus("error");
           setMessage(res.data.message || "Thanh toán thất bại.");
@@ -81,9 +88,23 @@ const PaymentResult = () => {
                 <Alert.Heading>Thanh toán thành công!</Alert.Heading>
                 <p>{message}</p>
               </Alert>
-              <Button variant="primary" onClick={() => navigate("/")}>
-                Về trang chủ
-              </Button>
+              <Stack
+                direction="horizontal"
+                gap={2}
+                className="justify-content-center"
+              >
+                {redirectPath && (
+                  <Button
+                    variant="success"
+                    onClick={() => navigate(redirectPath)}
+                  >
+                    Tiếp tục tạo công ty
+                  </Button>
+                )}
+                <Button variant="primary" onClick={() => navigate("/")}>
+                  Về trang chủ
+                </Button>
+              </Stack>
             </>
           ) : (
             <>

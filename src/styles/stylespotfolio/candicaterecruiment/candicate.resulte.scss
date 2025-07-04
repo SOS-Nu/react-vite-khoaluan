@@ -1,0 +1,51 @@
+// .bg-success {
+//   // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
+//   background: var(--resize-button) !important;
+//   border: none !important;
+//   transition: opacity 0.3s ease;
+// }
+//
+// .progress {
+//   height: 25px; // Tăng chiều cao
+//   font-size: 14px; // Tăng cỡ chữ của label
+//   border-radius: 20px; // Bo tròn góc
+// }
+// .progress-bar {
+//   background: var(--linear-gradient-failure) !important;
+// }
+
+// File: src/components/recruiter/CandidateResults.scss
+
+.custom-progress-bar-wrapper {
+  // Tùy chỉnh thanh chứa bên ngoài
+  .progress {
+    height: 25px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+
+  // Tùy chỉnh thanh tiến trình chung
+  .progress-bar {
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 20px;
+    transition:
+      width 0.6s ease,
+      background-color 0.5s linear;
+  }
+
+  // Ghi đè màu sắc cho từng variant
+  .progress-bar.bg-success {
+    background: var(--resize-button) !important;
+  }
+
+  .progress-bar.bg-info {
+    // Hãy chắc chắn rằng biến CSS này tồn tại và đúng tên
+    background: var(--linear-gradient-blue-purple) !important;
+  }
+
+  .progress-bar.bg-warning {
+    // Sửa lỗi: Bỏ khoảng trắng thừa
+    background: var(--linear-gradient-failure) !important;
+  }
+}

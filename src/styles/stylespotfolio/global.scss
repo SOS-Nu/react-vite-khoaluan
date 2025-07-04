@@ -33,6 +33,7 @@
 @use "./public-cv.scss";
 @use "./skill.scss";
 @use "./manage-account.scss";
+@use "./candicaterecruiment/candicate.resulte.scss";
 
 * {
   margin: 0;
@@ -241,12 +242,13 @@ body {
 // }
 
 // "Nhuộm màu" cho nút Primary
-:global(.btn-primary) {
+.btn-primary {
   // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
   background: var(--resize-button) !important;
   border: none !important;
   transition: opacity 0.3s ease;
   padding: 0.75rem;
+  border-radius: 20px;
 
   &:hover {
     transform: translateY(-2px);
@@ -259,7 +261,7 @@ body {
   }
 }
 
-:global(.btn-danger) {
+.btn-danger {
   // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
   background: var(--linear-gradient-failure) !important;
   border: none !important;

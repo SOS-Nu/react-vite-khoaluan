@@ -4,7 +4,12 @@ import {
   callUpdateOwnInfo,
   callUpdatePublicStatus,
 } from "@/config/api";
-import { IOnlineResume, IUser, IWorkExperience } from "@/types/backend";
+import {
+  ICompany,
+  IOnlineResume,
+  IUser,
+  IWorkExperience,
+} from "@/types/backend";
 
 // First, create the thunk
 export const fetchAccount = createAsyncThunk(
@@ -51,10 +56,7 @@ interface IState {
     avatar?: string | null;
     public: boolean;
     vip?: boolean;
-    company?: {
-      id: number | string;
-      name: string;
-    } | null;
+    company?: ICompany | null;
     role?: {
       id?: string | number;
       name?: string;

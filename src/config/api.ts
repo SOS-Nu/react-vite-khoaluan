@@ -16,6 +16,7 @@ import {
   IComment,
   IOnlineResume,
   IWorkExperience,
+  ICandidate,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -533,4 +534,31 @@ export const callCreateVipPaymentUrl = () => {
   // Kiểu 'any' được dùng ở đây vì response trả về có cấu trúc lồng nhau phức tạp.
   // Component sẽ tự xử lý việc truy cập vào dữ liệu cần thiết.
   return axios.post<any>("/api/v1/payment/vnpay/create");
+};
+
+export const callCreateCompanyByUser = (companyData: ICompany) => {
+  return axios.post<IBackendRes<ICompany>>(
+    "/api/v1/companies/by-user",
+    companyData
+  );
+};
+
+export const callUpdateCompanyByUser = (companyData: ICompany) => {
+  return axios.put<IBackendRes<ICompany>>(
+    "/api/v1/companies/by-user",
+    companyData
+  );
+};
+
+export const callFindCandidatesByAI = (formData: FormData) => {
+  // Kiểu trả về của data là một object chứa mảng candidates
+  return axios<IBackendRes<{ candidates: ICandidate[] }>>({
+    method: "post",
+    url: "/api/v1/gemini/find-candidates",
+    data: formData,
+    headers: {
+      // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
