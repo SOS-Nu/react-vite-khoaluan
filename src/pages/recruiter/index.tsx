@@ -6,6 +6,8 @@ import { useAppSelector } from "@/redux/hooks";
 import BecomeVipRecruiter from "@/components/recruiter/BecomeVipRecruiter";
 import CompanyForm from "@/components/recruiter/CompanyForm";
 import RecruiterDashboard from "@/components/recruiter/RecruiterDashboard";
+import BenefitsSection from "@/components/recruiter/BenefitsSection";
+import FaqSection from "@/components/recruiter/FaqSection";
 
 const RecruiterPage = () => {
   const user = useAppSelector((state) => state.account.user);
@@ -45,6 +47,11 @@ const RecruiterPage = () => {
     <Container style={{ marginTop: "80px", minHeight: "calc(100vh - 160px)" }}>
       <h1 className="mb-4">Trang Dành Cho Nhà Tuyển Dụng</h1>
       {renderContent()}
+      {/* --- PHẦN THÊM VÀO CHO ĐỠ TRỐNG --- */}
+      <hr className="my-5" />
+      <BenefitsSection />
+      <FaqSection />
+      {/* --- KẾT THÚC PHẦN THÊM VÀO --- */}
     </Container>
   );
 };

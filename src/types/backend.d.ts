@@ -171,6 +171,11 @@ export interface IResume {
   userId: string;
   url: string;
   status: string;
+  companyName?: string;
+  job?: {
+    id: string;
+    name: string;
+  };
   companyId:
     | string
     | {

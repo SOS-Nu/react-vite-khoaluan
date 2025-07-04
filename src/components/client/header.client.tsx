@@ -18,7 +18,8 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import { message } from "antd";
 import logojobhunter from "assets/logojobhunter.png";
 import "styles/stylespotfolio/global.scss";
-import levannguyen from "assets/levannguyen.jpg";
+
+import avatardefault from "@/assets/avatar.svg";
 
 // Define props type
 interface HeaderProps {
@@ -77,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   const handleLogout = async () => {
     const res = await callLogout();
     if (res && res.statusCode === 200) {
-      dispatch(setLogoutAction({}));
+      dispatch(setLogoutAction());
       message.success("Đăng xuất thành công");
       navigate("/");
     }
@@ -97,37 +98,53 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     />
   );
 
-  const navItems: NavItem[] = [
-    { label: t("appHeader.home"), key: "/", to: "/" },
-    { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
-    { label: "Tìm Công ty", key: "/company", to: "/company" },
-    { label: "Tạo CV Bởi AI", key: "/company", to: "/CVAI", isNew: true },
-    {
-      label: (
-        <span>
-          Profile CV <FaChevronDown style={{ marginLeft: 5, fontSize: 12 }} />
-        </span>
-      ),
-      key: "/profile-cv",
-      dropdownItems: [
-        { label: "Online Resume", key: "/resume/create", to: "/resume/create" },
-        { label: "Create CV", key: "create-cv" },
-        { label: "Evaluation CV By AI", key: "evaluation-cv" },
-        { label: "AI Roadmap", key: "ai-roadmap" },
-      ],
-    },
-  ];
+  let navItems: NavItem[];
+
+  // Kiểm tra nếu user là nhà tuyển dụng (có company)
+  if (user && user.company) {
+    // Menu dành cho nhà tuyển dụng
+    navItems = [
+      { label: "Recruiter", key: "/recruiter", to: "/recruiter" }, // Luôn giữ lại trang chủ
+    ];
+  } else {
+    // Menu mặc định dành cho người tìm việc
+    navItems = [
+      { label: t("appHeader.home"), key: "/", to: "/" },
+      { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
+      { label: "Tìm Công ty", key: "/company", to: "/company" },
+      // Lưu ý: Em đã sửa lại đường dẫn "to" ở đây từ "/company" thành "/CVAI" cho đúng
+      { label: "Tạo CV Bởi AI", key: "/CVAI", to: "/CVAI", isNew: true },
+      {
+        label: (
+          <span>
+            Profile CV <FaChevronDown style={{ marginLeft: 5, fontSize: 12 }} />
+          </span>
+        ),
+        key: "/profile-cv",
+        dropdownItems: [
+          {
+            label: "Online Resume",
+            key: "/resume/create",
+            to: "/resume/create",
+          },
+          { label: "Create CV", key: "create-cv" },
+          { label: "Evaluation CV By AI", key: "evaluation-cv" },
+          { label: "AI Roadmap", key: "ai-roadmap" },
+        ],
+      },
+    ];
+  }
 
   const dropdownItems: DropdownItem[] = [
-    ...(user?.role?.permissions?.length
-      ? [
+    ...(user?.company
+      ? []
+      : [
           {
             label: "Trang Cá Nhân CV",
             key: "pagecv",
             to: `/user/online-resumes/${user.id}`,
           },
-        ]
-      : []),
+        ]),
     {
       label: (
         <label
@@ -262,7 +279,11 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                         </span> */}
                         {/* avatar user */}
                         <img
-                          src={levannguyen}
+                          src={
+                            user.avatar
+                              ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${user.avatar}`
+                              : avatardefault
+                          }
                           alt="user avatar"
                           className="avatar"
                         />

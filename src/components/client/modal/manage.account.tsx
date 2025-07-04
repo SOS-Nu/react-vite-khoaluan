@@ -349,6 +349,7 @@ const JobByEmail = () => {
 //================================================================
 const ManageAccount = (props: IProps) => {
   const { open, onClose } = props;
+  const user = useAppSelector((state) => state.account.user);
 
   return (
     <Modal
@@ -370,12 +371,17 @@ const ManageAccount = (props: IProps) => {
           className="mb-3"
           justify
         >
-          <Tab eventKey="user-resume" title="Lịch sử rải CV">
-            <UserResume />
-          </Tab>
-          <Tab eventKey="email-by-skills" title="Nhận Jobs qua Email">
-            <JobByEmail />
-          </Tab>
+          {user?.company ? null : (
+            <Tab eventKey="user-resume" title="Lịch sử rải CV">
+              <UserResume />
+            </Tab>
+          )}
+          {user?.company ? null : (
+            <Tab eventKey="email-by-skills" title="Nhận Jobs qua Email">
+              <JobByEmail />
+            </Tab>
+          )}
+
           <Tab eventKey="user-update-info" title="Cập nhật thông tin">
             <UpdateInfoTab />
           </Tab>
