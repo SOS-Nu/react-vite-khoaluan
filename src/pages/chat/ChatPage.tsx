@@ -1,85 +1,52 @@
 import { getAllMessages } from "@/config/api";
-
 import { useUsersConnected } from "@/hooks/useUsersConnected";
-
 import { useAppSelector } from "@/redux/hooks";
-
 import { Stomp } from "@stomp/stompjs";
-
-import { useCallback, useEffect, useRef, useState } from "react";
-
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
-
 import { toast } from "react-toastify";
-
 import SockJS from "sockjs-client";
-
 import { getFirebaseImageUrl } from "./getFirebaseImageURL";
+import "@/styles/stylespotfolio/chat/detail.scss"; // Import your new SCSS file
+import defaultAvatar from "@/assets/avatar.svg";
 
-// --- Định nghĩa các kiểu dữ liệu (TypeScript Interfaces) ---
-
-// Cập nhật: đổi firstName thành name
-
+// --- TypeScript Interfaces ---
 interface UserInfo {
   id: number;
-
   email: string;
-
-  name: string; // <--- THAY ĐỔI
-
+  name: string;
   avatar: string;
-
   role: { id: number };
-
   company?: {
     id: number;
-
     name: string;
-
     logoUrl: string;
-
     city: string;
   };
-
   status?: "ONLINE" | "OFFLINE";
 }
 
 const ChatPage = () => {
   const location = useLocation();
-
   const user = useAppSelector((state) => state?.account.user);
 
-  const [isChatListVisible, setIsChatListVisible] = useState(true);
-
   const [stompClient, setStompClient] = useState<any>(null);
-
   const [userSelected, setUserSelected] = useState<UserInfo | null>(
     location?.state?.receiver ?? null
   );
-
   const [inputMessage, setInputMessage] = useState<string>("");
-
   const [messages, setMessages] = useState<any[]>([]);
-
-  // Sử dụng ref để có giá trị userSelected mới nhất trong closure của WebSocket
-
-  const userSelectedRef = useRef(userSelected);
-
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Dùng state để quản lý danh sách user, giúp cập nhật status real-time
-
+  const userSelectedRef = useRef(userSelected);
+  // No longer needed for auto-scroll: const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const { res: resUsersConnected } = useUsersConnected();
-
   const [connectedUsers, setConnectedUsers] = useState<UserInfo[]>([]);
 
   useEffect(() => {
     document.title = "Tin nhắn";
-
     userSelectedRef.current = userSelected;
   }, [userSelected]);
-
-  // Cập nhật state `connectedUsers` khi có dữ liệu từ hook
 
   useEffect(() => {
     if (resUsersConnected?.data) {
@@ -87,33 +54,39 @@ const ChatPage = () => {
     }
   }, [resUsersConnected]);
 
-  // --- Các hàm xử lý sự kiện và logic ---
-
+  // --- WebSocket and Message Handling Logic ---
   const onMessageReceived = (payload: { body: string }) => {
-    const notification = JSON.parse(payload.body); // Đây là ChatNotificationDTO
+    const notification = JSON.parse(payload.body);
 
-    // Nếu đang chat với người gửi, thêm tin nhắn vào cửa sổ chat
+    // 1. Lấy `senderId` một cách chính xác từ payload.
+    const senderId = notification.senderId;
 
-    if (userSelectedRef.current?.id === notification.senderId) {
+    // 2. Dùng `senderId` để tìm thông tin đầy đủ của người gửi
+    // trong danh sách user đang kết nối.
+    const sender = connectedUsers.find((user) => user.id === senderId);
+
+    // 3. Lấy ra tên của người gửi để hiển thị (ưu tiên tên công ty).
+    // Thêm tên dự phòng "Một người dùng" nếu không tìm thấy.
+    const senderName =
+      sender?.company?.name || sender?.name || "Một người dùng";
+
+    // 4. So sánh ID một cách chính xác
+    if (userSelectedRef.current?.id === senderId) {
+      // Nếu đang mở đúng cửa sổ chat -> thêm tin nhắn vào
       const newMessage = {
         type: "receiver",
-
         content: notification.content,
-
-        time: formatDate(new Date()), // Tin nhắn mới hiển thị giờ hiện tại
+        time: formatDate(new Date()),
       };
-
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     } else {
-      // Nếu không, chỉ hiển thị thông báo
-
-      toast.info("Bạn có tin nhắn mới!");
+      // Nếu không -> hiển thị thông báo toast với tên người gửi đã tìm được
+      toast.info(`Bạn có tin nhắn mới từ ${senderName}`);
     }
   };
 
   const onUserStatusChange = (payload: { body: string }) => {
     const updatedUser = JSON.parse(payload.body);
-
     setConnectedUsers((prevUsers) =>
       prevUsers.map((u) =>
         u.email === updatedUser.email ? { ...u, status: updatedUser.status } : u
@@ -122,41 +95,58 @@ const ChatPage = () => {
   };
 
   const formatDate = (timestamp: any) => {
-    const date = new Date(timestamp);
-
-    if (isNaN(date.getTime())) return "Invalid date";
+    // 1. Khởi tạo các đối tượng Date cần thiết
+    const messageDate = new Date(timestamp);
+    if (isNaN(messageDate.getTime())) return "Ngày không hợp lệ"; // Kiểm tra ngày hợp lệ
 
     const now = new Date();
 
-    const isToday =
-      date.getDate() === now.getDate() &&
-      date.getMonth() === now.getMonth() &&
-      date.getFullYear() === now.getFullYear();
+    // Tạo các bản sao của Date nhưng set giờ về 0 để so sánh ngày chính xác
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const startOfYesterday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 1
+    );
+    const startOfMessageDate = new Date(
+      messageDate.getFullYear(),
+      messageDate.getMonth(),
+      messageDate.getDate()
+    );
 
-    if (isToday) {
-      return `${String(date.getHours()).padStart(2, "0")}:${String(
-        date.getMinutes()
-      ).padStart(2, "0")}`;
-    } else {
-      return `${String(date.getDate()).padStart(2, "0")}/${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}/${date.getFullYear()}`;
+    // 2. Lấy chuỗi giờ và phút
+    const hours = String(messageDate.getHours()).padStart(2, "0");
+    const minutes = String(messageDate.getMinutes()).padStart(2, "0");
+    const timeString = `${hours}:${minutes}`;
+
+    // 3. So sánh và trả về định dạng phù hợp
+    // --- Trường hợp 1: Tin nhắn trong ngày hôm nay ---
+    if (startOfMessageDate.getTime() === startOfToday.getTime()) {
+      return timeString; // Chỉ hiện giờ:phút (ví dụ: "14:30")
     }
-  };
 
+    // --- Trường hợp 2: Tin nhắn từ ngày hôm qua ---
+    if (startOfMessageDate.getTime() === startOfYesterday.getTime()) {
+      return `Hôm qua lúc ${timeString}`; // Ví dụ: "Hôm qua lúc 09:15"
+    }
+
+    // --- Trường hợp 3: Tin nhắn cũ hơn ---
+    const day = String(messageDate.getDate()).padStart(2, "0");
+    const month = String(messageDate.getMonth() + 1).padStart(2, "0"); // Tháng trong JS bắt đầu từ 0
+    const year = messageDate.getFullYear();
+    return `${timeString} ${day}/${month}/${year}`; // Ví dụ: "10:20 05/07/2025"
+  };
   const buildDataMessage = (dataMessages: any[] = []) => {
     const userId = user?.id;
-
     const results = dataMessages.map((data) => ({
       type: data?.sender?.id === userId ? "sender" : "receiver",
-
       content: data?.content,
-
-      // Cập nhật: dùng timeStamp thay vì createdAt
-
-      time: formatDate(data?.timeStamp), // <--- THAY ĐỔI
+      time: formatDate(data?.timeStamp),
     }));
-
     setMessages(results);
   };
 
@@ -164,10 +154,7 @@ const ChatPage = () => {
     if (!user?.id || !userSelected?.id) return;
     try {
       const res = await getAllMessages(+user.id, +userSelected.id);
-
-      // SỬA Ở ĐÂY: Bỏ ".data" khi truy cập
       if (+res?.statusCode === 200) {
-        // SỬA Ở ĐÂY: Truyền `res.data` thay vì `res.data.data`
         buildDataMessage(res?.data ?? []);
       } else {
         toast.error("Lỗi khi tải tin nhắn!");
@@ -180,36 +167,21 @@ const ChatPage = () => {
 
   useEffect(() => {
     let client: any = null;
-
     if (user?.email) {
       const socket = new SockJS(`${import.meta.env.VITE_BACKEND_URL}/ws`);
-
       client = Stomp.over(socket);
-
       client.connect(
         {},
-
         () => {
           if (client) {
-            // Lắng nghe tin nhắn cá nhân
-
             client.subscribe(
               `/user/${user.email}/queue/messages`,
-
               onMessageReceived
             );
-
-            // Lắng nghe trạng thái online/offline của user khác
-
             client.subscribe("/user/public", onUserStatusChange);
-
-            // Gửi thông tin user hiện tại lên để báo online
-
             client.send(
               "/app/user.addUser",
-
               {},
-
               JSON.stringify({
                 id: user.id,
                 email: user.email,
@@ -217,11 +189,9 @@ const ChatPage = () => {
                 status: "ONLINE",
               })
             );
-
             setStompClient(client);
           }
         },
-
         (error: any) => {
           console.error("Lỗi kết nối WebSocket:", error);
         }
@@ -232,16 +202,11 @@ const ChatPage = () => {
       if (client && client.connected) {
         client.send(
           "/app/user.disconnectUser",
-
           {},
-
           JSON.stringify({
             id: user?.id,
-
             email: user?.email,
-
             name: user?.name,
-
             status: "OFFLINE",
           })
         );
@@ -252,30 +217,27 @@ const ChatPage = () => {
 
     return () => {
       handleBeforeUnload();
-
       client?.disconnect(() => console.log("Đã ngắt kết nối WebSocket."));
-
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [user?.id, user?.email, user?.name]);
 
   useEffect(() => {
     if (userSelected?.id) {
-      setMessages([]); // Xóa tin nhắn cũ trước khi fetch tin nhắn mới
-
+      setMessages([]);
       fetchAllMessages();
     }
   }, [userSelected?.id, fetchAllMessages]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  // REMOVED: Auto-scrolling useEffect
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setInputMessage(e.target.value);
     },
-
     []
   );
 
@@ -283,206 +245,159 @@ const ChatPage = () => {
     if (inputMessage.trim() && stompClient && userSelected) {
       const chatMessage = {
         sender: { id: user?.id },
-
         receiver: { id: userSelected.id },
-
         content: inputMessage.trim(),
-
         timeStamp: new Date(),
       };
-
       stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
-
       const newMessage = {
         type: "sender",
-
         content: inputMessage.trim(),
-
         time: formatDate(new Date()),
       };
-
       setMessages((prev) => [...prev, newMessage]);
-
       setInputMessage("");
     }
   };
 
   if (!user?.id) return null;
 
-  // --- Phần render với Bootstrap ---
+  useEffect(() => {
+    // Thay "smooth" (mượt mà) thành "auto" (tự động/ngay lập tức)
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages]);
 
+  // --- Render Method ---
   return (
-    <div className="d-flex vh-100 pt-5">
-      {/* Left Sidebar (Icons) */}
-
-      <aside
-        className="d-flex flex-column align-items-center p-3 border-end"
-        style={{ width: "80px" }}
-      >
-        <button
-          onClick={() => setIsChatListVisible(!isChatListVisible)}
-          className="btn btn-primary mb-4"
-        >
-          <i className="bi bi-list"></i>
-        </button>
-
-        <nav className="flex-grow-1">
-          <a href="#" className="position-relative d-block">
-            <div className="btn btn-outline-secondary position-relative">
-              <i className="bi bi-chat-dots-fill"></i>
-
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {connectedUsers.length}
-              </span>
-            </div>
-          </a>
-        </nav>
+    // The main container class is simplified for SCSS control
+    <div className="chat-container">
+      {/* Chat List / Sidebar */}
+      <aside className="chat-sidebar">
+        <div className="sidebar-header">
+          <input
+            type="search"
+            placeholder="Search users..."
+            className="form-control"
+          />
+        </div>
+        <div className="user-list">
+          {/* ... inside <div className="user-list"> */}
+          {connectedUsers.length > 0 &&
+            connectedUsers.map((u: UserInfo) => (
+              <div
+                key={u.id}
+                className={`user-item ${
+                  userSelected?.id === u.id ? "active" : ""
+                }`}
+                onClick={() => setUserSelected(u)}
+              >
+                <div className="position-relative">
+                  <img
+                    src={
+                      // Ưu tiên hiển thị logo công ty nếu có
+                      u.company?.logoUrl
+                        ? `${import.meta.env.VITE_BACKEND_URL}/storage/company/${u.company.logoUrl}`
+                        : // Nếu không, hiển thị avatar người dùng
+                          u.avatar
+                          ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${u.avatar}`
+                          : // Nếu không có cả hai, hiển thị ảnh mặc định
+                            defaultAvatar
+                    }
+                    alt={u.company?.name || u.name} // Alt text là tên công ty hoặc tên người dùng
+                    className="user-avatar"
+                  />
+                  <span
+                    className={`status-indicator ${
+                      u.status === "ONLINE" ? "online" : "offline"
+                    }`}
+                  ></span>
+                </div>
+                <div className="user-info">
+                  {/* Hiển thị tên công ty nếu có, nếu không thì hiển thị tên người dùng */}
+                  <h6 className="user-name">{u.company?.name || u.name}</h6>
+                  <small className="user-status-text">
+                    {u.status === "ONLINE" ? "Online" : "Offline"}
+                  </small>
+                </div>
+              </div>
+            ))}
+          {/* ... */}
+        </div>
       </aside>
 
-      {/* Chat List */}
-
-      {isChatListVisible && (
-        <aside
-          className="d-none d-lg-block border-end"
-          style={{ width: "320px" }}
-        >
-          <div className="p-3">
-            <input
-              type="search"
-              placeholder="Search"
-              className="form-control"
-            />
-          </div>
-
-          <div
-            className="overflow-auto"
-            style={{ height: "calc(100vh - 120px)" }}
-          >
-            <div className="list-group list-group-flush">
-              {connectedUsers.length > 0 &&
-                connectedUsers.map((u: UserInfo) => (
-                  <button
-                    key={u.id}
-                    className={`list-group-item list-group-item-action ${
-                      userSelected?.id === u.id ? "active" : ""
-                    }`}
-                    onClick={() => setUserSelected(u)}
-                  >
-                    <div className="d-flex align-items-center">
-                      <img
-                        src={
-                          u.role?.id === 2
-                            ? getFirebaseImageUrl(u.avatar, "companies")
-                            : getFirebaseImageUrl(u.avatar, "users")
-                        }
-                        alt={u.name} // <--- THAY ĐỔI
-                        className="rounded-circle me-3"
-                        style={{
-                          width: "50px",
-
-                          height: "50px",
-
-                          objectFit: "cover",
-                        }}
-                      />
-
-                      <div className="flex-grow-1">
-                        {/* // Cập nhật: dùng u.name */}
-
-                        <h6 className="mb-0 text-truncate">{u.name}</h6>
-
-                        <small className="text-muted">Click to chat</small>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-            </div>
-          </div>
-        </aside>
-      )}
-
       {/* Main Chat Area */}
-
-      <main className="d-flex flex-column flex-grow-1 position-relative">
+      <main className="chat-main">
         {userSelected?.id ? (
           <>
-            <header className="p-3 border-bottom d-flex justify-content-between align-items-center">
-              <div>
-                {/* // Cập nhật: dùng userSelected.name */}
-
-                <h5 className="mb-0">{userSelected.name}</h5>
-
-                {userSelected.status === "ONLINE" ? (
-                  <span className="text-success small">
-                    <i className="bi bi-circle-fill me-1"></i> Online
-                  </span>
-                ) : (
-                  <span className="text-secondary small">
-                    <i className="bi bi-circle-fill me-1"></i> Offline
-                  </span>
-                )}
+            <header className="chat-header">
+              <img
+                src={
+                  // Ưu tiên logo công ty nếu tồn tại
+                  userSelected.company?.logoUrl
+                    ? `${import.meta.env.VITE_BACKEND_URL}/storage/company/${userSelected.company.logoUrl}`
+                    : // Tiếp theo là avatar người dùng
+                      userSelected.avatar
+                      ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${userSelected.avatar}`
+                      : // Cuối cùng là ảnh mặc định
+                        defaultAvatar
+                }
+                alt={userSelected.company?.name || userSelected.name}
+                className="user-avatar"
+              />
+              <div className="user-info">
+                {/* Hiển thị tên công ty nếu có, nếu không thì hiển thị tên người dùng */}
+                <h5 className="user-name mb-0">
+                  {userSelected.company?.name || userSelected.name}
+                </h5>
+                <span
+                  className={
+                    userSelected.status === "ONLINE"
+                      ? "text-success small"
+                      : "text-secondary small"
+                  }
+                >
+                  <i className="bi bi-circle-fill me-1"></i>
+                  {userSelected.status === "ONLINE" ? "Online" : "Offline"}
+                </span>
               </div>
             </header>
-
-            <div
-              className="flex-grow-1 overflow-auto p-4"
-              style={{ maxHeight: "calc(100vh - 220px)" }} // Điều chỉnh chiều cao
-            >
+            <div className="message-area">
               {messages.map((message: any, index: any) => {
                 const isSender = message.type === "sender";
-
                 return (
                   <div
                     key={index}
-                    className={`d-flex mb-3 ${isSender ? "justify-content-end" : "justify-content-start"}`}
+                    className={`message-wrapper ${
+                      isSender ? "sender" : "receiver"
+                    }`}
                   >
-                    <div
-                      className="d-flex align-items-end"
-                      style={{ maxWidth: "70%" }}
-                    >
-                      {!isSender && (
-                        <img
-                          src={
-                            userSelected.role?.id === 2
-                              ? getFirebaseImageUrl(
-                                  userSelected.avatar,
-
-                                  "companies"
-                                )
-                              : getFirebaseImageUrl(
-                                  userSelected.avatar,
-
-                                  "users"
-                                )
-                          }
-                          alt="avatar"
-                          className="rounded-circle me-2"
-                          style={{ width: "40px", height: "40px" }}
-                        />
-                      )}
-
-                      <div>
-                        <div
-                          className={`p-3 rounded-3 ${isSender ? "bg-primary text-white" : "bg-light text-dark"}`}
-                        >
-                          <p className="mb-0">{message.content}</p>
-                        </div>
-
-                        <small
-                          className={`text-muted d-block ${isSender ? "text-end" : "text-start"} mt-1`}
-                        >
-                          {message.time}
-                        </small>
+                    {!isSender && (
+                      <img
+                        src={
+                          userSelected.company?.logoUrl
+                            ? `${import.meta.env.VITE_BACKEND_URL}/storage/company/${userSelected.company?.logoUrl}`
+                            : userSelected.avatar
+                              ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${userSelected.avatar}`
+                              : defaultAvatar
+                        }
+                        alt="avatar"
+                        className="message-avatar"
+                      />
+                    )}
+                    <div className="message-content">
+                      <div className="message-bubble">
+                        <p className="mb-0">{message.content}</p>
                       </div>
+                      <small className="message-time">{message.time}</small>
                     </div>
                   </div>
                 );
               })}
-
+              {/* REMOVED: div with ref for auto-scrolling */}
               <div ref={messagesEndRef} />
             </div>
 
-            <footer className="p-3 bg-white border-top mt-auto">
+            <footer className="chat-footer">
               <div className="input-group">
                 <input
                   type="text"
@@ -492,20 +407,21 @@ const ChatPage = () => {
                   onChange={handleInputChange}
                   onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 />
-
                 <button
                   className="btn btn-primary"
                   type="button"
                   onClick={handleSendMessage}
                 >
+                  gửi
                   <i className="bi bi-send-fill"></i>
                 </button>
               </div>
             </footer>
           </>
         ) : (
-          <div className="d-flex flex-grow-1 justify-content-center align-items-center text-muted">
-            <h4>Chọn một người để bắt đầu trò chuyện</h4>
+          <div className="no-chat-selected">
+            <h4>Select a user to start chatting</h4>
+            <p>Your conversations will appear here.</p>
           </div>
         )}
       </main>

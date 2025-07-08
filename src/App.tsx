@@ -46,6 +46,7 @@ const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
   const rootRef = useRef<HTMLDivElement>(null);
+  const isChatPage = location.pathname.startsWith("/chat"); // Kiểm tra nếu là trang chat
 
   useEffect(() => {
     if (rootRef && rootRef.current) {
@@ -74,7 +75,7 @@ const LayoutClient = () => {
         <Outlet context={[searchTerm, setSearchTerm]} />
       </div>
 
-      <Footer />
+      {!isChatPage && <Footer />}
     </div>
   );
 };
@@ -133,19 +134,27 @@ export default function App() {
           path: "user/online-resumes/:id",
           element: <PublicCvPage />,
         },
-        {
-          path: "chat/detail",
-          element: (
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          ),
-        },
+        // {
+        //   path: "chat/detail",
+        //   element: (
+        //     <ProtectedRoute>
+        //       <ChatPage />
+        //     </ProtectedRoute>
+        //   ),
+        // },
         {
           path: "/payment/result",
           element: (
             <ProtectedRoute>
               <PaymentResult />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "chat/detail", // đường dẫn tương đối
+          element: (
+            <ProtectedRoute>
+              <ChatPage />
             </ProtectedRoute>
           ),
         },
