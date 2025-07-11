@@ -67,7 +67,7 @@ $header-height: 70px;
       }
       .last-message-preview,
       .last-message-time {
-        color: white;
+        color: var(--text-white);
       }
     }
 
@@ -115,7 +115,7 @@ $header-height: 70px;
         justify-content: space-between; // Đẩy nội dung và thời gian về 2 phía
         align-items: center;
         font-size: 0.8rem;
-        color: var(--text-gray);
+        color: var(--text-white);
         gap: 0.5rem; // Khoảng cách nhỏ giữa nội dung và thời gian
       }
 
@@ -186,7 +186,7 @@ $header-height: 70px;
     }
     .message-bubble {
       background-image: var(--resize-button);
-      color: white;
+      color: var(--text-white);
     }
   }
 
@@ -197,7 +197,7 @@ $header-height: 70px;
     }
     .message-bubble {
       background-color: var(--glow-card-background);
-      color: var(--text-color);
+      color: var(--text-white);
       border: 1px solid var(--border-input-search);
     }
   }
