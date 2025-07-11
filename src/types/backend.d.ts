@@ -296,3 +296,25 @@ export interface IOnlineResume {
   createdAt?: string;
   updatedAt?: string;
 }
+
+interface UserInfo {
+  id: number;
+  email: string;
+  name: string;
+  avatar: string;
+  role: { id: number };
+  company?: {
+    id: number;
+    name: string;
+    logoUrl: string;
+    city: string;
+  };
+  status?: "ONLINE" | "OFFLINE";
+  lastMessage?: LastMessage; // Thêm thuộc tính này
+}
+
+interface LastMessage {
+  content: string;
+  senderId: number;
+  timestamp: string; // Hoặc Date
+}

@@ -1,107 +1,63 @@
+import { useCallback, useEffect, useState, useRef } from "react";
+import { useLocation, useOutletContext } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  setActiveChatUserId,
+  setMessages,
+  addMessage,
+} from "@/redux/slice/chatSlice";
 import { getAllMessages } from "@/config/api";
 import { useUsersConnected } from "@/hooks/useUsersConnected";
-import { useAppSelector } from "@/redux/hooks";
-import { Stomp } from "@stomp/stompjs";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import SockJS from "sockjs-client";
-import { getFirebaseImageUrl } from "./getFirebaseImageURL";
-import "@/styles/stylespotfolio/chat/detail.scss"; // Import your new SCSS file
 import defaultAvatar from "@/assets/avatar.svg";
+import "@/styles/stylespotfolio/chat/detail.scss";
+import { UserInfo } from "@/types/backend";
 
 // --- TypeScript Interfaces ---
-interface UserInfo {
-  id: number;
-  email: string;
-  name: string;
-  avatar: string;
-  role: { id: number };
-  company?: {
-    id: number;
-    name: string;
-    logoUrl: string;
-    city: string;
-  };
-  status?: "ONLINE" | "OFFLINE";
-}
 
 const ChatPage = () => {
-  const location = useLocation();
-  const user = useAppSelector((state) => state?.account.user);
+  // Lấy stompClient từ LayoutClient thông qua Outlet context
+  const { stompClient } = useOutletContext<{ stompClient: any }>();
 
-  const [stompClient, setStompClient] = useState<any>(null);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  // Lấy state từ Redux
+  const user = useAppSelector((state) => state.account.user);
+  const messages = useAppSelector((state) => state.chat.messages);
+
+  // State cục bộ của component
   const [userSelected, setUserSelected] = useState<UserInfo | null>(
     location?.state?.receiver ?? null
   );
   const [inputMessage, setInputMessage] = useState<string>("");
-  const [messages, setMessages] = useState<any[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-  const userSelectedRef = useRef(userSelected);
-  // No longer needed for auto-scroll: const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const { res: resUsersConnected } = useUsersConnected();
   const [connectedUsers, setConnectedUsers] = useState<UserInfo[]>([]);
 
-  useEffect(() => {
-    document.title = "Tin nhắn";
-    userSelectedRef.current = userSelected;
-  }, [userSelected]);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const { res: resUsersConnected } = useUsersConnected();
 
+  // Cập nhật danh sách người dùng online
   useEffect(() => {
     if (resUsersConnected?.data) {
       setConnectedUsers(resUsersConnected.data);
     }
   }, [resUsersConnected]);
 
-  // --- WebSocket and Message Handling Logic ---
-  const onMessageReceived = (payload: { body: string }) => {
-    const notification = JSON.parse(payload.body);
+  // Cập nhật active chat user trong Redux store
+  useEffect(() => {
+    document.title = "Tin nhắn";
+    dispatch(setActiveChatUserId(userSelected?.id ?? null));
 
-    // 1. Lấy `senderId` một cách chính xác từ payload.
-    const senderId = notification.senderId;
-
-    // 2. Dùng `senderId` để tìm thông tin đầy đủ của người gửi
-    // trong danh sách user đang kết nối.
-    const sender = connectedUsers.find((user) => user.id === senderId);
-
-    // 3. Lấy ra tên của người gửi để hiển thị (ưu tiên tên công ty).
-    // Thêm tên dự phòng "Một người dùng" nếu không tìm thấy.
-    const senderName =
-      sender?.company?.name || sender?.name || "Một người dùng";
-
-    // 4. So sánh ID một cách chính xác
-    if (userSelectedRef.current?.id === senderId) {
-      // Nếu đang mở đúng cửa sổ chat -> thêm tin nhắn vào
-      const newMessage = {
-        type: "receiver",
-        content: notification.content,
-        time: formatDate(new Date()),
-      };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    } else {
-      // Nếu không -> hiển thị thông báo toast với tên người gửi đã tìm được
-      toast.info(`Bạn có tin nhắn mới từ ${senderName}`);
-    }
-  };
-
-  const onUserStatusChange = (payload: { body: string }) => {
-    const updatedUser = JSON.parse(payload.body);
-    setConnectedUsers((prevUsers) =>
-      prevUsers.map((u) =>
-        u.email === updatedUser.email ? { ...u, status: updatedUser.status } : u
-      )
-    );
-  };
+    // Khi component unmount (rời khỏi trang), báo cho Redux là không còn chat nào active
+    return () => {
+      dispatch(setActiveChatUserId(null));
+    };
+  }, [userSelected, dispatch]);
 
   const formatDate = (timestamp: any) => {
-    // 1. Khởi tạo các đối tượng Date cần thiết
-    const messageDate = new Date(timestamp);
-    if (isNaN(messageDate.getTime())) return "Ngày không hợp lệ"; // Kiểm tra ngày hợp lệ
-
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return "Ngày không hợp lệ";
     const now = new Date();
-
-    // Tạo các bản sao của Date nhưng set giờ về 0 để so sánh ngày chính xác
     const startOfToday = new Date(
       now.getFullYear(),
       now.getMonth(),
@@ -113,239 +69,180 @@ const ChatPage = () => {
       now.getDate() - 1
     );
     const startOfMessageDate = new Date(
-      messageDate.getFullYear(),
-      messageDate.getMonth(),
-      messageDate.getDate()
+      date.getFullYear(), // Sửa thành 'date'
+      date.getMonth(),
+      date.getDate()
     );
-
-    // 2. Lấy chuỗi giờ và phút
-    const hours = String(messageDate.getHours()).padStart(2, "0");
-    const minutes = String(messageDate.getMinutes()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
     const timeString = `${hours}:${minutes}`;
 
-    // 3. So sánh và trả về định dạng phù hợp
-    // --- Trường hợp 1: Tin nhắn trong ngày hôm nay ---
-    if (startOfMessageDate.getTime() === startOfToday.getTime()) {
-      return timeString; // Chỉ hiện giờ:phút (ví dụ: "14:30")
-    }
+    if (startOfMessageDate.getTime() === startOfToday.getTime())
+      return timeString;
+    if (startOfMessageDate.getTime() === startOfYesterday.getTime())
+      return `Hôm qua lúc ${timeString}`;
 
-    // --- Trường hợp 2: Tin nhắn từ ngày hôm qua ---
-    if (startOfMessageDate.getTime() === startOfYesterday.getTime()) {
-      return `Hôm qua lúc ${timeString}`; // Ví dụ: "Hôm qua lúc 09:15"
-    }
-
-    // --- Trường hợp 3: Tin nhắn cũ hơn ---
-    const day = String(messageDate.getDate()).padStart(2, "0");
-    const month = String(messageDate.getMonth() + 1).padStart(2, "0"); // Tháng trong JS bắt đầu từ 0
-    const year = messageDate.getFullYear();
-    return `${timeString} ${day}/${month}/${year}`; // Ví dụ: "10:20 05/07/2025"
-  };
-  const buildDataMessage = (dataMessages: any[] = []) => {
-    const userId = user?.id;
-    const results = dataMessages.map((data) => ({
-      type: data?.sender?.id === userId ? "sender" : "receiver",
-      content: data?.content,
-      time: formatDate(data?.timeStamp),
-    }));
-    setMessages(results);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${timeString} ${day}/${month}/${year}`;
   };
 
+  // Lấy tin nhắn cũ khi chọn một người dùng
   const fetchAllMessages = useCallback(async () => {
     if (!user?.id || !userSelected?.id) return;
     try {
       const res = await getAllMessages(+user.id, +userSelected.id);
       if (+res?.statusCode === 200) {
-        buildDataMessage(res?.data ?? []);
+        const formattedMessages = (res.data ?? []).map((data: any) => ({
+          type: data?.sender?.id === user.id ? "sender" : "receiver",
+          content: data?.content,
+          time: formatDate(data?.timeStamp),
+        }));
+        // Đẩy toàn bộ tin nhắn cũ vào Redux store
+        dispatch(setMessages(formattedMessages));
       } else {
         toast.error("Lỗi khi tải tin nhắn!");
       }
     } catch (error: any) {
-      console.error(error);
       toast.error(error.message);
     }
-  }, [user?.id, userSelected?.id]);
-
-  useEffect(() => {
-    let client: any = null;
-    if (user?.email) {
-      const socket = new SockJS(`${import.meta.env.VITE_BACKEND_URL}/ws`);
-      client = Stomp.over(socket);
-      client.connect(
-        {},
-        () => {
-          if (client) {
-            client.subscribe(
-              `/user/${user.email}/queue/messages`,
-              onMessageReceived
-            );
-            client.subscribe("/user/public", onUserStatusChange);
-            client.send(
-              "/app/user.addUser",
-              {},
-              JSON.stringify({
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                status: "ONLINE",
-              })
-            );
-            setStompClient(client);
-          }
-        },
-        (error: any) => {
-          console.error("Lỗi kết nối WebSocket:", error);
-        }
-      );
-    }
-
-    const handleBeforeUnload = () => {
-      if (client && client.connected) {
-        client.send(
-          "/app/user.disconnectUser",
-          {},
-          JSON.stringify({
-            id: user?.id,
-            email: user?.email,
-            name: user?.name,
-            status: "OFFLINE",
-          })
-        );
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      handleBeforeUnload();
-      client?.disconnect(() => console.log("Đã ngắt kết nối WebSocket."));
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [user?.id, user?.email, user?.name]);
+  }, [user?.id, userSelected?.id, dispatch]);
 
   useEffect(() => {
     if (userSelected?.id) {
-      setMessages([]);
       fetchAllMessages();
+    } else {
+      // Nếu không chọn ai, làm trống danh sách tin nhắn trong Redux
+      dispatch(setMessages([]));
     }
-  }, [userSelected?.id, fetchAllMessages]);
+  }, [userSelected?.id, fetchAllMessages, dispatch]);
 
-  // REMOVED: Auto-scrolling useEffect
-  // useEffect(() => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [messages]);
-
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputMessage(e.target.value);
-    },
-    []
-  );
+  // Tự động cuộn xuống tin nhắn mới nhất
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages]);
 
   const handleSendMessage = () => {
-    if (inputMessage.trim() && stompClient && userSelected) {
+    if (inputMessage.trim() && stompClient && userSelected && user) {
       const chatMessage = {
-        sender: { id: user?.id },
+        sender: { id: user.id, name: user.name }, // Gửi kèm thông tin người gửi
         receiver: { id: userSelected.id },
         content: inputMessage.trim(),
-        timeStamp: new Date(),
+        timeStamp: new Date().toISOString(),
       };
       stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+
+      // Để cập nhật UI ngay lập tức, ta thêm tin nhắn gửi đi vào Redux
       const newMessage = {
         type: "sender",
         content: inputMessage.trim(),
         time: formatDate(new Date()),
       };
-      setMessages((prev) => [...prev, newMessage]);
+      dispatch(addMessage(newMessage));
       setInputMessage("");
     }
   };
 
   if (!user?.id) return null;
 
-  useEffect(() => {
-    // Thay "smooth" (mượt mà) thành "auto" (tự động/ngay lập tức)
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-  }, [messages]);
-
-  // --- Render Method ---
   return (
-    // The main container class is simplified for SCSS control
     <div className="chat-container">
-      {/* Chat List / Sidebar */}
       <aside className="chat-sidebar">
         <div className="sidebar-header">
           <input
             type="search"
-            placeholder="Search users..."
+            placeholder="Tìm kiếm người dùng..."
             className="form-control"
           />
         </div>
         <div className="user-list">
-          {/* ... inside <div className="user-list"> */}
-          {connectedUsers.length > 0 &&
-            connectedUsers.map((u: UserInfo) => (
+          {[...connectedUsers] // 1. Tạo bản sao của mảng để không thay đổi state gốc
+            .sort((a, b) => {
+              // 2. Logic sắp xếp
+              const aTime = a.lastMessage?.timestamp;
+              const bTime = b.lastMessage?.timestamp;
+
+              // Nếu b không có tin nhắn -> đẩy xuống dưới
+              if (!bTime) return -1;
+              // Nếu a không có tin nhắn -> đẩy xuống dưới
+              if (!aTime) return 1;
+
+              // So sánh thời gian, tin nhắn mới hơn (thời gian lớn hơn) sẽ ở trên
+              return new Date(bTime).getTime() - new Date(aTime).getTime();
+            })
+            .filter((u) => u.id !== user.id) // Lọc ra chính mình
+            .map((u: UserInfo) => (
               <div
                 key={u.id}
-                className={`user-item ${
-                  userSelected?.id === u.id ? "active" : ""
-                }`}
+                className={`user-item ${userSelected?.id === u.id ? "active" : ""}`}
                 onClick={() => setUserSelected(u)}
               >
                 <div className="position-relative">
                   <img
                     src={
-                      // Ưu tiên hiển thị logo công ty nếu có
                       u.company?.logoUrl
                         ? `${import.meta.env.VITE_BACKEND_URL}/storage/company/${u.company.logoUrl}`
-                        : // Nếu không, hiển thị avatar người dùng
-                          u.avatar
+                        : u.avatar
                           ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${u.avatar}`
-                          : // Nếu không có cả hai, hiển thị ảnh mặc định
-                            defaultAvatar
+                          : defaultAvatar
                     }
-                    alt={u.company?.name || u.name} // Alt text là tên công ty hoặc tên người dùng
+                    alt={u.company?.name || u.name}
                     className="user-avatar"
                   />
                   <span
-                    className={`status-indicator ${
-                      u.status === "ONLINE" ? "online" : "offline"
-                    }`}
+                    className={`status-indicator ${u.status === "ONLINE" ? "online" : "offline"}`}
                   ></span>
                 </div>
                 <div className="user-info">
-                  {/* Hiển thị tên công ty nếu có, nếu không thì hiển thị tên người dùng */}
                   <h6 className="user-name">{u.company?.name || u.name}</h6>
-                  <small className="user-status-text">
-                    {u.status === "ONLINE" ? "Online" : "Offline"}
-                  </small>
+                  <div className="last-message-preview">
+                    {/* Phần nội dung tin nhắn */}
+                    <span className="last-message-content">
+                      {u.lastMessage ? (
+                        <>
+                          {u.lastMessage.senderId === user.id && (
+                            <strong>Bạn: </strong>
+                          )}
+                          {u.lastMessage.content}
+                        </>
+                      ) : // Fallback khi chưa có tin nhắn
+                      u.status === "ONLINE" ? (
+                        "Online"
+                      ) : (
+                        "Offline"
+                      )}
+                    </span>
+
+                    {/* Phần thời gian, chỉ hiển thị khi có tin nhắn */}
+                    {u.lastMessage?.timestamp && (
+                      <small className="last-message-time">
+                        {formatDate(u.lastMessage.timestamp)}
+                      </small>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
-          {/* ... */}
         </div>
       </aside>
 
-      {/* Main Chat Area */}
       <main className="chat-main">
         {userSelected?.id ? (
           <>
             <header className="chat-header">
               <img
                 src={
-                  // Ưu tiên logo công ty nếu tồn tại
                   userSelected.company?.logoUrl
                     ? `${import.meta.env.VITE_BACKEND_URL}/storage/company/${userSelected.company.logoUrl}`
-                    : // Tiếp theo là avatar người dùng
-                      userSelected.avatar
+                    : userSelected.avatar
                       ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${userSelected.avatar}`
-                      : // Cuối cùng là ảnh mặc định
-                        defaultAvatar
+                      : defaultAvatar
                 }
                 alt={userSelected.company?.name || userSelected.name}
                 className="user-avatar"
               />
               <div className="user-info">
-                {/* Hiển thị tên công ty nếu có, nếu không thì hiển thị tên người dùng */}
                 <h5 className="user-name mb-0">
                   {userSelected.company?.name || userSelected.name}
                 </h5>
@@ -367,9 +264,7 @@ const ChatPage = () => {
                 return (
                   <div
                     key={index}
-                    className={`message-wrapper ${
-                      isSender ? "sender" : "receiver"
-                    }`}
+                    className={`message-wrapper ${isSender ? "sender" : "receiver"}`}
                   >
                     {!isSender && (
                       <img
@@ -393,7 +288,6 @@ const ChatPage = () => {
                   </div>
                 );
               })}
-              {/* REMOVED: div with ref for auto-scrolling */}
               <div ref={messagesEndRef} />
             </div>
 
@@ -402,9 +296,9 @@ const ChatPage = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Type your message..."
+                  placeholder="Nhập tin nhắn..."
                   value={inputMessage}
-                  onChange={handleInputChange}
+                  onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 />
                 <button
@@ -412,16 +306,15 @@ const ChatPage = () => {
                   type="button"
                   onClick={handleSendMessage}
                 >
-                  gửi
-                  <i className="bi bi-send-fill"></i>
+                  <i className="bi bi-send-fill"></i> Gửi
                 </button>
               </div>
             </footer>
           </>
         ) : (
           <div className="no-chat-selected">
-            <h4>Select a user to start chatting</h4>
-            <p>Your conversations will appear here.</p>
+            <h4>Chọn một người dùng để bắt đầu trò chuyện</h4>
+            <p>Cuộc trò chuyện của bạn sẽ xuất hiện ở đây.</p>
           </div>
         )}
       </main>

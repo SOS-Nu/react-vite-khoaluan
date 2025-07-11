@@ -65,6 +65,10 @@ $header-height: 70px;
       .user-status-text {
         color: white;
       }
+      .last-message-preview,
+      .last-message-time {
+        color: white;
+      }
     }
 
     .user-avatar {
@@ -96,18 +100,33 @@ $header-height: 70px;
 
     .user-info {
       flex-grow: 1;
-      overflow: hidden;
+      overflow: hidden; // QUAN TRỌNG: Bắt buộc phải có để text-overflow hoạt động
 
       .user-name {
         font-weight: 600;
         margin-bottom: 0.25rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+        white-space: nowrap; // Ngăn văn bản xuống dòng
+        overflow: hidden; // Ẩn phần văn bản bị tràn
+        text-overflow: ellipsis; // Hiển thị dấu "..." khi bị ẩn
       }
 
-      .user-status-text {
+      .last-message-preview {
+        display: flex;
+        justify-content: space-between; // Đẩy nội dung và thời gian về 2 phía
+        align-items: center;
         font-size: 0.8rem;
+        color: var(--text-gray);
+        gap: 0.5rem; // Khoảng cách nhỏ giữa nội dung và thời gian
+      }
+
+      .last-message-content {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; // Vẫn giữ logic cắt ngắn văn bản
+      }
+
+      .last-message-time {
+        flex-shrink: 0; // Ngăn không cho thời gian bị co lại
         color: var(--text-gray);
       }
     }
