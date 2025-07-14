@@ -1,27 +1,27 @@
 // Import your existing variables to use them in this component's styles
 
-// The header height is assumed to be 55px from your Header component
+// Chiều cao của header, giả định là 70px
 $header-height: 70px;
 
 .chat-container {
   display: flex;
-  // --- Fullscreen Layout Styles ---
-  // Position it fixed to the viewport
+  // --- Style cho giao diện toàn màn hình ---
+  // Đặt vị trí cố định so với viewport
   position: fixed;
-  // Start it right below the header
+  // Bắt đầu ngay bên dưới header
   top: $header-height;
   left: 0;
   width: 100%;
-  // Calculate the height to fill the rest of the viewport
-  height: calc(100vh - #{$header-height});
+  // Tính toán chiều cao để lấp đầy phần còn lại của viewport
+  height: calc(100dvh - #{$header-height});
   // Thêm transition để chuyển cảnh mượt hơn trên mobile
   transition: transform 0.3s ease-in-out;
 }
 
-// --- Sidebar / User List ---
+// --- Sidebar / Danh sách người dùng ---
 .chat-sidebar {
   width: 320px;
-  min-width: 320px; // Thêm min-width để đảm bảo không bị co lại quá nhỏ
+  min-width: 320px; // Thêm min-width để không bị co lại quá mức
   border-right: 1px solid var(--border-input-search);
   display: flex;
   flex-direction: column;
@@ -67,9 +67,7 @@ $header-height: 70px;
     &.active {
       background-image: var(--linear-gradient-blue-purple);
       .user-name,
-      .user-status-text {
-        color: white;
-      }
+      .user-status-text,
       .last-message-preview,
       .last-message-time {
         color: var(--text-white);
@@ -95,24 +93,24 @@ $header-height: 70px;
         border: 2px solid var(--background-body-tertiary);
 
         &.online {
-          background-color: #28a745; // Green for online
+          background-color: #28a745; // Màu xanh cho online
         }
         &.offline {
-          background-color: #6c757d; // Grey for offline
+          background-color: #6c757d; // Màu xám cho offline
         }
       }
     }
 
     .user-info {
       flex-grow: 1;
-      overflow: hidden; // QUAN TRỌNG: Bắt buộc phải có để text-overflow hoạt động
+      overflow: hidden; // QUAN TRỌNG: Bắt buộc để text-overflow hoạt động
 
       .user-name {
         font-weight: 600;
         margin-bottom: 0.25rem;
         white-space: nowrap; // Ngăn văn bản xuống dòng
-        overflow: hidden; // Ẩn phần văn bản bị tràn
-        text-overflow: ellipsis; // Hiển thị dấu "..." khi bị ẩn
+        overflow: hidden; // Ẩn phần văn bản tràn
+        text-overflow: ellipsis; // Hiển thị dấu "..."
       }
 
       .last-message-preview {
@@ -121,24 +119,24 @@ $header-height: 70px;
         align-items: center;
         font-size: 0.8rem;
         color: var(--text-white);
-        gap: 0.5rem; // Khoảng cách nhỏ giữa nội dung và thời gian
+        gap: 0.5rem;
       }
 
       .last-message-content {
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; // Vẫn giữ logic cắt ngắn văn bản
+        text-overflow: ellipsis;
       }
 
       .last-message-time {
-        flex-shrink: 0; // Ngăn không cho thời gian bị co lại
+        flex-shrink: 0; // Ngăn thời gian bị co lại
         color: var(--text-white);
       }
     }
   }
 }
 
-// --- Main Chat Area ---
+// --- Khu vực chat chính ---
 .chat-main {
   flex-grow: 1;
   display: flex;
@@ -147,16 +145,26 @@ $header-height: 70px;
   background-color: var(--background-body);
   transition:
     transform 0.3s ease-in-out,
-    opacity 0.3s ease-in-out; // Thêm transition
+    opacity 0.3s ease-in-out;
 }
 
-// --- Header of the Chat ---
+// --- Header của khu vực chat ---
 .chat-header {
   display: flex;
   align-items: center;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-input-search);
   background-color: var(--background-body-tertiary);
+
+  .user-name-link {
+    text-decoration: none; // Bỏ gạch chân
+    color: inherit; // Kế thừa màu từ thẻ cha (sẽ là màu trắng/đen theo theme)
+
+    // Thêm lại gạch chân khi di chuột qua để người dùng biết có thể click
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 
   // Mặc định ẩn nút back trên desktop
   .back-button {
@@ -182,7 +190,7 @@ $header-height: 70px;
   }
 }
 
-// --- Message Area ---
+// --- Khu vực hiển thị tin nhắn ---
 .message-area {
   overflow-x: hidden; // Ngăn cuộn ngang
   flex-grow: 1;
@@ -240,12 +248,12 @@ $header-height: 70px;
   padding: 0.75rem 1rem;
   border-radius: 1.25rem;
   max-width: 100%; // Đảm bảo bubble không vượt quá wrapper
-  overflow-wrap: break-word; // Ngắt từ ở bất kỳ điểm nào nếu cần
-  word-break: break-word; // Thay thế word-wrap, đảm bảo ngắt dòng cho chuỗi dài
+  overflow-wrap: break-word; // Ngắt từ nếu cần
+  word-break: break-word; // Đảm bảo ngắt dòng cho chuỗi dài
   p {
     margin: 0;
-    overflow-wrap: break-word; // Đảm bảo nội dung trong <p> cũng ngắt dòng
-    word-break: break-word; // Ngắt dòng cho cả chuỗi dài không có khoảng trắng
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 }
 
@@ -255,7 +263,7 @@ $header-height: 70px;
   padding: 0 0.5rem;
 }
 
-// --- Footer / Input Area ---
+// --- Footer / Khu vực nhập liệu ---
 .chat-footer {
   padding: 1rem 1.5rem;
   background-color: var(--background-body-tertiary);
@@ -288,7 +296,7 @@ $header-height: 70px;
   }
 }
 
-// --- Placeholder for when no chat is selected ---
+// --- Placeholder khi chưa chọn cuộc trò chuyện ---
 .no-chat-selected {
   display: flex;
   flex-direction: column;
@@ -304,7 +312,7 @@ $header-height: 70px;
   }
 }
 
-// --- MOBILE RESPONSIVE STYLES (Giống Messenger) ---
+// --- STYLE CHO THIẾT BỊ DI ĐỘNG (Giống Messenger) ---
 @media (max-width: 768px) {
   .chat-container {
     // Cho phép overflow để có thể trượt giữa 2 màn hình
@@ -325,19 +333,19 @@ $header-height: 70px;
     position: absolute;
     width: 100%;
     height: 100%;
-    // Mặc định, chat main sẽ bị đẩy ra ngoài màn hình
+    // Mặc định, chat main sẽ bị đẩy ra ngoài màn hình bên phải
     transform: translateX(100%);
     z-index: 20;
   }
 
-  // Khi có class .show-chat-main (tức là đã click vào user)
+  // Khi container có class .show-chat-main (tức là đã click vào user)
   .chat-container.show-chat-main {
     .chat-sidebar {
-      // Đẩy sidebar ra khỏi màn hình
+      // Đẩy sidebar ra khỏi màn hình về bên trái
       transform: translateX(-100%);
     }
     .chat-main {
-      // Đưa chat main vào trong màn hình
+      // Đưa chat main vào trong màn hình từ bên phải
       transform: translateX(0);
     }
   }
@@ -346,9 +354,40 @@ $header-height: 70px;
     padding: 0.75rem 1rem;
     // Hiển thị nút back trên mobile
     .back-button {
-      display: flex; // Sử dụng flex để căn giữa icon nếu cần
-    }
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      margin-right: 0.75rem;
+      transition: background-color 0.2s ease;
+      background-color: transparent;
 
+      // --- THAY ĐỔI QUAN TRỌNG: Target thẻ svg thay vì i ---
+      svg {
+        // Dùng width/height thay cho font-size cho SVG
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--text-white); // Áp dụng màu trực tiếp cho SVG
+        transition: color 0.2s ease;
+      }
+
+      // Hiệu ứng khi hover/focus
+      &:hover,
+      &:focus {
+        background-color: var(--background-input-search);
+        outline: none;
+        // Đổi màu icon khi hover bằng cách target trực tiếp svg
+        svg {
+          color: var(--brand-social);
+        }
+      }
+    }
     .user-avatar {
       width: 40px;
       height: 40px;
