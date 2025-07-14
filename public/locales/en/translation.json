@@ -2,6 +2,9 @@
   "appHeader": {
     "brand": "JobHunter",
     "home": "Home",
+    "findjobs": "Find Job",
+    "company": "Find company",
+
     "project": "Project",
     "contact": "Contact",
     "about": "About"

@@ -110,8 +110,8 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     // Menu mặc định dành cho người tìm việc
     navItems = [
       { label: t("appHeader.home"), key: "/", to: "/" },
-      { label: "Tìm Việc Làm", key: "/job", to: "/job", isNew: true },
-      { label: "Tìm Công ty", key: "/company", to: "/company" },
+      { label: t("appHeader.findjobs"), key: "/job", to: "/job", isNew: true },
+      { label: t("appHeader.company"), key: "/company", to: "/company" },
       // Lưu ý: Em đã sửa lại đường dẫn "to" ở đây từ "/company" thành "/CVAI" cho đúng
       { label: "Tạo CV Bởi AI", key: "/CVAI", to: "/CVAI", isNew: true },
       {

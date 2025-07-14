@@ -2,6 +2,8 @@
   "appHeader": {
     "brand": "JobHunter",
     "home": "Trang chủ",
+    "findjobs": "Tìm việc làm",
+    "company": "Tìm công ty",
     "project": "Dự án",
     "contact": "Liên hệ",
     "about": "Về tác giả"

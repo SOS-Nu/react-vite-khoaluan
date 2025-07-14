@@ -84,6 +84,8 @@ const LayoutClient = () => {
   const location = useLocation();
   const rootRef = useRef<HTMLDivElement>(null);
   const stompClientRef = useRef<any>(null);
+  // Ref để theo dõi trạng thái đã ngắt kết nối hay chưa
+  const hasDisconnectedRef = useRef(false);
 
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.account.user);
@@ -109,7 +111,7 @@ const LayoutClient = () => {
   }, [activeChatUserId, connectedUsers]);
 
   const isChatPage = location.pathname.startsWith("/chat");
-  // --- Nâng cấp onUserStatusChange ---
+
   const onUserStatusChange = useCallback((payload: { body: string }) => {
     const updatedUser = JSON.parse(payload.body);
     setConnectedUsers((prevUsers) =>
@@ -119,10 +121,40 @@ const LayoutClient = () => {
     );
   }, []);
 
-  // Main WebSocket Connection Effect
+  // --- TÁCH LOGIC NGẮT KẾT NỐI RA HÀM RIÊNG ---
+  const handleDisconnect = useCallback(() => {
+    // Chỉ thực hiện nếu có kết nối, có thông tin user VÀ chưa ngắt kết nối trước đó
+    if (
+      stompClientRef.current?.connected &&
+      user?.email &&
+      !hasDisconnectedRef.current
+    ) {
+      // Đánh dấu là đã bắt đầu quá trình ngắt kết nối
+      hasDisconnectedRef.current = true;
 
+      // Gửi tin nhắn đến server báo rằng người dùng này đã offline
+      stompClientRef.current.send(
+        "/app/user.disconnectUser",
+        {},
+        JSON.stringify({
+          id: user.id,
+          email: user.email,
+          status: "OFFLINE",
+        })
+      );
+
+      // Ngắt kết nối WebSocket
+      stompClientRef.current.disconnect(() => {
+        // Bạn có thể log ra để kiểm tra
+        // console.log("Disconnected from WebSocket.");
+      });
+
+      stompClientRef.current = null;
+    }
+  }, [user]); // Phụ thuộc vào user để có user.id, user.email
+
+  // Main WebSocket Connection Effect
   useEffect(() => {
-    // 1. Điều kiện tiên quyết: Chỉ thực hiện khi người dùng đã đăng nhập (có email)
     if (!user?.email) return;
 
     // --- Hàm xử lý khi nhận được tin nhắn mới ---
@@ -130,7 +162,6 @@ const LayoutClient = () => {
       const notification = JSON.parse(payload.body);
       const { senderId, content, timeStamp } = notification;
 
-      // Cập nhật state `connectedUsers` để hiển thị tin nhắn mới nhất trên sidebar
       setConnectedUsers((prevUsers) =>
         prevUsers.map((u) =>
           u.id === senderId
@@ -148,17 +179,15 @@ const LayoutClient = () => {
 
       const sender = connectedUsersRef.current.find((u) => u.id === senderId);
 
-      // Hiển thị thông báo (toast) nếu không ở trong cuộc trò chuyện với người gửi
       if (senderId !== activeChatUserIdRef.current) {
         const senderName =
           sender?.company?.name || sender?.name || "Một người dùng";
         toast.info(`Bạn có tin nhắn mới từ ${senderName}`);
       }
 
-      // Chỉ thêm tin nhắn vào Redux store nếu đang mở đúng cửa sổ chat của người gửi
       if (user && senderId === activeChatUserIdRef.current) {
         const newMessage = {
-          type: "receiver", // Tin nhắn nhận được
+          type: "receiver",
           content: content,
           time: formatDate(new Date(timeStamp)),
         };
@@ -166,28 +195,27 @@ const LayoutClient = () => {
       }
     };
 
-    // 2. Ngăn chặn việc tạo kết nối lặp lại nếu đã có kết nối
     if (stompClientRef.current) {
       return;
     }
 
-    // 3. Khởi tạo kết nối WebSocket
+    // Reset lại cờ khi tạo kết nối mới
+    hasDisconnectedRef.current = false;
+
     const socket = new SockJS(`${import.meta.env.VITE_BACKEND_URL}/ws`);
     const client = Stomp.over(socket);
-    stompClientRef.current = client; // Lưu lại instance của client để sử dụng ở các nơi khác
+    stompClientRef.current = client;
 
-    // Tắt log debug của StompJS ra console
     client.debug = () => {};
 
-    // 4. Kết nối tới server
     client.connect({}, () => {
-      // a. Đăng ký nhận tin nhắn riêng tư (chỉ user hiện tại nhận được)
+      // a. Đăng ký nhận tin nhắn riêng tư
       client.subscribe(`/user/${user.email}/queue/messages`, onMessageReceived);
 
-      // b. Đăng ký nhận các cập nhật trạng thái chung (online/offline) từ tất cả user
+      // b. Đăng ký nhận các cập nhật trạng thái chung
       client.subscribe("/user/public", onUserStatusChange);
 
-      // c. Gửi thông tin của người dùng hiện tại lên server để thông báo "tôi đã online"
+      // c. Gửi thông tin của người dùng hiện tại lên server
       client.send(
         "/app/user.addUser",
         {},
@@ -200,17 +228,35 @@ const LayoutClient = () => {
           status: "ONLINE",
         })
       );
+
+      const heartbeatInterval = setInterval(() => {
+        if (stompClientRef.current?.connected) {
+          stompClientRef.current.send(
+            "/app/heartbeat.ping",
+            {},
+            JSON.stringify({ email: user.email })
+          );
+        }
+      }, 3000);
     });
 
-    // 5. Hàm dọn dẹp (cleanup function) -> sẽ chạy khi component unmount
+    // Hàm dọn dẹp -> Sẽ chạy khi component unmount (ví dụ: chuyển trang)
     return () => {
-      if (stompClientRef.current?.connected) {
-        // Ngắt kết nối khỏi WebSocket server
-        stompClientRef.current.disconnect();
-        stompClientRef.current = null; // Reset ref để có thể kết nối lại sau này
-      }
+      // Gọi hàm ngắt kết nối chung
+      handleDisconnect();
     };
-  }, [user, dispatch, onUserStatusChange]); // Mảng phụ thuộc của useEffect
+  }, [user, dispatch, onUserStatusChange, handleDisconnect]);
+
+  // --- EFFECT MỚI ĐỂ XỬ LÝ SỰ KIỆN ĐÓNG TRÌNH DUYỆT/TAB ---
+  useEffect(() => {
+    // Đăng ký sự kiện khi component được mount
+    window.addEventListener("beforeunload", handleDisconnect);
+
+    // Hủy đăng ký sự kiện khi component unmount để tránh rò rỉ bộ nhớ
+    return () => {
+      window.removeEventListener("beforeunload", handleDisconnect);
+    };
+  }, [handleDisconnect]);
 
   return (
     <div className="layout-app" ref={rootRef}>
@@ -235,6 +281,7 @@ const LayoutClient = () => {
     </div>
   );
 };
+
 const queryClient = new QueryClient();
 
 export default function App() {
