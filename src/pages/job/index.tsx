@@ -1,9 +1,7 @@
-// src/pages/job/detail.tsx
-
-import { useEffect, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useEffect, useState, useRef } from "react"; // << THÊM IMPORT useRef
+import { useSearchParams } from "react-router-dom";
 import { IJob } from "@/types/backend";
-import { callFetchJobById } from "@/config/api";
+import { callFetchJobById, callFetchJob } from "@/config/api";
 import parse from "html-react-parser";
 import { Divider, Skeleton, Tag, Pagination, Empty, notification } from "antd";
 import {
@@ -11,13 +9,12 @@ import {
   EnvironmentOutlined,
   HistoryOutlined,
 } from "@ant-design/icons";
-// THÊM IMPORT LOCATION_LIST ĐỂ SỬ DỤNG
 import { getLocationName, LOCATION_LIST } from "@/config/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ApplyModal from "@/components/client/modal/apply.modal";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchJob, findJobsByAI } from "@/redux/slice/jobSlide";
+import { findJobsByAI, fetchJob } from "@/redux/slice/jobSlide";
 import JobCard from "@/components/client/card/job.card";
 import SearchClient from "@/components/client/search.client";
 import JobDetailPanel from "./JobDetailPanel";
@@ -39,23 +36,40 @@ const ClientJobDetailPage = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const listQueryRef = useRef<string>(""); // << THÊM REF ĐỂ LƯU QUERY
 
   const shouldShowJobFilter =
     searchParams.has("filter") ||
     (searchParams.get("search_type") === "ai" && searchParams.get("prompt"));
 
+  // =========================================================================
+  // >>> LOGIC useEffect ĐÃ ĐƯỢC SỬA LẠI HOÀN TOÀN <<<
+  // =========================================================================
   useEffect(() => {
-    // ... logic không đổi
     const searchType = searchParams.get("search_type");
+
+    // Chỉ fetch danh sách job cho tìm kiếm thường
     if (searchType !== "ai") {
       const params = new URLSearchParams(searchParams);
-      params.delete("id");
-      if (!params.has("filter")) {
-        params.set("sort", "updatedAt,desc");
-        params.set("size", "6");
+      params.delete("id"); // Xóa id để không ảnh hưởng đến query của list
+      const currentListQuery = params.toString();
+
+      // Chỉ fetch lại danh sách nếu query thay đổi (lọc, phân trang,...)
+      // Sẽ không fetch lại khi chỉ click xem chi tiết job khác
+      if (currentListQuery !== listQueryRef.current) {
+        const queryParams = new URLSearchParams(searchParams);
+        queryParams.delete("id");
+
+        if (!queryParams.has("filter")) {
+          queryParams.set("sort", "updatedAt,desc");
+          queryParams.set("size", "6");
+        }
+        dispatch(fetchJob({ query: queryParams.toString() }));
+        listQueryRef.current = currentListQuery; // Cập nhật query đã dùng
       }
-      dispatch(fetchJob({ query: params.toString() }));
     }
+
+    // Luôn fetch chi tiết job khi có id
     const fetchJobDetail = async () => {
       if (id) {
         setIsLoadingDetail(true);
@@ -64,12 +78,10 @@ const ClientJobDetailPage = () => {
         setIsLoadingDetail(false);
       }
     };
+
     fetchJobDetail();
   }, [searchParams, dispatch, id]);
 
-  // =========================================================================
-  // >>> SỬA LỖI VÀ HOÀN THIỆN HÀM `handleFilter` TẠI ĐÂY <<<
-  // =========================================================================
   const handleFilter = async ({
     levels,
     salary,
@@ -83,7 +95,6 @@ const ClientJobDetailPage = () => {
       const originalPrompt = searchParams.get("prompt") || "";
       const locationValue = searchParams.get("location");
 
-      // 1. Tạo prompt đầy đủ để gửi cho API (logic không đổi)
       let locationText = "";
       if (locationValue) {
         const locationObject = LOCATION_LIST.find(
@@ -97,21 +108,15 @@ const ClientJobDetailPage = () => {
         let salaryParts = [];
         if (salary.min) salaryParts.push(`từ ${formatSalary(salary.min)}`);
         if (salary.max) salaryParts.push(`đến ${formatSalary(salary.max)}`);
-
-        // Nối các phần của salary bằng ' ' và thêm ' mức lương' ở đầu
         salaryText = ` mức lương ${salaryParts.join(" ")}`;
       }
       const promptForAPI = `${originalPrompt}${locationText}${levelText}${salaryText}`;
 
-      // 2. Gọi API với prompt đầy đủ
       const formData = new FormData();
       formData.append("skillsDescription", promptForAPI);
       try {
         await dispatch(findJobsByAI({ formData })).unwrap();
-
-        // 3. Cập nhật URL với các tham số riêng biệt
         setSearchParams((prev) => {
-          // Giữ lại các tham số gốc
           prev.set("search_type", "ai");
           prev.set("prompt", originalPrompt);
           if (locationValue) {
@@ -119,17 +124,12 @@ const ClientJobDetailPage = () => {
           } else {
             prev.delete("location");
           }
-
-          // Xóa các filter cũ để thêm lại
           prev.delete("level");
           prev.delete("salary_min");
           prev.delete("salary_max");
-
-          // Thêm các filter mới
           levels.forEach((level) => prev.append("level", level));
           if (salary.min) prev.set("salary_min", salary.min);
           if (salary.max) prev.set("salary_max", salary.max);
-
           return prev;
         });
       } catch (error) {
@@ -139,7 +139,6 @@ const ClientJobDetailPage = () => {
         });
       }
     } else {
-      // Logic cho search thường giữ nguyên
       const currentFilter = searchParams.get("filter") || "";
       const baseNamePart = currentFilter.match(
         /(name~'[^']*'|company~'[^']*')/
@@ -178,7 +177,6 @@ const ClientJobDetailPage = () => {
   };
 
   return (
-    // ... JSX return không đổi ...
     <div className="container job-detail-page-container">
       <SearchClient />
 
