@@ -2,27 +2,65 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Container, Row, Col, Card, Button, Image } from "react-bootstrap";
+import ReactDOM from "react-dom/client";
+import html2pdf from "html2pdf.js";
+import moment from "moment";
+
+// UI Components
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Image,
+  Modal,
+} from "react-bootstrap";
 import { Spin, notification, Result, Tag } from "antd";
-import { callFetchUserDetailById } from "@/config/api";
-import { IUser } from "@/types/backend";
 import {
   MailOutlined,
   PhoneOutlined,
   HomeOutlined,
   DownloadOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
-// FIX: Thêm import moment sau khi đã cài đặt thư viện
-import moment from "moment";
+
+// API & Types
+import { callFetchUserDetailById } from "@/config/api";
+import { IUser } from "@/types/backend";
+import classicCv from "@/assets/cv/classicCV.png";
+import modermCv from "@/assets/cv/modermCv.png";
+
+// PDF Templates (Giả sử bạn đã tạo các file này)
+
+import CVTemplate_Modern from "./CVTemplate_Modern";
+
+// Styles
 import "@/styles/stylespotfolio/public-cv.scss";
+import CVTemplate_Classic from "./CVTemplate_Classic";
 
 const PublicCvPage = () => {
+  // === STATE MANAGEMENT ===
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  // State cho dữ liệu và trạng thái trang
   const [userData, setUserData] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
+  // State cho chức năng xuất PDF
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+
+  // === TEMPLATE CONFIG ===
+  // Danh sách các mẫu CV có sẵn để chọn
+  const templates = [
+    { name: "Classic", preview: classicCv },
+    { name: "Modern", preview: modermCv },
+  ];
+
+  // === DATA FETCHING ===
   useEffect(() => {
     const fetchUserData = async () => {
       if (!id) {
@@ -49,19 +87,79 @@ const PublicCvPage = () => {
     fetchUserData();
   }, [id]);
 
+  // === HELPER FUNCTIONS ===
+  // Hàm lấy URL avatar đầy đủ
   const getAvatarUrl = (avatarPath?: string | null) => {
     if (avatarPath) {
       return `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${avatarPath}`;
-    } else {
-      // Cung cấp một ảnh placeholder mặc định
-      return `https://ui-avatars.com/api/?name=${userData?.name || "User"}&background=random&color=fff`;
     }
+    return `https://ui-avatars.com/api/?name=${userData?.name || "User"}&background=random&color=fff`;
   };
 
+  // === PDF EXPORT LOGIC ===
+  const handleDownloadPdf = (templateName: string) => {
+    if (!userData || !userData.onlineResume) return;
+
+    setShowTemplateModal(false);
+    setIsDownloading(true);
+
+    const pdfContainer = document.createElement("div");
+    pdfContainer.style.position = "absolute";
+    pdfContainer.style.left = "-9999px";
+    document.body.appendChild(pdfContainer);
+
+    const root = ReactDOM.createRoot(pdfContainer);
+    const avatarUrl = getAvatarUrl(userData.avatar);
+
+    // Dựa vào templateName để render component tương ứng
+    let templateToRender;
+    switch (templateName) {
+      case "Modern":
+        templateToRender = (
+          <CVTemplate_Modern userData={userData} avatarUrl={avatarUrl} />
+        );
+        break;
+      case "Classic":
+      default:
+        templateToRender = (
+          <CVTemplate_Classic userData={userData} avatarUrl={avatarUrl} />
+        );
+        break;
+    }
+    root.render(templateToRender);
+
+    // Đợi một chút để component render xong
+    setTimeout(() => {
+      const options = {
+        margin: 0,
+        filename: `${userData.onlineResume?.fullName || userData.name}_${templateName}_CV.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+
+      html2pdf()
+        .from(pdfContainer.firstElementChild)
+        .set(options)
+        .save()
+        .catch((err) => {
+          console.error("Could not generate PDF", err);
+          notification.error({ message: "Failed to generate PDF." });
+        })
+        .finally(() => {
+          document.body.removeChild(pdfContainer);
+          setIsDownloading(false);
+        });
+    }, 500);
+  };
+
+  // === RENDER LOGIC ===
+  // 1. Trạng thái Loading
   if (isLoading) {
     return <Spin spinning={true} fullscreen />;
   }
 
+  // 2. Trạng thái Lỗi hoặc không có dữ liệu
   if (error || !userData?.onlineResume) {
     return (
       <Container className="public-cv-container my-5">
@@ -72,7 +170,6 @@ const PublicCvPage = () => {
             error ||
             "Sorry, the profile you are looking for does not exist or has not been created yet."
           }
-          // FIX: Thay thế `type="primary"` bằng `variant="primary"` cho Button của react-bootstrap
           extra={
             <Button variant="primary" href="/">
               Back Home
@@ -85,8 +182,10 @@ const PublicCvPage = () => {
 
   const { onlineResume, workExperiences } = userData;
 
+  // 3. Giao diện chính khi có dữ liệu
   return (
     <div className="public-cv-wrapper">
+      {/* Main CV Display */}
       <Container className="public-cv-container my-5">
         <Row>
           {/* Cột trái - Sidebar */}
@@ -101,18 +200,30 @@ const PublicCvPage = () => {
                 <h2 className="user-name">{userData.name}</h2>
                 <p className="resume-title-sidebar">{onlineResume?.title}</p>
 
-                {userData.mainResume && (
-                  <a
-                    href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${userData.mainResume}&folder=resumes`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="d-block mt-3 mb-4"
+                <div className="d-grid gap-2 my-4">
+                  {userData.mainResume && (
+                    <a
+                      href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${userData.mainResume}&folder=resumes`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="primary" className="w-100">
+                        <DownloadOutlined /> Download Full CV
+                      </Button>
+                    </a>
+                  )}
+                  <Button
+                    variant="outline-primary"
+                    className="w-100"
+                    onClick={() => setShowTemplateModal(true)}
+                    disabled={isDownloading}
                   >
-                    <Button variant="primary" className="download-cv-btn">
-                      <DownloadOutlined /> Download Full CV
-                    </Button>
-                  </a>
-                )}
+                    <FilePdfOutlined />{" "}
+                    {isDownloading
+                      ? "Generating..."
+                      : "Export Online CV to PDF"}
+                  </Button>
+                </div>
 
                 <hr />
 
@@ -131,21 +242,8 @@ const PublicCvPage = () => {
                       <HomeOutlined /> &nbsp; {userData.address}
                     </p>
                   )}
-                  <Button
-                    onClick={() => {
-                      navigate("/chat/detail", {
-                        state: { receiver: userData ?? {} },
-                      });
-                    }}
-                    color="light"
-                    className="mt-4"
-                  >
-                    nhan tin
-                  </Button>
                 </div>
-
                 <hr />
-
                 <div className="skills-info text-start">
                   <h5 className="sidebar-heading">Skills</h5>
                   <div>
@@ -156,9 +254,7 @@ const PublicCvPage = () => {
                     ))}
                   </div>
                 </div>
-
                 <hr />
-
                 <div className="skills-info text-start">
                   <h5 className="sidebar-heading">Languages</h5>
                   <div className="language-text">
@@ -170,6 +266,17 @@ const PublicCvPage = () => {
                   </div>
                 </div>
               </Card.Body>
+              <Button
+                onClick={() =>
+                  navigate("/chat/detail", {
+                    state: { receiver: userData ?? {} },
+                  })
+                }
+                color="light"
+                className="mt-3 w-100"
+              >
+                Nhắn tin
+              </Button>
             </Card>
           </Col>
 
@@ -180,7 +287,6 @@ const PublicCvPage = () => {
                 <Card.Title as="h4" className="card-title-icon">
                   Summary
                 </Card.Title>
-                {/* FIX: Sử dụng as="div" để tránh lỗi render thẻ <p> lồng nhau */}
                 <Card.Text as="div" className="summary-text">
                   {onlineResume?.summary}
                 </Card.Text>
@@ -205,8 +311,8 @@ const PublicCvPage = () => {
                             {moment(exp.startDate).format("MMM YYYY")} -{" "}
                             {exp.endDate
                               ? moment(exp.endDate).format("MMM YYYY")
-                              : "Present"}
-                            &nbsp; | &nbsp; {exp.location}
+                              : "Present"}{" "}
+                            | {exp.location}
                           </p>
                           <div className="experience-description">
                             {exp.description.split("\n").map((line, i) => (
@@ -222,7 +328,6 @@ const PublicCvPage = () => {
                 </Card.Body>
               </Card>
             )}
-
             <Row>
               <Col md={6}>
                 <Card className="content-card mb-4">
@@ -262,6 +367,52 @@ const PublicCvPage = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* Modal for Template Selection */}
+      <Modal
+        show={showTemplateModal}
+        onHide={() => setShowTemplateModal(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Choose a CV Template</Modal.Title>
+        </Modal.Header>
+        <Modal.Body
+          style={{ maxHeight: "calc(100vh - 210px)", overflowY: "auto" }}
+        >
+          <Container>
+            <Row>
+              {templates.map((template) => (
+                <Col md={6} key={template.name} className="mb-3">
+                  <Card className="text-center">
+                    <Card.Img
+                      variant="top"
+                      src={template.preview}
+                      style={{
+                        height: "400px",
+                        objectFit: "contain",
+                        background: "#f8f9fa",
+                        padding: "10px",
+                        borderBottom: "1px solid #dee2e6",
+                      }}
+                    />
+                    <Card.Body>
+                      <Card.Title>{template.name}</Card.Title>
+                      <Button
+                        variant="primary"
+                        onClick={() => handleDownloadPdf(template.name)}
+                      >
+                        Choose {template.name}
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Container>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

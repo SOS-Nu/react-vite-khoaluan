@@ -26,6 +26,7 @@
       "helpers/*": ["src/helpers/*"]
     }
   },
+  "files": ["./src/types/file.d.ts"],
   "include": ["src"],
   "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]

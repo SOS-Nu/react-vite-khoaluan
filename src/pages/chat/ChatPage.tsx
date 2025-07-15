@@ -148,6 +148,7 @@ const ChatPage = () => {
   // Hàm xử lý khi click nút "back" trên mobile
   const handleBackToUserList = () => {
     setIsChatVisible(false);
+    setUserSelected(null);
     // Tùy chọn: Xóa user đã chọn để quay về màn hình placeholder
     // setUserSelected(null);
   };
