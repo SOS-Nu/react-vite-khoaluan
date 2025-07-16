@@ -87,7 +87,8 @@ const JobCard = (props: IProps) => {
                 : "col-12 col-sm-6 col-md-4";
 
               // TỰ QUYẾT ĐỊNH VIỆC HIGHLIGHT
-              const isSelected = item.id === selectedJobId;
+              const isSelected = String(item.id) === selectedJobId;
+
               // === START: THAY ĐỔI LOGIC TẠI ĐÂY ===
               const relevantDate = item.updatedAt || item.createdAt;
               const timeAgoString = dayjs(relevantDate).locale("en").fromNow();
@@ -110,7 +111,10 @@ const JobCard = (props: IProps) => {
                 <div className={columnClass} key={item.id}>
                   <div className={isSelected ? "selected-job-card" : ""}>
                     <Link to={linkTo} style={{ textDecoration: "none" }}>
-                      <SimpleGlowCard identifier={`job-${item.id}`}>
+                      <SimpleGlowCard
+                        identifier={`job-${item.id}`}
+                        className={isSelected ? "selected-job-card" : ""}
+                      >
                         {/* Nội dung bên trong không thay đổi */}
                         <div className="p-0 pt-2 p-md-2 position-relative">
                           {theme === "dark" && (

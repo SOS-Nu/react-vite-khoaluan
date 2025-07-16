@@ -86,3 +86,9 @@
     ); /* Không thay đổi màu khi hover trên mobile */
   }
 }
+
+.selected-job-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--selected-job-card) !important; // Dùng !important để đảm bảo được ưu tiên
+  box-shadow: 0 0 10px var(--selected-job-card) !important;
+}

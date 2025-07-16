@@ -62,9 +62,11 @@ $light-theme: (
   border-top-skill-card:
     "linear-gradient(to right, transparent, #fff, #fff, transparent)",
   linear-gradient-blue-purple-company: black,
+  selected-job-card: "rgba(255, 0, 0, 0.6)",
 );
 
 $dark-theme: (
+  selected-job-card: "rgb(255, 0, 0)",
   linear-gradient-failure: linear-gradient(to right, #b3535d, #fd0000),
   brand-social-blue: rgb(27, 116, 255),
   linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
