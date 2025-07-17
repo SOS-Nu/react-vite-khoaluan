@@ -71,7 +71,16 @@ const JobDetailPanel = () => {
                 className="company-logo"
               />
               <div className="job-info">
-                <h1 className="header">{jobDetail.name ?? "Tên công việc"}</h1>
+                <h1 className="header">
+                  <Link
+                    to={`/job/detail/${jobDetail.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "inherit", textDecoration: "none" }}
+                  >
+                    {jobDetail.name ?? "Tên công việc"}
+                  </Link>
+                </h1>
                 {jobDetail.company ? (
                   <a
                     href={`/company/${convertSlug(jobDetail.company.name ?? "")}?id=${jobDetail.company.id}`}
