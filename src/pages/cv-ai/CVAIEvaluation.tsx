@@ -15,9 +15,8 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@/redux/hooks";
-// <<< THÊM IMPORT MỚI
 import { callEvaluateCVWithAI, callFetchUserDetailById } from "@/config/api";
-import { IUser } from "@/types/backend"; // <<< THÊM IMPORT MỚI
+import { IUser } from "@/types/backend";
 import {
   message,
   Tag,
@@ -26,10 +25,13 @@ import {
   Descriptions,
   Divider,
   Spin,
+  theme,
+  ConfigProvider,
 } from "antd";
 import "./CVAIEvaluation.scss";
+import { useCurrentApp } from "@/components/context/app.context";
 
-// (Các interface IEvaluationResult, etc. giữ nguyên như cũ)
+// (Interfaces: IEvaluationResult, etc. remain the same)
 interface IImprovementSuggestion {
   area: string;
   suggestion: string;
@@ -67,16 +69,13 @@ const CVAIEvaluationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<IEvaluationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // <<< THÊM STATE MỚI ĐỂ LƯU DỮ LIỆU CV CHI TIẾT
   const [fullUserData, setFullUserData] = useState<IUser | null>(null);
   const [isFetchingProfile, setIsFetchingProfile] = useState<boolean>(true);
+  const { theme: currentTheme } = useCurrentApp();
 
-  // <<< SỬA ĐỔI: DÙNG DỮ LIỆU ĐÃ FETCH ĐỂ KIỂM TRA
   const hasOnlineResume =
     fullUserData?.onlineResume && fullUserData.onlineResume.id;
 
-  // <<< THÊM USEEFFECT ĐỂ GỌI API LẤY CHI TIẾT USER
   useEffect(() => {
     const fetchUserDetail = async () => {
       if (user?.id) {
@@ -85,7 +84,6 @@ const CVAIEvaluationPage = () => {
           const res = await callFetchUserDetailById(user.id);
           if (res && res.data) {
             setFullUserData(res.data);
-            // Tự động chuyển evaluationType nếu user không có online CV
             if (!res.data.onlineResume) {
               setEvaluationType("upload");
             }
@@ -97,7 +95,7 @@ const CVAIEvaluationPage = () => {
         }
       } else {
         setIsFetchingProfile(false);
-        setEvaluationType("upload"); // Nếu không có user, bắt buộc upload
+        setEvaluationType("upload");
       }
     };
 
@@ -127,11 +125,8 @@ const CVAIEvaluationPage = () => {
         formData.append("cvFile", selectedFile);
       }
 
-      // <<< THÊM LOGIC LẤY VÀ GỬI NGÔN NGỮ >>>
-      // Lấy ngôn ngữ từ localStorage, mặc định là 'vi' nếu không tìm thấy
       const language = localStorage.getItem("i18nextLng") || "vi";
       formData.append("language", language);
-      // <<< KẾT THÚC LOGIC THÊM >>>
 
       const res = await callEvaluateCVWithAI(formData);
 
@@ -150,92 +145,107 @@ const CVAIEvaluationPage = () => {
   };
 
   const renderResults = () => {
-    // ... (Giữ nguyên không đổi)
     if (!result) return null;
 
+    // Logic này vẫn đúng, nhưng `currentTheme` giờ đã được lấy từ context
+    const antdThemeAlgorithm =
+      currentTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm;
+
     return (
-      <Card className="result-card mt-5">
-        <Card.Header as="h4">
-          <RobotOutlined /> AI Evaluation Result
-        </Card.Header>
-        <Card.Body>
-          <Descriptions bordered column={1}>
-            <Descriptions.Item label="Overall Score">
-              <Tag color={result.overallScore > 75 ? "green" : "orange"}>
-                {result.overallScore} / 100
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Summary">
-              {result.summary}
-            </Descriptions.Item>
-            <Descriptions.Item label="Estimated Salary">
-              {result.estimatedSalaryRange}
-            </Descriptions.Item>
-          </Descriptions>
+      <ConfigProvider
+        theme={{
+          algorithm: antdThemeAlgorithm,
+          token: {
+            fontSize: 16,
+            colorSplit:
+              currentTheme === "dark"
+                ? "rgba(255, 255, 255, 0.15)"
+                : "rgba(5, 5, 5, 0.06)",
+          },
+        }}
+      >
+        <Card className="result-card mt-5">
+          <Card.Header as="h4">
+            <RobotOutlined /> AI Evaluation Result
+          </Card.Header>
+          <Card.Body>
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Overall Score">
+                <Tag color={result.overallScore > 75 ? "green" : "orange"}>
+                  {result.overallScore} / 100
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Summary">
+                {result.summary}
+              </Descriptions.Item>
+              <Descriptions.Item label="Estimated Salary">
+                {result.estimatedSalaryRange}
+              </Descriptions.Item>
+            </Descriptions>
 
-          <Divider>Strengths</Divider>
-          <List
-            bordered
-            dataSource={result.strengths}
-            renderItem={(item) => <List.Item>{item}</List.Item>}
-          />
+            <Divider>Strengths</Divider>
+            <List
+              bordered
+              dataSource={result.strengths}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
 
-          <Divider>Areas for Improvement</Divider>
-          <List
-            bordered
-            dataSource={result.improvements}
-            renderItem={(item) => (
-              <List.Item>
-                <strong>{item.area}:</strong> {item.suggestion}
-              </List.Item>
-            )}
-          />
+            <Divider>Areas for Improvement</Divider>
+            <List
+              bordered
+              dataSource={result.improvements}
+              renderItem={(item) => (
+                <List.Item>
+                  <strong>{item.area}:</strong> {item.suggestion}
+                </List.Item>
+              )}
+            />
 
-          <Divider>Suggested Improvement Roadmap</Divider>
-          <List
-            bordered
-            dataSource={result.suggestedRoadmap}
-            renderItem={(item) => (
-              <List.Item>
-                <Typography.Text>
-                  <strong>
-                    Step {item.step}: {item.action}
-                  </strong>{" "}
-                  - {item.reason}
-                </Typography.Text>
-              </List.Item>
-            )}
-          />
+            <Divider>Suggested Improvement Roadmap</Divider>
+            <List
+              bordered
+              dataSource={result.suggestedRoadmap}
+              renderItem={(item) => (
+                <List.Item>
+                  <Typography.Text>
+                    <strong>
+                      Step {item.step}: {item.action}
+                    </strong>{" "}
+                    - {item.reason}
+                  </Typography.Text>
+                </List.Item>
+              )}
+            />
 
-          <Divider>Relevant Jobs For You</Divider>
-          <List
-            bordered
-            dataSource={result.relevantJobs}
-            renderItem={(item) => (
-              <List.Item
-                actions={[
-                  <a
-                    href={`/job/detail/${item.jobId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View
-                  </a>,
-                ]}
-              >
-                <List.Item.Meta
-                  title={`${item.jobTitle} at ${item.companyName}`}
-                  description={item.matchReason}
-                />
-              </List.Item>
-            )}
-          />
-        </Card.Body>
-      </Card>
+            <Divider>Relevant Jobs For You</Divider>
+            <List
+              bordered
+              dataSource={result.relevantJobs}
+              renderItem={(item) => (
+                <List.Item
+                  actions={[
+                    <a
+                      href={`/job/detail/${item.jobId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View
+                    </a>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={`${item.jobTitle} at ${item.companyName}`}
+                    description={item.matchReason}
+                  />
+                </List.Item>
+              )}
+            />
+          </Card.Body>
+        </Card>
+      </ConfigProvider>
     );
   };
 
-  // <<< SỬA ĐỔI: THÊM SPIN KHI ĐANG FETCH PROFILE
   if (isFetchingProfile) {
     return <Spin spinning={true} fullscreen tip="Loading your profile..." />;
   }
@@ -243,7 +253,7 @@ const CVAIEvaluationPage = () => {
   return (
     <Container className="cv-evaluation-container my-5">
       <Row className="justify-content-center">
-        <Col md={10} lg={8}>
+        <Col md={10}>
           <Card className="evaluation-card">
             <Card.Body>
               <div className="text-center mb-4">
@@ -264,7 +274,7 @@ const CVAIEvaluationPage = () => {
                         : "outline-secondary"
                     }
                     onClick={() => setEvaluationType("online")}
-                    disabled={!hasOnlineResume} // <<< SỬA ĐỔI: Logic disable vẫn giữ nguyên
+                    disabled={!hasOnlineResume}
                   >
                     Use My Online Profile
                   </Button>
@@ -286,9 +296,13 @@ const CVAIEvaluationPage = () => {
                   </Alert>
                 )}
               </Form.Group>
+
               {evaluationType === "online" && (
-                <div className="mt-2 text-muted">
-                  Selected file: <strong>{fullUserData?.mainResume}</strong>
+                <div className="online-profile-display">
+                  Using online profile:{" "}
+                  <strong>
+                    {fullUserData?.mainResume || "Default Profile"}
+                  </strong>
                 </div>
               )}
 
@@ -305,7 +319,7 @@ const CVAIEvaluationPage = () => {
 
               {error && <Alert variant="danger">{error}</Alert>}
 
-              <div className="d-grid">
+              <div className="d-grid mt-4">
                 <Button
                   variant="success"
                   size="lg"

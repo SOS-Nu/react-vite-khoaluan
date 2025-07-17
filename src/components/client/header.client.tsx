@@ -127,24 +127,23 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
             key: "/resume/create",
             to: "/resume/create",
           },
-          { label: "Create CV", key: "create-cv" },
-          { label: "Evaluation CV By AI", key: "evaluation-cv" },
-          { label: "AI Roadmap", key: "ai-roadmap" },
+          ...(user?.company
+            ? []
+            : [
+                {
+                  label: "Trang Cá Nhân CV",
+                  key: "pagecv",
+                  to: `/user/online-resumes/${user.id}`,
+                },
+              ]),
+          // { label: "Evaluation CV By AI", key: "evaluation-cv" },
+          // { label: "AI Roadmap", key: "ai-roadmap" },
         ],
       },
     ];
   }
 
   const dropdownItems: DropdownItem[] = [
-    ...(user?.company
-      ? []
-      : [
-          {
-            label: "Trang Cá Nhân CV",
-            key: "pagecv",
-            to: `/user/online-resumes/${user.id}`,
-          },
-        ]),
     {
       label: (
         <label

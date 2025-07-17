@@ -262,6 +262,25 @@ body {
   }
 }
 
+.btn-success {
+  // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
+  background: var(--linear-gradient-blue-purple) !important;
+  border: none !important;
+  transition: opacity 0.3s ease;
+  padding: 0.75rem;
+  border-radius: 20px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(var(--brand-social-rgb), 0.4);
+  }
+
+  &:disabled {
+    background: var(--linear-gradient-blue-purple) !important;
+    opacity: 0.65;
+  }
+}
+
 .btn-danger {
   // Sử dụng :global để ghi đè class của Bootstrap một cách chắc chắn
   background: var(--linear-gradient-failure) !important;

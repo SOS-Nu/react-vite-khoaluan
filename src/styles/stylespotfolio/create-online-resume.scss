@@ -14,7 +14,7 @@
 
   .resume-subtitle {
     font-size: 1.1rem;
-    color: var(--text-color);
+    color: var(--text-white);
     margin-bottom: 2rem;
   }
 
@@ -44,7 +44,7 @@
 
     .form-label {
       font-weight: 500;
-      color: var(--text-color);
+      color: var(--text-white);
     }
 
     // Antd Select styles override
@@ -63,7 +63,7 @@
       }
       .ant-select-clear {
         background-color: var(--background-body-tertiary);
-        color: var(--text-color);
+        color: var(--text-white);
       }
     }
   }
