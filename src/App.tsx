@@ -46,6 +46,7 @@ import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { useUsersConnected } from "./hooks/useUsersConnected";
 import { UserInfo } from "./types/backend";
+import ClientJobStandaloneDetailPage from "./pages/job/detail";
 
 const formatDate = (timestamp: any) => {
   const date = new Date(timestamp);
@@ -314,6 +315,8 @@ export default function App() {
         { index: true, element: <HomePage /> },
         { path: "job", element: <ClientJobPage /> },
         // { path: "job/:id", element: <ClientJobDetailPage /> },
+        { path: "job/detail/:id", element: <ClientJobStandaloneDetailPage /> }, // <<< THÊM ROUTE MỚI
+
         { path: "company", element: <ClientCompanyPage /> },
         { path: "company/:id", element: <ClientCompanyDetailPage /> },
         {

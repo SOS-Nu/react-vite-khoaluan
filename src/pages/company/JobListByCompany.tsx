@@ -59,6 +59,7 @@ const JobListByCompany = ({ companyId }: IProps) => {
         title="Việc làm đang tuyển"
         isListPage={true}
         showButtonAllJob={true} // Ẩn nút "Xem tất cả"
+        openInNewTab={true} // <<< TRUYỀN PROP NÀY
       />
 
       {!isLoading && (!jobList || jobList.length === 0) && (

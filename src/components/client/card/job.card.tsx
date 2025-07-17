@@ -1,5 +1,3 @@
-// src/components/client/card/job.card.tsx
-
 import { convertSlug, getLocationName } from "@/config/utils";
 import { IJob } from "@/types/backend";
 import { Link, useSearchParams } from "react-router-dom";
@@ -24,6 +22,7 @@ interface IProps {
   showPagination?: boolean;
   isListPage?: boolean;
   showButtonAllJob?: boolean;
+  openInNewTab?: boolean;
 }
 
 const JobCard = (props: IProps) => {
@@ -34,10 +33,10 @@ const JobCard = (props: IProps) => {
     showPagination,
     isListPage = false,
     showButtonAllJob,
+    openInNewTab = false,
   } = props;
   const { theme } = useCurrentApp();
 
-  // JobCard sẽ tự lấy searchParams để quyết định highlight
   const [searchParams] = useSearchParams();
   const selectedJobId = searchParams.get("id");
 
@@ -87,36 +86,46 @@ const JobCard = (props: IProps) => {
                 ? "col-12"
                 : "col-12 col-sm-6 col-md-4";
 
-              // TỰ QUYẾT ĐỊNH VIỆC HIGHLIGHT
-              const isSelected = String(item.id) === selectedJobId;
+              // Chỉ highlight thẻ khi không mở ở tab mới
+              const isSelected =
+                !openInNewTab && String(item.id) === selectedJobId;
 
-              // === START: THAY ĐỔI LOGIC TẠI ĐÂY ===
+              // === LOGIC TẠO LINK ===
+              let linkTo = "";
+              let linkTarget: React.HTMLAttributeAnchorTarget = "_self";
+              let linkRel: string | undefined = undefined;
+
+              if (openInNewTab) {
+                // Mở trang chi tiết độc lập ở tab mới
+                linkTo = `/job/detail/${item.id}`;
+                linkTarget = "_blank";
+                linkRel = "noopener noreferrer";
+              } else {
+                // Giữ lại hành vi cũ, cập nhật URL trên trang hiện tại
+                const newSearchParams = new URLSearchParams(
+                  searchParams.toString()
+                );
+                newSearchParams.set("id", item.id!);
+                linkTo = `/job?${newSearchParams.toString()}`;
+              }
+              // === KẾT THÚC LOGIC LINK ===
+
               const relevantDate = item.updatedAt || item.createdAt;
-              const timeAgoString = dayjs(relevantDate).locale("en").fromNow();
-
-              // THAY ĐỔI SỐ NGÀY TẠI ĐÂY
-              // Thay số 2 thành 3 nếu muốn là 3 ngày
-              const numberOfDays = 3;
-              const isNew =
-                dayjs().diff(dayjs(relevantDate), "day") < numberOfDays;
-              // === END: THAY ĐỔI LOGIC TẠI ĐÂY ===
-
-              // Tạo link mới vẫn giữ lại các param cũ và cập nhật 'id'
-              const newSearchParams = new URLSearchParams(
-                searchParams.toString()
-              );
-              newSearchParams.set("id", item.id!);
-              const linkTo = `/job?${newSearchParams.toString()}`;
+              const isNew = dayjs().diff(dayjs(relevantDate), "day") < 3;
 
               return (
                 <div className={columnClass} key={item.id}>
                   <div className={isSelected ? "selected-job-card" : ""}>
-                    <Link to={linkTo} style={{ textDecoration: "none" }}>
+                    <Link
+                      to={linkTo}
+                      style={{ textDecoration: "none" }}
+                      target={linkTarget}
+                      rel={linkRel}
+                    >
                       <SimpleGlowCard
                         identifier={`job-${item.id}`}
                         className={isSelected ? "selected-job-card" : ""}
                       >
-                        {/* Nội dung bên trong không thay đổi */}
                         <div className="p-0 pt-2 p-md-2 position-relative">
                           {theme === "dark" && (
                             <img
@@ -149,7 +158,6 @@ const JobCard = (props: IProps) => {
                                 }}
                               >
                                 {item.name}
-                                {/* HIỂN THỊ CÓ ĐIỀU KIỆN */}
                                 {isNew && (
                                   <span
                                     className="wave"
@@ -236,7 +244,6 @@ const JobCard = (props: IProps) => {
                                   )}{" "}
                                   đ
                                 </p>
-                                {/* Thêm phần level */}
                                 <p
                                   className="company"
                                   style={{
@@ -254,7 +261,6 @@ const JobCard = (props: IProps) => {
                                     }}
                                   >
                                     📊{" "}
-                                    {/* Icon tùy chọn, có thể thay bằng icon khác */}
                                   </span>
                                   {item.level || "Không xác định"}
                                 </p>
@@ -338,4 +344,4 @@ const JobCard = (props: IProps) => {
   );
 };
 
-export default React.memo(JobCard); // Memoize cả JobCard để tối ưu hơn nữa
+export default React.memo(JobCard);
