@@ -47,6 +47,7 @@ import { Stomp } from "@stomp/stompjs";
 import { useUsersConnected } from "./hooks/useUsersConnected";
 import { UserInfo } from "./types/backend";
 import ClientJobStandaloneDetailPage from "./pages/job/detail";
+import CVAIEvaluationPage from "./pages/cv-ai/CVAIEvaluation";
 
 const formatDate = (timestamp: any) => {
   const date = new Date(timestamp);
@@ -339,6 +340,8 @@ export default function App() {
           path: "user/online-resumes/:id",
           element: <PublicCvPage />,
         },
+        { path: "cv-ai", element: <CVAIEvaluationPage /> },
+
         // {
         //   path: "chat/detail",
         //   element: (

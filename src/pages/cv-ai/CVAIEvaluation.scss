@@ -1,0 +1,27 @@
+.cv-evaluation-container {
+  .evaluation-title {
+    font-weight: 700;
+    background: linear-gradient(to right, #6366f1, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .evaluation-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-color);
+  }
+
+  .evaluation-card,
+  .result-card {
+    background-color: var(--background-body-tertiary);
+    border: 1px solid var(--border-hero-right);
+    border-radius: 12px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.07);
+  }
+
+  .result-card .card-header {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: var(--text-white);
+  }
+}

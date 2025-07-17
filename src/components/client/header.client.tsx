@@ -113,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
       { label: t("appHeader.findjobs"), key: "/job", to: "/job", isNew: true },
       { label: t("appHeader.company"), key: "/company", to: "/company" },
       // Lưu ý: Em đã sửa lại đường dẫn "to" ở đây từ "/company" thành "/CVAI" cho đúng
-      { label: "Tạo CV Bởi AI", key: "/CVAI", to: "/CVAI", isNew: true },
+      { label: "Đánh Giá CV", key: "/cv-ai", to: "/cv-ai", isNew: true },
       {
         label: (
           <span>

@@ -571,3 +571,12 @@ export const callFindCandidatesByAI = (formData: FormData) => {
     },
   });
 };
+
+export const callEvaluateCVWithAI = (formData: FormData) => {
+  return axios.post("/api/v1/gemini/evaluate-cv", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      // Axios sẽ tự động thêm 'Authorization: Bearer ...' nếu bạn đã cấu hình interceptor
+    },
+  });
+};
