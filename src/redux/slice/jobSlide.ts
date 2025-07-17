@@ -1,3 +1,5 @@
+// src/redux/slice/jobSlide.ts
+
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { callFetchJob, callFindJobsByAI } from "@/config/api";
 import { IJob } from "@/types/backend";
@@ -11,8 +13,11 @@ interface IState {
     total: number;
   };
   result: IJob[];
+  // NEW: Thêm cờ để biết đây có phải là kết quả AI không
+  isAiSearch: boolean;
 }
-// First, create the thunk
+
+// Thunk 1: Fetch job thường
 export const fetchJob = createAsyncThunk(
   "job/fetchJob",
   async ({ query }: { query: string }) => {
@@ -21,12 +26,20 @@ export const fetchJob = createAsyncThunk(
   }
 );
 
-// Thunk 2: Tìm job bằng AI (sử dụng FormData)
+// FIX: Cập nhật Thunk 2 để nhận page và size
 export const findJobsByAI = createAsyncThunk(
   "job/findJobsByAI",
-  async ({ formData }: { formData: FormData }) => {
-    const response = await callFindJobsByAI(formData);
-    // Dữ liệu trả về có cấu trúc { jobs: { score: number, job: IJob }[], meta: {...} }
+  async ({
+    formData,
+    page,
+    size,
+  }: {
+    formData: FormData;
+    page: number;
+    size: number;
+  }) => {
+    // Truyền page và size vào API call
+    const response = await callFindJobsByAI(formData, page, size);
     return response;
   }
 );
@@ -40,17 +53,13 @@ const initialState: IState = {
     total: 0,
   },
   result: [],
+  isAiSearch: false, // NEW: Giá trị khởi tạo
 };
 
 export const jobSlide = createSlice({
   name: "job",
   initialState,
-  // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    // Use the PayloadAction type to declare the contents of `action.payload`
-    setActiveMenu: (state, action) => {
-      // state.activeMenu = action.payload;
-    },
     clearJobs: (state) => {
       state.isFetching = false;
       state.result = [];
@@ -60,67 +69,50 @@ export const jobSlide = createSlice({
         pages: 0,
         total: 0,
       };
+      state.isAiSearch = false; // NEW: Reset cờ
     },
   },
   extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
-    builder.addCase(fetchJob.pending, (state, action) => {
-      state.isFetching = true;
-      // Xóa kết quả cũ khi bắt đầu một yêu cầu mới
-      state.result = [];
-    });
-
-    builder.addCase(fetchJob.rejected, (state, action) => {
-      state.isFetching = false;
-      // Add user to the state array
-      // state.courseOrder = action.payload;
-    });
-
-    builder.addCase(fetchJob.fulfilled, (state, action) => {
-      if (action.payload && action.payload.data) {
-        state.isFetching = false;
-        state.meta = action.payload.data.meta;
-        state.result = action.payload.data.result;
-      }
-      // Add user to the state array
-
-      // state.courseOrder = action.payload;
-    });
-    // Xử lý cho findJobsByAI
+    // Xử lý fetchJob (tìm kiếm thường)
     builder
-      .addCase(findJobsByAI.pending, (state, action) => {
+      .addCase(fetchJob.pending, (state) => {
         state.isFetching = true;
-        // Xóa kết quả cũ khi bắt đầu một yêu cầu mới
-        state.result = [];
+        state.isAiSearch = false; // Đánh dấu đây là search thường
       })
-      .addCase(findJobsByAI.rejected, (state, action) => {
+      .addCase(fetchJob.rejected, (state) => {
+        state.isFetching = false;
+      })
+      .addCase(fetchJob.fulfilled, (state, action) => {
+        state.isFetching = false;
+        if (action.payload && action.payload.data) {
+          state.meta = action.payload.data.meta;
+          state.result = action.payload.data.result;
+        }
+      });
+
+    // Xử lý findJobsByAI
+    builder
+      .addCase(findJobsByAI.pending, (state) => {
+        state.isFetching = true;
+        state.isAiSearch = true; // NEW: Đánh dấu đây là search AI
+      })
+      .addCase(findJobsByAI.rejected, (state) => {
         state.isFetching = false;
       })
       .addCase(findJobsByAI.fulfilled, (state, action) => {
         state.isFetching = false;
         if (action.payload && action.payload.data) {
-          // Dữ liệu từ AI API có cấu trúc khác, cần biến đổi
-          // state.meta = action.payload.data.meta; // Nếu API AI trả về meta
+          // FIX: Lấy meta trực tiếp từ API trả về
+          state.meta = action.payload.data.meta;
 
-          // Dữ liệu job nằm trong mảng `jobs`, mỗi phần tử là { score: ..., job: ... }
-          // Ta cần trích xuất `job` từ mỗi phần tử.
           const aiJobs = action.payload.data.jobs || [];
           state.result = aiJobs.map(
             (item: { score: number; job: IJob }) => item.job
           );
-
-          // Giả lập meta pagination cho kết quả AI nếu API không trả về
-          state.meta = {
-            page: 1,
-            pageSize: state.result.length,
-            pages: 1,
-            total: state.result.length,
-          };
         }
       });
   },
 });
 
-export const { setActiveMenu, clearJobs } = jobSlide.actions;
-
+export const { clearJobs } = jobSlide.actions;
 export default jobSlide.reducer;

@@ -3,7 +3,7 @@ import styles from "styles/client.module.scss";
 import CompanyCard from "@/components/client/card/company.card";
 import SearchClient from "@/components/client/search.client"; // Thêm SearchClient
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { clearCompanies, fetchCompany } from "@/redux/slice/companySlide"; // Import action fetchCompany
 
@@ -13,6 +13,8 @@ const ClientCompanyPage = () => {
   const { result, isFetching, meta } = useAppSelector((state) => state.company);
   const [searchParams, setSearchParams] = useSearchParams();
   const isInitialLoad = useRef(true);
+  const [currentSearchType, setCurrentSearchType] = useState("job");
+  const companyListRef = useRef<HTMLDivElement>(null);
 
   // useEffect để fetch dữ liệu khi URL thay đổi
   useEffect(() => {
@@ -44,6 +46,19 @@ const ClientCompanyPage = () => {
       prev.set("size", pageSize.toString());
       return prev;
     });
+
+    // Thêm hành động cuộn trang
+    if (companyListRef.current) {
+      const yOffset = -100; // Khoảng đệm 10px phía trên
+      const elementPosition =
+        companyListRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY + yOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
   };
 
   return (
@@ -51,7 +66,10 @@ const ClientCompanyPage = () => {
       <Row gutter={[20, 20]}>
         {/* Thêm thanh tìm kiếm vào trang company */}
         <Col span={24}>
-          <SearchClient />
+          <SearchClient
+            searchType={currentSearchType}
+            onSearchTypeChange={setCurrentSearchType}
+          />
         </Col>
         <Divider />
 
@@ -62,6 +80,7 @@ const ClientCompanyPage = () => {
             isLoading={isFetching}
             title="Danh sách công ty"
             showPagination={true}
+            companyListRef={companyListRef}
           />
         </Col>
 

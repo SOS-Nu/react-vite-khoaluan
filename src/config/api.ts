@@ -274,13 +274,22 @@ export const callFetchJob = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IJob>>>(`/api/v1/jobs?${query}`);
 };
 
-export const callFindJobsByAI = (formData: FormData) => {
-  return axios<IBackendRes<{ jobs: { score: number; job: IJob }[] }>>({
+export const callFindJobsByAI = (
+  formData: FormData,
+  page: number,
+  size: number
+) => {
+  return axios<
+    IBackendRes<{
+      jobs: { score: number; job: IJob }[];
+      meta: { page: number; pageSize: number; pages: number; total: number };
+    }>
+  >({
     method: "post",
-    url: "/api/v1/gemini/find-jobs",
+    // Thêm page và size vào query params
+    url: `/api/v1/gemini/find-jobs?page=${page}&size=${size}`,
     data: formData,
     headers: {
-      // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
       "Content-Type": "multipart/form-data",
     },
   });

@@ -52,16 +52,17 @@ const JobCard = (props: IProps) => {
           </div>
         ) : (
           <div className="row g-4">
-            {!isListPage && (
-              <div className="col-12">{/* Phần này không đổi */}</div>
-            )}
             <Col xs={12}>
               <div
                 className={
                   isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]
                 }
               >
-                <span className={styles["title"]} id="company-title-new"></span>
+                {!isListPage && (
+                  <span className={styles["title"]} id="job-tilte-new">
+                    Công Việc Mới Nhất
+                  </span>
+                )}
                 {!showButtonAllJob && (
                   <Col xs={12} md={2}>
                     <Link

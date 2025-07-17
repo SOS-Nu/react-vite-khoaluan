@@ -19,6 +19,7 @@ interface IProps {
   isLoading: boolean;
   title?: string;
   showPagination?: boolean;
+  companyListRef?: any;
 }
 
 const CompanyCard = (props: IProps) => {
@@ -27,11 +28,12 @@ const CompanyCard = (props: IProps) => {
     isLoading,
     title = "Nhà Tuyển Dụng Hàng Đầu",
     showPagination,
+    companyListRef,
   } = props;
   const { theme } = useCurrentApp();
 
   return (
-    <div className={`${styles["company-section"]}`}>
+    <div className={`${styles["company-section"]}`} ref={companyListRef}>
       <div className={`${styles["company-content"]}`}>
         {isLoading ? (
           <div style={{ textAlign: "center", margin: "50px 0" }}>
