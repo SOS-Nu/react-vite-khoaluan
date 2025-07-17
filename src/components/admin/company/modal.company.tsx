@@ -7,10 +7,14 @@ import {
   FooterToolbar,
   ModalForm,
   ProCard,
+  ProForm,
+  ProFormDigit,
+  ProFormSelect,
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
 import {
+  AutoComplete,
   Col,
   ConfigProvider,
   Form,
@@ -33,6 +37,12 @@ import {
 import { ICompany } from "@/types/backend";
 import { v4 as uuidv4 } from "uuid";
 import enUS from "antd/lib/locale/en_US";
+import {
+  COUNTRY_LIST,
+  FIELD_LIST,
+  LOCATION_LIST,
+  nonAccentVietnamese,
+} from "@/config/utils";
 
 interface IProps {
   openModal: boolean;
@@ -45,6 +55,12 @@ interface IProps {
 interface ICompanyForm {
   name: string;
   address: string;
+  field: string;
+  website: string;
+  scale: string;
+  country: string;
+  foundingYear: number;
+  location: string;
 }
 
 interface ICompanyLogo {
@@ -63,23 +79,74 @@ const ModalCompany = (props: IProps) => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [locationOptions, setLocationOptions] = useState(LOCATION_LIST);
+  const [fieldOptions, setFieldOptions] = useState(FIELD_LIST);
+  const [countryOptions, setCountryOptions] = useState(COUNTRY_LIST);
 
   const [value, setValue] = useState<string>("");
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (dataInit?.id && dataInit?.description) {
-      setValue(dataInit.description);
+    if (dataInit?.id) {
+      if (dataInit.description) setValue(dataInit.description);
+      // Cập nhật lại danh sách logo khi mở modal edit
+      if (dataInit.logo) {
+        setDataLogo([
+          {
+            name: dataInit.logo,
+            uid: uuidv4(),
+          },
+        ]);
+      }
     }
   }, [dataInit]);
 
-  const submitCompany = async (valuesForm: ICompanyForm) => {
-    const { name, address } = valuesForm;
+  const handleLocationSearch = (value: string) => {
+    if (!value) {
+      setLocationOptions(LOCATION_LIST);
+      return;
+    }
+    const lowerCaseValue = nonAccentVietnamese(value.toLowerCase());
+    const filtered = LOCATION_LIST.filter((item) =>
+      nonAccentVietnamese(item.label.toLowerCase()).includes(lowerCaseValue)
+    );
+    setLocationOptions(filtered);
+  };
 
-    if (dataLogo.length === 0) {
+  const handleSearch = (
+    value: string,
+    list: { label: string; value: string }[],
+    setOptions: Function
+  ) => {
+    if (!value) {
+      setOptions(list);
+      return;
+    }
+    const lowerCaseValue = nonAccentVietnamese(value.toLowerCase());
+    const filtered = list.filter((item) =>
+      nonAccentVietnamese(item.label.toLowerCase()).includes(lowerCaseValue)
+    );
+    setOptions(filtered);
+  };
+
+  const submitCompany = async (valuesForm: ICompanyForm) => {
+    const {
+      name,
+      address,
+      field,
+      website,
+      scale,
+      country,
+      foundingYear,
+      location,
+    } = valuesForm;
+
+    if (dataLogo.length === 0 && !dataInit?.logo) {
       message.error("Vui lòng upload ảnh Logo");
       return;
     }
+
+    const finalLogo = dataLogo.length > 0 ? dataLogo[0].name : dataInit?.logo;
 
     if (dataInit?.id) {
       //update
@@ -88,7 +155,13 @@ const ModalCompany = (props: IProps) => {
         name,
         address,
         value,
-        dataLogo[0].name
+        finalLogo!,
+        field,
+        website,
+        scale,
+        country,
+        foundingYear,
+        location
       );
       if (res.data) {
         message.success("Cập nhật company thành công");
@@ -106,7 +179,13 @@ const ModalCompany = (props: IProps) => {
         name,
         address,
         value,
-        dataLogo[0].name
+        finalLogo!,
+        field,
+        website,
+        scale,
+        country,
+        foundingYear,
+        location
       );
       if (res.data) {
         message.success("Thêm mới company thành công");
@@ -246,7 +325,7 @@ const ModalCompany = (props: IProps) => {
             }}
           >
             <Row gutter={16}>
-              <Col span={24}>
+              <Col span={12}>
                 <ProFormText
                   label="Tên công ty"
                   name="name"
@@ -255,6 +334,96 @@ const ModalCompany = (props: IProps) => {
                   ]}
                   placeholder="Nhập tên công ty"
                 />
+              </Col>
+              <Col span={12}>
+                <ProFormText
+                  label="Website"
+                  name="website"
+                  rules={[
+                    { required: true, message: "Vui lòng không bỏ trống" },
+                  ]}
+                  placeholder="Nhập trang web công ty"
+                />
+              </Col>
+              <Col span={12}>
+                <ProForm.Item
+                  name="field"
+                  label="Lĩnh vực"
+                  rules={[
+                    { required: true, message: "Vui lòng không bỏ trống" },
+                  ]}
+                >
+                  <AutoComplete
+                    options={fieldOptions}
+                    onSearch={(value) =>
+                      handleSearch(value, FIELD_LIST, setFieldOptions)
+                    }
+                    placeholder="VD: Công nghệ thông tin"
+                    allowClear
+                  />
+                </ProForm.Item>
+              </Col>
+              <Col span={12}>
+                <ProForm.Item
+                  name="country"
+                  label="Quốc gia"
+                  rules={[
+                    { required: true, message: "Vui lòng không bỏ trống" },
+                  ]}
+                >
+                  <AutoComplete
+                    options={countryOptions}
+                    onSearch={(value) =>
+                      handleSearch(value, COUNTRY_LIST, setCountryOptions)
+                    }
+                    placeholder="VD: Việt Nam"
+                    allowClear
+                  />
+                </ProForm.Item>
+              </Col>
+              <Col span={12}>
+                <ProFormSelect // Dùng Select để có các lựa chọn cố định
+                  name="scale"
+                  label="Quy mô"
+                  options={[
+                    { label: "Dưới 25", value: "0-25" },
+                    { label: "25-100", value: "25-100" },
+                    { label: "100-500", value: "100-500" },
+                    { label: "Trên 500", value: "500+" },
+                  ]}
+                  placeholder="Chọn quy mô"
+                  rules={[{ required: true, message: "Vui lòng chọn quy mô!" }]}
+                />
+              </Col>
+              <Col span={12}>
+                <ProFormDigit
+                  label="Năm thành lập"
+                  name="foundingYear"
+                  placeholder="VD: 2024"
+                  min={1900}
+                  max={new Date().getFullYear()}
+                  fieldProps={{ precision: 0 }}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập năm thành lập!" },
+                  ]}
+                />
+              </Col>
+
+              <Col span={24}>
+                <ProForm.Item
+                  name="location"
+                  label="Địa điểm"
+                  rules={[
+                    { required: true, message: "Vui lòng chọn địa điểm!" },
+                  ]}
+                >
+                  <AutoComplete
+                    options={locationOptions}
+                    onSearch={handleLocationSearch}
+                    placeholder="Nhập để tìm kiếm địa điểm..."
+                    allowClear // Cho phép xóa nhanh
+                  />
+                </ProForm.Item>
               </Col>
               <Col span={8}>
                 <Form.Item

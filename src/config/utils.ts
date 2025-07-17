@@ -84,6 +84,73 @@ export const LOCATION_LIST = [
   { label: "Yên Bái", value: "YENBAI" },
 ];
 
+export const COUNTRY_LIST = [
+  // --- Danh sách cũ ---
+  { label: "Việt Nam", value: "Việt Nam" },
+  { label: "Nhật Bản", value: "Nhật Bản" },
+  { label: "Hàn Quốc", value: "Hàn Quốc" },
+  { label: "Singapore", value: "Singapore" },
+  { label: "Hoa Kỳ (Mỹ)", value: "Hoa Kỳ" },
+  { label: "Úc (Australia)", value: "Úc" },
+  { label: "Đức", value: "Đức" },
+  { label: "Anh", value: "Anh" },
+  { label: "Pháp", value: "Pháp" },
+  { label: "Trung Quốc", value: "Trung Quốc" },
+  { label: "Đài Loan", value: "Đài Loan" },
+  { label: "Canada", value: "Canada" },
+  // >> Mở rộng thêm
+  { label: "Thái Lan", value: "Thái Lan" },
+  { label: "Malaysia", value: "Malaysia" },
+  { label: "Indonesia", value: "Indonesia" },
+  { label: "Philippines", value: "Philippines" },
+  { label: "Ấn Độ", value: "Ấn Độ" },
+  { label: "Nga", value: "Nga" },
+  { label: "Hà Lan", value: "Hà Lan" },
+  { label: "Thụy Sĩ", value: "Thụy Sĩ" },
+  { label: "Thụy Điển", value: "Thụy Điển" },
+  { label: "New Zealand", value: "New Zealand" },
+  { label: "Các tiểu vương quốc Ả Rập (UAE)", value: "UAE" },
+];
+
+export const FIELD_LIST = [
+  // --- Danh sách cũ ---
+  { label: "Công nghệ thông tin (IT)", value: "Công nghệ thông tin" },
+  { label: "Sản xuất & Chế biến", value: "Sản xuất & Chế biến" },
+  { label: "Bán lẻ & Tiêu dùng nhanh (FMCG)", value: "Bán lẻ & Tiêu dùng" },
+  { label: "Tài chính & Ngân hàng", value: "Tài chính & Ngân hàng" },
+  { label: "Giáo dục & Đào tạo", value: "Giáo dục & Đào tạo" },
+  { label: "Y tế & Dược phẩm", value: "Y tế & Dược phẩm" },
+  { label: "Xây dựng & Bất động sản", value: "Xây dựng & Bất động sản" },
+  {
+    label: "Du lịch & Nhà hàng - Khách sạn",
+    value: "Du lịch & Nhà hàng - Khách sạn",
+  },
+  { label: "Marketing & Truyền thông", value: "Marketing & Truyền thông" },
+  { label: "Logistics & Vận tải", value: "Logistics & Vận tải" },
+  { label: "Nông nghiệp & Thủy sản", value: "Nông nghiệp & Thủy sản" },
+  { label: "Năng lượng & Khoáng sản", value: "Năng lượng & Khoáng sản" },
+  // >> Mở rộng thêm
+  { label: "Thương mại điện tử (E-commerce)", value: "Thương mại điện tử" },
+  { label: "Công nghệ tài chính (Fintech)", value: "Fintech" },
+  { label: "Công nghệ giáo dục (Edtech)", value: "Edtech" },
+  { label: "Phát triển Game", value: "Phát triển Game" },
+  { label: "Tư vấn", value: "Tư vấn" },
+  { label: "Pháp lý", value: "Pháp lý" },
+  { label: "Nhân sự (HR)", value: "Nhân sự" },
+  { label: "Thiết kế & Sáng tạo", value: "Thiết kế & Sáng tạo" },
+  { label: "Viễn thông", value: "Viễn thông" },
+  { label: "Ô tô & Cơ khí", value: "Ô tô & Cơ khí" },
+  { label: "Truyền thông & Giải trí", value: "Truyền thông & Giải trí" },
+  { label: "Thời trang & Dệt may", value: "Thời trang & Dệt may" },
+];
+
+export const SCALE_LIST = [
+  { label: "Dưới 25 nhân viên", value: "0-25" },
+  { label: "25-100 nhân viên", value: "25-100" },
+  { label: "100-500 nhân viên", value: "100-500" },
+  { label: "Trên 500 nhân viên", value: "500+" },
+];
+
 export const nonAccentVietnamese = (str: string) => {
   str = str.replace(/A|Á|À|Ã|Ạ|Â|Ấ|Ầ|Ẫ|Ậ|Ă|Ắ|Ằ|Ẵ|Ặ/g, "A");
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");

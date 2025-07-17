@@ -29,8 +29,8 @@ const footerLinks = {
   contact: {
     title: "Contact Me",
     items: [
-      { type: "text", label: "Hotline: ", value: "+84 377 586 305" },
-      { type: "text", label: "Email: ", value: "careernest@gmail.com" },
+      { type: "text", label: "Hotline: ", value: "+84 385382597" },
+      { type: "text", label: "Email: ", value: "nu1412sos@gmail.com" },
     ],
   },
 };

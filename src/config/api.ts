@@ -96,13 +96,27 @@ export const callCreateCompany = (
   name: string,
   address: string,
   description: string,
-  logo: string
+  logo: string,
+  // >> Thêm các tham số mới vào đây
+  field: string,
+  website: string,
+  scale: string,
+  country: string,
+  foundingYear: number,
+  location: string
 ) => {
-  return axios.post<IBackendRes<ICompany>>("/api/v1/companies", {
+  return axios.post("/api/v1/companies", {
     name,
     address,
     description,
     logo,
+    // >> Đưa các trường mới vào body của request
+    field,
+    website,
+    scale,
+    country,
+    foundingYear,
+    location,
   });
 };
 
@@ -111,7 +125,13 @@ export const callUpdateCompany = (
   name: string,
   address: string,
   description: string,
-  logo: string
+  logo: string,
+  field: string,
+  website: string,
+  scale: string,
+  country: string,
+  foundingYear: number,
+  location: string
 ) => {
   return axios.put<IBackendRes<ICompany>>(`/api/v1/companies`, {
     id,
@@ -119,6 +139,12 @@ export const callUpdateCompany = (
     address,
     description,
     logo,
+    field,
+    website,
+    scale,
+    country,
+    foundingYear,
+    location,
   });
 };
 

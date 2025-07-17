@@ -5,7 +5,14 @@ import { fetchCompany } from "@/redux/slice/companySlide";
 import { ICompany } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from "@ant-design/pro-components";
-import { Button, Popconfirm, Space, message, notification } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Popconfirm,
+  Space,
+  message,
+  notification,
+} from "antd";
 import { useState, useRef } from "react";
 import dayjs from "dayjs";
 import { callDeleteCompany } from "@/config/api";
@@ -13,6 +20,12 @@ import queryString from "query-string";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import { sfLike } from "spring-filter-query-builder";
+import {
+  FIELD_LIST,
+  LOCATION_LIST,
+  nonAccentVietnamese,
+  SCALE_LIST,
+} from "@/config/utils";
 
 const CompanyPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -56,46 +69,85 @@ const CompanyPage = () => {
       hideInSearch: true,
     },
     {
-      title: "Name",
+      title: "Tên công ty",
       dataIndex: "name",
       sorter: true,
     },
+    // >> THAY ĐỔI CỘT NÀY
     {
-      title: "Address",
+      title: "Lĩnh vực",
+      dataIndex: "field",
+      sorter: true,
+      // Dùng renderFormItem để tùy chỉnh thành AutoComplete
+      renderFormItem: () => (
+        <AutoComplete
+          options={FIELD_LIST}
+          placeholder="Nhập hoặc chọn lĩnh vực"
+          filterOption={(inputValue, option) => {
+            // Nếu không có option thì chắc chắn là false
+            if (!option) return false;
+
+            // Nếu có thì thực hiện so sánh
+            return nonAccentVietnamese(option.label.toLowerCase()).includes(
+              nonAccentVietnamese(inputValue.toLowerCase())
+            );
+          }}
+          allowClear
+        />
+      ),
+    },
+    // << KẾT THÚC THAY ĐỔI
+    {
+      title: "Quy mô",
+      dataIndex: "scale",
+      sorter: true,
+      // Chuyển thành ô chọn (dropdown)
+      valueType: "select",
+      fieldProps: {
+        options: SCALE_LIST,
+      },
+    },
+    {
+      title: "Địa điểm",
+      dataIndex: "location",
+      sorter: true,
+      // Chuyển thành ô chọn (dropdown)
+      valueType: "select",
+      fieldProps: {
+        options: LOCATION_LIST.filter((item) => item.value !== "tatca"), // Bỏ lựa chọn "Tất cả"
+      },
+    },
+    {
+      title: "Địa chỉ",
       dataIndex: "address",
       sorter: true,
     },
-
     {
-      title: "CreatedAt",
+      title: "Ngày tạo",
       dataIndex: "createdAt",
       width: 200,
       sorter: true,
-      render: (text, record, index, action) => {
-        return (
-          <>
-            {record.createdAt
-              ? dayjs(record.createdAt).format("DD-MM-YYYY HH:mm:ss")
-              : ""}
-          </>
-        );
-      },
+      render: (text, record, index, action) => (
+        <>
+          {record.createdAt
+            ? dayjs(record.createdAt).format("DD-MM-YYYY HH:mm:ss")
+            : ""}
+        </>
+      ),
       hideInSearch: true,
     },
     {
-      title: "UpdatedAt",
+      title: "Ngày cập nhật",
       dataIndex: "updatedAt",
       width: 200,
       sorter: true,
-      render: (text, record, index, action) => {
-        return (
-          <>
-            {record.updatedAt
-              ? dayjs(record.updatedAt).format("DD-MM-YYYY HH:mm:ss")
-              : ""}
-          </>
-        );
-      },
+      render: (text, record, index, action) => (
+        <>
+          {record.updatedAt
+            ? dayjs(record.updatedAt).format("DD-MM-YYYY HH:mm:ss")
+            : ""}
+        </>
+      ),
       hideInSearch: true,
     },
     {
@@ -106,11 +158,7 @@ const CompanyPage = () => {
         <Space>
           <Access permission={ALL_PERMISSIONS.COMPANIES.UPDATE} hideChildren>
             <EditOutlined
-              style={{
-                fontSize: 20,
-                color: "#ffa500",
-              }}
-              type=""
+              style={{ fontSize: 20, color: "#ffa500" }}
               onClick={() => {
                 setOpenModal(true);
                 setDataInit(entity);
@@ -127,12 +175,7 @@ const CompanyPage = () => {
               cancelText="Hủy"
             >
               <span style={{ cursor: "pointer", margin: "0 10px" }}>
-                <DeleteOutlined
-                  style={{
-                    fontSize: 20,
-                    color: "#ff4d4f",
-                  }}
-                />
+                <DeleteOutlined style={{ fontSize: 20, color: "#ff4d4f" }} />
               </span>
             </Popconfirm>
           </Access>
@@ -146,46 +189,47 @@ const CompanyPage = () => {
     const q: any = {
       page: params.current,
       size: params.pageSize,
-      filter: "",
     };
 
-    if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
-    if (clone.address) {
-      q.filter = clone.name
-        ? q.filter + " and " + `${sfLike("address", clone.address)}`
-        : `${sfLike("address", clone.address)}`;
-    }
+    const searchableFields = ["name", "field", "scale", "location", "address"];
+    const filterConditions: string[] = [];
 
-    if (!q.filter) delete q.filter;
+    searchableFields.forEach((field) => {
+      if (clone[field]) {
+        // Với valueType là 'select', ProTable sẽ trả về giá trị chính xác,
+        // nên ta có thể dùng điều kiện bằng (eq) hoặc giống (like).
+        // `like` sẽ linh hoạt hơn nếu backend hỗ trợ.
+        filterConditions.push(sfLike(field, clone[field]).toString());
+      }
+    });
+
+    if (filterConditions.length > 0) {
+      q.filter = filterConditions.join(" and ");
+    }
 
     let temp = queryString.stringify(q);
 
     let sortBy = "";
-    if (sort && sort.name) {
-      sortBy = sort.name === "ascend" ? "sort=name,asc" : "sort=name,desc";
-    }
-    if (sort && sort.address) {
-      sortBy =
-        sort.address === "ascend" ? "sort=address,asc" : "sort=address,desc";
-    }
-    if (sort && sort.createdAt) {
-      sortBy =
-        sort.createdAt === "ascend"
-          ? "sort=createdAt,asc"
-          : "sort=createdAt,desc";
-    }
-    if (sort && sort.updatedAt) {
-      sortBy =
-        sort.updatedAt === "ascend"
-          ? "sort=updatedAt,asc"
-          : "sort=updatedAt,desc";
+    const sortableFields = [
+      "name",
+      "address",
+      "field",
+      "scale",
+      "location",
+      "createdAt",
+      "updatedAt",
+    ];
+    for (const field of sortableFields) {
+      if (sort && sort[field]) {
+        sortBy = `sort=${field},${sort[field] === "ascend" ? "asc" : "desc"}`;
+        break;
+      }
     }
 
-    //mặc định sort theo updatedAt
-    if (Object.keys(sortBy).length === 0) {
-      temp = `${temp}&sort=updatedAt,desc`;
-    } else {
+    if (sortBy) {
       temp = `${temp}&${sortBy}`;
+    } else {
+      temp = `${temp}&sort=updatedAt,desc`;
     }
 
     return temp;
@@ -211,32 +255,24 @@ const CompanyPage = () => {
             pageSize: meta.pageSize,
             showSizeChanger: true,
             total: meta.total,
-            showTotal: (total, range) => {
-              return (
-                <div>
-                  {" "}
-                  {range[0]}-{range[1]} trên {total} rows
-                </div>
-              );
-            },
+            showTotal: (total, range) => (
+              <div>
+                {range[0]}-{range[1]} trên {total} rows
+              </div>
+            ),
           }}
           rowSelection={false}
-          toolBarRender={(_action, _rows): any => {
-            return (
-              <Access
-                permission={ALL_PERMISSIONS.COMPANIES.CREATE}
-                hideChildren
+          toolBarRender={() => (
+            <Access permission={ALL_PERMISSIONS.COMPANIES.CREATE} hideChildren>
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setOpenModal(true)}
               >
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={() => setOpenModal(true)}
-                >
-                  Thêm mới
-                </Button>
-              </Access>
-            );
-          }}
+                Thêm mới
+              </Button>
+            </Access>
+          )}
         />
       </Access>
       <ModalCompany
