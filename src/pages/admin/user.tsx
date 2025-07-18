@@ -11,7 +11,7 @@ import {
   CloudUploadOutlined,
 } from "@ant-design/icons";
 import { ActionType, ProColumns } from "@ant-design/pro-components";
-import { Button, Popconfirm, Space, message, notification } from "antd";
+import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
 import { useState, useRef, useMemo } from "react";
 import dayjs from "dayjs";
 import { callDeleteUser } from "@/config/api";
@@ -107,7 +107,19 @@ const UserPage = () => {
       sorter: true,
       hideInSearch: true,
     },
-
+    {
+      title: "VIP",
+      dataIndex: "vip",
+      sorter: true,
+      hideInSearch: true,
+      render: (text, record) => {
+        return (
+          <Tag color={record.vip ? "gold" : "default"}>
+            {record.vip ? "VIP" : "Thường"}
+          </Tag>
+        );
+      },
+    },
     {
       title: "CreatedAt",
       dataIndex: "createdAt",

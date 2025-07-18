@@ -116,6 +116,7 @@ export interface IUser {
   onlineResume?: IOnlineResume | null;
   workExperiences?: IWorkExperience[];
   public?: boolean;
+  vip?: boolean;
   role?: {
     id: string;
     name: string;
@@ -151,6 +152,7 @@ export interface IJob {
     foundingYear?: number;
   };
   location: string;
+  address: string;
   salary: number;
   quantity: number;
   level: string;

@@ -19,6 +19,8 @@ interface IProps {
 interface IDataImport {
   name: string;
   location: string;
+
+  address: string;
   salary: string;
   company: number;
   quantity: number;
@@ -35,6 +37,8 @@ interface IDataImport {
 interface IDataSubmit {
   name: string;
   location: string;
+  address: string;
+
   salary: string;
   company: { id: number };
   quantity: number;
@@ -52,6 +56,7 @@ interface IDataSubmit {
 interface IDataShow {
   name: string;
   location: string;
+  address: string;
   salary: string;
   company: number;
   quantity: number;
@@ -269,6 +274,8 @@ const ImportJob = (props: IProps) => {
             },
             { dataIndex: "name", title: "Tên hiển thị" },
             { dataIndex: "location", title: "Địa điểm" },
+            { dataIndex: "address", title: "Địa chỉ" },
+
             { dataIndex: "salary", title: "Lương" },
             { dataIndex: "quantity", title: "Số lượng" },
             { dataIndex: "level", title: "Cấp độ" },

@@ -1,3 +1,5 @@
+// src/pages/admin/job/JobPage.tsx
+
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IJob } from "@/types/backend";
@@ -36,18 +38,16 @@ const JobPage = () => {
   const navigate = useNavigate();
   const [openModalImportJob, setOpenModalImportJob] = useState<boolean>(false);
 
-  //   // Sử dụng useMemo để tạo userExport, theo dõi sự thay đổi của users
+  // Cập nhật jobExport để bao gồm trường address
   const jobExport = useMemo(() => {
     return jobs.map((item) => ({
       ...item,
       company: item.company?.name ?? "",
       skills: item.skills
-        .map((item: { name: string }) => `[id ${item.id}]`)
+        .map((skill: { id: number; name: string }) => `[id ${skill.id}]`)
         .join(","),
-      // Thêm cột roleName
     }));
-  }, [jobs]); // Dependency array: userExport sẽ được tính toán lại khi users thay đổi
-  console.log("checkk<jobexport", jobExport);
+  }, [jobs]);
 
   const handleDeleteJob = async (id: string | undefined) => {
     if (id) {
@@ -82,6 +82,12 @@ const JobPage = () => {
     {
       title: "Tên Job",
       dataIndex: "name",
+      sorter: true,
+    },
+    // NEW: Thêm cột địa chỉ
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
       sorter: true,
     },
     {
@@ -132,7 +138,6 @@ const JobPage = () => {
       },
       hideInSearch: true,
     },
-
     {
       title: "CreatedAt",
       dataIndex: "createdAt",
@@ -212,6 +217,7 @@ const JobPage = () => {
     let parts = [];
     if (clone.name) parts.push(`name ~ '${clone.name}'`);
     if (clone.salary) parts.push(`salary ~ '${clone.salary}'`);
+    if (clone.address) parts.push(`address ~ '${clone.address}'`); // NEW: Thêm filter address
     if (clone?.level?.length) {
       parts.push(`${sfIn("level", clone.level).toString()}`);
     }
@@ -226,23 +232,22 @@ const JobPage = () => {
     delete clone.pageSize;
     delete clone.name;
     delete clone.salary;
+    delete clone.address; // NEW: Xóa address khỏi params cuối
     delete clone.level;
 
     let temp = queryString.stringify(clone);
-    console.log("checkk>>job", jobs);
 
     let sortBy = "";
-    const fields = ["name", "salary", "createdAt", "updatedAt"];
+    const fields = ["name", "address", "salary", "createdAt", "updatedAt"]; // NEW: Thêm address vào sort fields
     if (sort) {
       for (const field of fields) {
         if (sort[field]) {
           sortBy = `sort=${field},${sort[field] === "ascend" ? "asc" : "desc"}`;
-          break; // Remove this if you want to handle multiple sort parameters
+          break;
         }
       }
     }
 
-    //mặc định sort theo updatedAt
     if (Object.keys(sortBy).length === 0) {
       temp = `${temp}&sort=updatedAt,desc`;
     } else {
