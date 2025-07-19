@@ -64,6 +64,14 @@ const ModalUser = (props: IProps) => {
   const submitUser = async (valuesForm: any) => {
     const { name, email, password, address, age, gender, role, company, vip } =
       valuesForm;
+
+    const companyPayload = company
+      ? {
+          id: company.value ?? company.id,
+          name: company.label ?? company.name,
+        }
+      : null;
+
     if (dataInit?.id) {
       // UPDATE LOGIC
       const user = {
@@ -78,10 +86,7 @@ const ModalUser = (props: IProps) => {
         // FIX: Sử dụng toán tử '??' để lấy 'id' từ 'role.value' (khi người dùng chọn mới)
         // hoặc từ 'role.id' (khi giữ nguyên giá trị ban đầu).
         role: { id: role.value ?? role.id },
-        company: {
-          id: company.value ?? company.id,
-          name: company.label ?? company.name,
-        },
+        company: companyPayload, // 2. Sử dụng payload đã chuẩn bị
       };
 
       const res = await callUpdateUser(user);
@@ -106,10 +111,8 @@ const ModalUser = (props: IProps) => {
         address,
         vip,
         role: { id: role.value, name: "" }, // Khi tạo mới, luôn có role.value
-        company: {
-          id: company.value,
-          name: company.label,
-        },
+
+        company: companyPayload, // 2. Sử dụng payload đã chuẩn bị
       };
       const res = await callCreateUser(user);
       if (res.data) {
@@ -275,11 +278,7 @@ const ModalUser = (props: IProps) => {
             </ProForm.Item>
           </Col>
           <Col lg={12} md={12} sm={24} xs={24}>
-            <ProForm.Item
-              name="company"
-              label="Thuộc Công Ty"
-              rules={[{ required: true, message: "Vui lòng chọn company!" }]}
-            >
+            <ProForm.Item name="company" label="Thuộc Công Ty">
               <DebounceSelect
                 allowClear
                 showSearch

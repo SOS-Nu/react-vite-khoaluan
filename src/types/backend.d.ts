@@ -124,7 +124,7 @@ export interface IUser {
   company?: {
     id: string;
     name: string;
-  };
+  } | null;
   createdBy?: string;
   isDeleted?: boolean;
   deletedAt?: boolean | null;
