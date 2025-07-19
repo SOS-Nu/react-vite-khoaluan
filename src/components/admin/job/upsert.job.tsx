@@ -2,6 +2,7 @@ import {
   Breadcrumb,
   Col,
   ConfigProvider,
+  DatePicker,
   Divider,
   Form,
   Row,
@@ -39,6 +40,7 @@ import enUS from "antd/lib/locale/en_US";
 import dayjs from "dayjs";
 import { IJob, ISkill, IUser } from "@/types/backend";
 import { useAppSelector } from "@/redux/hooks";
+import viVN from "antd/lib/locale/vi_VN";
 
 interface ISkillSelect {
   label: string;
@@ -62,47 +64,61 @@ const ViewUpsertJob = (props: any) => {
 
   useEffect(() => {
     const init = async () => {
-      const temp = await fetchSkillList();
-      setSkills(temp);
+      const skillList = await fetchSkillList();
+      setSkills(skillList);
 
       if (id) {
         const res = await callFetchJobById(id);
         if (res && res.data) {
-          setDataUpdate(res.data);
-          setValue(res.data.description);
-          setCompanies([
-            {
-              label: res.data.company?.name as string,
-              value:
-                `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
-              key: res.data.company?.id,
-            },
-          ]);
+          const jobData = res.data;
+          setDataUpdate(jobData);
+          setValue(jobData.description);
 
-          //skills
-          const temp: any = res.data?.skills?.map((item: ISkill) => {
-            return {
-              label: item.name,
-              value: item.id,
-              key: item.id,
-            };
-          });
-          form.setFieldsValue({
-            ...res.data,
-            company: {
-              label: res.data.company?.name as string,
-              value:
-                `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
-              key: res.data.company?.id,
-            },
-            skills: temp,
-          });
+          // Chuẩn bị dữ liệu
+          const skillsData = jobData.skills?.map((item: ISkill) => ({
+            label: item.name,
+            value: item.id,
+            key: item.id,
+          }));
+
+          const companyData = {
+            label: jobData.company?.name as string,
+            value:
+              `${jobData.company?.id}@#$${jobData.company?.logo}` as string,
+            key: jobData.company?.id,
+          };
+
+          // Tạo một đối tượng để điền vào form
+          const formPayload: any = {
+            name: jobData.name,
+            location: jobData.location,
+            address: jobData.address,
+            salary: jobData.salary,
+            quantity: jobData.quantity,
+            level: jobData.level,
+            active: jobData.active,
+            skills: skillsData,
+            description: jobData.description,
+            startDate: jobData.startDate ? dayjs(jobData.startDate) : undefined,
+            endDate: jobData.endDate ? dayjs(jobData.endDate) : undefined,
+          };
+
+          // **FIX LỖI LOGIC TẠI ĐÂY**
+          // Chỉ thêm và cập nhật field 'company' nếu user là SUPER_ADMIN
+          if (user.role?.name === "SUPER_ADMIN") {
+            formPayload.company = companyData;
+            setCompanies([companyData]);
+          }
+
+          // Cập nhật form với dữ liệu đã được xử lý an toàn
+          form.setFieldsValue(formPayload);
         }
       }
     };
+
     init();
     return () => form.resetFields();
-  }, [id]);
+  }, [id, user, form]); // Thêm user và form vào dependencies
 
   // Usage of DebounceSelect
   async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
@@ -215,7 +231,7 @@ const ViewUpsertJob = (props: any) => {
         />
       </div>
       <div>
-        <ConfigProvider locale={enUS}>
+        <ConfigProvider locale={viVN}>
           <ProForm
             form={form}
             onFinish={onFinish}
@@ -363,33 +379,36 @@ const ViewUpsertJob = (props: any) => {
             </Row>
             <Row gutter={[20, 20]}>
               <Col span={24} md={6}>
-                <ProFormDatePicker
+                <ProForm.Item
                   label="Ngày bắt đầu"
                   name="startDate"
-                  normalize={(value) => value && dayjs(value, "DD/MM/YYYY")}
-                  fieldProps={{
-                    format: "DD/MM/YYYY",
-                  }}
                   rules={[
-                    { required: true, message: "Vui lòng chọn ngày cấp" },
+                    { required: true, message: "Vui lòng chọn ngày bắt đầu" },
                   ]}
-                  placeholder="dd/mm/yyyy"
-                />
+                >
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="DD/MM/YYYY"
+                    placeholder="dd/mm/yyyy"
+                  />
+                </ProForm.Item>
               </Col>
-              <div onClick={(e) => e.stopPropagation()}>
-                <ProFormDatePicker
+
+              <Col span={24} md={6}>
+                <ProForm.Item
                   label="Ngày kết thúc"
                   name="endDate"
-                  normalize={(value) => value && dayjs(value, "DD/MM/YYYY")}
-                  fieldProps={{
-                    format: "DD/MM/YYYY",
-                  }}
                   rules={[
-                    { required: true, message: "Vui lòng chọn ngày cấp" },
+                    { required: true, message: "Vui lòng chọn ngày kết thúc" },
                   ]}
-                  placeholder="dd/mm/yyyy"
-                />
-              </div>
+                >
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="DD/MM/YYYY"
+                    placeholder="dd/mm/yyyy"
+                  />
+                </ProForm.Item>
+              </Col>
               <Col span={24} md={6}>
                 <ProFormSwitch
                   label="Trạng thái"

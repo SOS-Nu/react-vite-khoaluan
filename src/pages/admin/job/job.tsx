@@ -65,7 +65,7 @@ const JobPage = () => {
       } else {
         notification.error({
           message: "Có lỗi xảy ra",
-          description: res.message,
+          description: res?.message,
         });
       }
     }
