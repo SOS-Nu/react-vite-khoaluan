@@ -18,7 +18,7 @@ import {
 import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
-import { callDeleteJob } from "@/config/api";
+import { callDeleteJob, callDeleteJobForCompany } from "@/config/api";
 import queryString from "query-string";
 import { useNavigate } from "react-router-dom";
 import { fetchJob } from "@/redux/slice/jobSlide";
@@ -37,6 +37,7 @@ const JobPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [openModalImportJob, setOpenModalImportJob] = useState<boolean>(false);
+  const user = useAppSelector((state) => state.account.user) as IUser;
 
   // Cập nhật jobExport để bao gồm trường address
   const jobExport = useMemo(() => {
@@ -51,7 +52,13 @@ const JobPage = () => {
 
   const handleDeleteJob = async (id: string | undefined) => {
     if (id) {
-      const res = await callDeleteJob(id);
+      let res;
+      if (user.role?.name === "SUPER_ADMIN") {
+        res = await callDeleteJob(id);
+      } else if (user.company?.id) {
+        res = await callDeleteJobForCompany(user.company.id);
+      }
+
       if (res && res.data) {
         message.success("Xóa Job thành công");
         reloadTable();
@@ -269,7 +276,7 @@ const JobPage = () => {
           dataSource={jobs}
           request={async (params, sort, filter): Promise<any> => {
             const query = buildQuery(params, sort, filter);
-            dispatch(fetchJob({ query }));
+            dispatch(fetchJob({ query, user }));
           }}
           scroll={{ x: true }}
           pagination={{
@@ -314,11 +321,13 @@ const JobPage = () => {
           }}
         />
       </Access>
-      <ImportJob
-        openModalImportJob={openModalImportJob}
-        setOpenModalImportJob={setOpenModalImportJob}
-        reloadTable={reloadTable}
-      />
+      {user.role?.name === "SUPER_ADMIN" && (
+        <ImportJob
+          openModalImportJob={openModalImportJob}
+          setOpenModalImportJob={setOpenModalImportJob}
+          reloadTable={reloadTable}
+        />
+      )}
     </div>
   );
 };

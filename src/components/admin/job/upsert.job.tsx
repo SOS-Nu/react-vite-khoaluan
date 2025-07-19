@@ -25,17 +25,20 @@ import { ICompanySelect } from "../user/modal.user";
 import { useState, useEffect } from "react";
 import {
   callCreateJob,
+  callCreateJobForCompany,
   callFetchAllSkill,
   callFetchCompany,
   callFetchJobById,
   callUpdateJob,
+  callUpdateJobForCompany,
 } from "@/config/api";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { CheckSquareOutlined } from "@ant-design/icons";
 import enUS from "antd/lib/locale/en_US";
 import dayjs from "dayjs";
-import { IJob, ISkill } from "@/types/backend";
+import { IJob, ISkill, IUser } from "@/types/backend";
+import { useAppSelector } from "@/redux/hooks";
 
 interface ISkillSelect {
   label: string;
@@ -55,6 +58,7 @@ const ViewUpsertJob = (props: any) => {
   const id = params?.get("id"); // job id
   const [dataUpdate, setDataUpdate] = useState<IJob | null>(null);
   const [form] = Form.useForm();
+  const user = useAppSelector((state) => state.account.user) as IUser;
 
   useEffect(() => {
     const init = async () => {
@@ -130,88 +134,68 @@ const ViewUpsertJob = (props: any) => {
   }
 
   const onFinish = async (values: any) => {
-    if (dataUpdate?.id) {
-      //update
-      const cp = values?.company?.value?.split("@#$");
-
-      let arrSkills = [];
-      if (typeof values?.skills?.[0] === "object") {
-        arrSkills = values?.skills?.map((item: any) => {
-          return { id: item.value };
-        });
-      } else {
-        arrSkills = values?.skills?.map((item: any) => {
-          return { id: +item };
-        });
-      }
-
-      const job = {
-        name: values.name,
-        skills: arrSkills,
-        company: {
-          id: cp && cp.length > 0 ? cp[0] : "",
-          name: values.company.label,
-          logo: cp && cp.length > 1 ? cp[1] : "",
-        },
-        location: values.location,
-        address: values.address,
-        salary: values.salary,
-        quantity: values.quantity,
-        level: values.level,
-        description: value,
-        startDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.startDate)
-          ? dayjs(values.startDate, "DD/MM/YYYY").toDate()
-          : values.startDate,
-        endDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.endDate)
-          ? dayjs(values.endDate, "DD/MM/YYYY").toDate()
-          : values.endDate,
-        active: values.active,
-      };
-
-      const res = await callUpdateJob(job, dataUpdate.id);
-      if (res.data) {
-        message.success("Cập nhật job thành công");
-        navigate("/admin/job");
-      } else {
-        notification.error({
-          message: "Có lỗi xảy ra",
-          description: res.message,
-        });
-      }
+    const cp = values?.company?.value?.split("@#$");
+    let arrSkills = [];
+    if (typeof values?.skills?.[0] === "object") {
+      arrSkills = values?.skills?.map((item: any) => {
+        return { id: item.value };
+      });
     } else {
-      //create
-      const cp = values?.company?.value?.split("@#$");
-      const arrSkills = values?.skills?.map((item: string) => {
+      arrSkills = values?.skills?.map((item: any) => {
         return { id: +item };
       });
-      const job = {
-        name: values.name,
-        skills: arrSkills,
-        company: {
-          id: cp && cp.length > 0 ? cp[0] : "",
-          name: values.company.label,
-          logo: cp && cp.length > 1 ? cp[1] : "",
-        },
-        location: values.location,
-        salary: values.salary,
-        quantity: values.quantity,
-        level: values.level,
-        description: value,
-        startDate: dayjs(values.startDate, "DD/MM/YYYY").toDate(),
-        endDate: dayjs(values.endDate, "DD/MM/YYYY").toDate(),
-        active: values.active,
-      };
+    }
 
-      const res = await callCreateJob(job);
-      if (res.data) {
-        message.success("Tạo mới job thành công");
-        navigate("/admin/job");
-      } else {
-        notification.error({
-          message: "Có lỗi xảy ra",
-          description: res.message,
-        });
+    const jobData = {
+      name: values.name,
+      skills: arrSkills,
+      company: {
+        id: cp && cp.length > 0 ? cp[0] : "",
+        name: values.name,
+        logo: cp && cp.length > 1 ? cp[1] : "",
+      },
+      location: values.location,
+      address: values.address,
+      salary: values.salary,
+      quantity: values.quantity,
+      level: values.level,
+      description: value,
+      startDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.startDate)
+        ? dayjs(values.startDate, "DD/MM/YYYY").toDate()
+        : values.startDate,
+      endDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.endDate)
+        ? dayjs(values.endDate, "DD/MM/YYYY").toDate()
+        : values.endDate,
+      active: values.active,
+    };
+
+    let res;
+    if (dataUpdate?.id) {
+      // Update
+      if (user.role?.name === "SUPER_ADMIN") {
+        res = await callUpdateJob(jobData, dataUpdate.id);
+      } else if (user.company?.id) {
+        res = await callUpdateJobForCompany(jobData, dataUpdate.id);
       }
+    } else {
+      // Create
+      if (user.role?.name === "SUPER_ADMIN") {
+        res = await callCreateJob(jobData);
+      } else if (user.company?.id) {
+        res = await callCreateJobForCompany(jobData);
+      }
+    }
+
+    if (res && res.data) {
+      message.success(
+        dataUpdate?.id ? "Cập nhật job thành công" : "Tạo mới job thành công"
+      );
+      navigate("/admin/job");
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: res?.message,
+      });
     }
   };
 
@@ -343,14 +327,21 @@ const ViewUpsertJob = (props: any) => {
                 />
               </Col>
 
-              {(dataUpdate?.id || !id) && (
+              {(dataUpdate?.id || !id) && user.role?.name === "SUPER_ADMIN" && (
                 <Col span={24} md={6}>
                   <ProForm.Item
                     name="company"
                     label="Thuộc Công Ty"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn company!" },
-                    ]}
+                    rules={
+                      user.role.name === "SUPER_ADMIN"
+                        ? [
+                            {
+                              required: true,
+                              message: "Vui lòng chọn company!",
+                            },
+                          ]
+                        : undefined
+                    }
                   >
                     <DebounceSelect
                       allowClear
@@ -385,7 +376,7 @@ const ViewUpsertJob = (props: any) => {
                   placeholder="dd/mm/yyyy"
                 />
               </Col>
-              <Col span={24} md={6}>
+              <div onClick={(e) => e.stopPropagation()}>
                 <ProFormDatePicker
                   label="Ngày kết thúc"
                   name="endDate"
@@ -393,13 +384,12 @@ const ViewUpsertJob = (props: any) => {
                   fieldProps={{
                     format: "DD/MM/YYYY",
                   }}
-                  // width="auto"
                   rules={[
                     { required: true, message: "Vui lòng chọn ngày cấp" },
                   ]}
                   placeholder="dd/mm/yyyy"
                 />
-              </Col>
+              </div>
               <Col span={24} md={6}>
                 <ProFormSwitch
                   label="Trạng thái"

@@ -265,6 +265,12 @@ export const callCreateJob = (job: IJob) => {
   return axios.post<IBackendRes<IJob>>("/api/v1/jobs", { ...job });
 };
 
+export const callCreateJobForCompany = (job: IJob) => {
+  return axios.post<IBackendRes<IJob>>("/api/v1/jobs/by-user-company", {
+    ...job,
+  });
+};
+
 export const callBulkCreateJobAPI = (
   importJob: {
     name: string;
@@ -292,8 +298,19 @@ export const callUpdateJob = (job: IJob, id: string) => {
   return axios.put<IBackendRes<IJob>>(`/api/v1/jobs`, { id, ...job });
 };
 
+export const callUpdateJobForCompany = (job: IJob, id: string) => {
+  return axios.put<IBackendRes<IJob>>(`/api/v1/jobs/by-user-company`, {
+    id,
+    ...job,
+  });
+};
+
 export const callDeleteJob = (id: string) => {
   return axios.delete<IBackendRes<IJob>>(`/api/v1/jobs/${id}`);
+};
+
+export const callDeleteJobForCompany = (id: string) => {
+  return axios.delete<IBackendRes<IJob>>(`/api/v1/jobs/by-user-company/${id}`);
 };
 
 export const callFetchJob = (query: string) => {

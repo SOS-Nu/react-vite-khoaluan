@@ -1,8 +1,11 @@
 // src/redux/slice/jobSlide.ts
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { callFetchJob, callFindJobsByAI } from "@/config/api";
-import { IJob } from "@/types/backend";
+import {
+  callFetchJob,
+  callFetchJobsByCompany,
+  callFindJobsByAI,
+} from "@/config/api";
+import { IJob, IUser } from "@/types/backend";
 
 interface IState {
   isFetching: boolean;
@@ -13,20 +16,24 @@ interface IState {
     total: number;
   };
   result: IJob[];
-  // NEW: Thêm cờ để biết đây có phải là kết quả AI không
   isAiSearch: boolean;
 }
 
-// Thunk 1: Fetch job thường
+// Thunk 1: Fetch job with role-based logic
 export const fetchJob = createAsyncThunk(
   "job/fetchJob",
-  async ({ query }: { query: string }) => {
-    const response = await callFetchJob(query);
-    return response;
+  async ({ query, user }: { query: string; user: IUser }) => {
+    if (user.role?.name === "SUPER_ADMIN") {
+      const response = await callFetchJob(query);
+      return response;
+    } else if (user.company?.id) {
+      const response = await callFetchJobsByCompany(user.company.id, query);
+      return response;
+    }
   }
 );
 
-// FIX: Cập nhật Thunk 2 để nhận page và size
+// Thunk 2: Find jobs by AI
 export const findJobsByAI = createAsyncThunk(
   "job/findJobsByAI",
   async ({
@@ -38,7 +45,6 @@ export const findJobsByAI = createAsyncThunk(
     page: number;
     size: number;
   }) => {
-    // Truyền page và size vào API call
     const response = await callFindJobsByAI(formData, page, size);
     return response;
   }
@@ -53,7 +59,7 @@ const initialState: IState = {
     total: 0,
   },
   result: [],
-  isAiSearch: false, // NEW: Giá trị khởi tạo
+  isAiSearch: false,
 };
 
 export const jobSlide = createSlice({
@@ -69,15 +75,15 @@ export const jobSlide = createSlice({
         pages: 0,
         total: 0,
       };
-      state.isAiSearch = false; // NEW: Reset cờ
+      state.isAiSearch = false;
     },
   },
   extraReducers: (builder) => {
-    // Xử lý fetchJob (tìm kiếm thường)
+    // Handling fetchJob
     builder
       .addCase(fetchJob.pending, (state) => {
         state.isFetching = true;
-        state.isAiSearch = false; // Đánh dấu đây là search thường
+        state.isAiSearch = false;
       })
       .addCase(fetchJob.rejected, (state) => {
         state.isFetching = false;
@@ -90,11 +96,11 @@ export const jobSlide = createSlice({
         }
       });
 
-    // Xử lý findJobsByAI
+    // Handling findJobsByAI
     builder
       .addCase(findJobsByAI.pending, (state) => {
         state.isFetching = true;
-        state.isAiSearch = true; // NEW: Đánh dấu đây là search AI
+        state.isAiSearch = true;
       })
       .addCase(findJobsByAI.rejected, (state) => {
         state.isFetching = false;
@@ -102,9 +108,7 @@ export const jobSlide = createSlice({
       .addCase(findJobsByAI.fulfilled, (state, action) => {
         state.isFetching = false;
         if (action.payload && action.payload.data) {
-          // FIX: Lấy meta trực tiếp từ API trả về
           state.meta = action.payload.data.meta;
-
           const aiJobs = action.payload.data.jobs || [];
           state.result = aiJobs.map(
             (item: { score: number; job: IJob }) => item.job
