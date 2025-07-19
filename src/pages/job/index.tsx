@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react"; // Đã có sẵn useRef
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
-import { IJob } from "@/types/backend";
+import { IJob, IUser } from "@/types/backend";
 import { callFetchJobById } from "@/config/api";
 import { Pagination } from "antd";
 import { LOCATION_LIST } from "@/config/utils";
@@ -32,6 +32,8 @@ const ClientJobDetailPage = () => {
     isFetching: isLoadingList,
     meta,
   } = useAppSelector((state) => state.job);
+
+  const user = useAppSelector((state) => state.account.user) as IUser;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const prevListQueryKey = useRef<string>();
@@ -92,7 +94,7 @@ const ClientJobDetailPage = () => {
           queryParams.set("sort", "updatedAt,desc");
           queryParams.set("size", "2");
         }
-        dispatch(fetchJob({ query: queryParams.toString() }));
+        dispatch(fetchJob({ query: queryParams.toString(), user }));
       }
     }
 

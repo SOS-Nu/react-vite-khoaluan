@@ -1,4 +1,8 @@
+// AppContext.tsx
+
 import { createContext, useContext, useEffect, useState } from "react";
+// 1. Import các thành phần cần thiết từ antd
+import { ConfigProvider, theme as antdTheme } from "antd";
 
 interface IAppContext {
   theme: ThemeContextType;
@@ -14,19 +18,35 @@ export const AppContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [theme, setTheme] = useState<ThemeContextType>(() => {
+  const [theme, setThemeState] = useState<ThemeContextType>(() => {
+    // Logic khởi tạo theme của bạn vẫn giữ nguyên
     const initialTheme =
       (localStorage.getItem("theme") as ThemeContextType) || "light";
     return initialTheme;
   });
 
+  // Tạo một hàm setTheme mới để vừa cập nhật state, vừa lưu vào localStorage
+  const setTheme = (newTheme: ThemeContextType) => {
+    setThemeState(newTheme);
+    localStorage.setItem("theme", newTheme);
+    // Bạn vẫn có thể giữ dòng này nếu dùng chung với Bootstrap
+    document.documentElement.setAttribute("data-bs-theme", newTheme);
+  };
+
   useEffect(() => {
-    const mode = localStorage.getItem("theme") as ThemeContextType;
-    if (mode) {
-      setTheme(mode);
-      document.documentElement.setAttribute("data-bs-theme", mode);
-    }
+    // Logic này chỉ cần chạy một lần lúc khởi tạo để set thuộc tính cho <html>
+    const initialTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-bs-theme", initialTheme);
   }, []);
+
+  // 2. Định nghĩa cấu hình theme cho Ant Design
+  const themeConfig = {
+    // Sử dụng thuật toán theme tương ứng từ Ant Design
+    // theme.darkAlgorithm cho theme tối
+    // theme.defaultAlgorithm cho theme sáng
+    algorithm:
+      theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+  };
 
   return (
     <AppContext.Provider
@@ -35,7 +55,8 @@ export const AppContextProvider = ({
         setTheme,
       }}
     >
-      {children}
+      {/* 3. Bọc children bằng ConfigProvider và truyền theme vào */}
+      <ConfigProvider theme={themeConfig}>{children}</ConfigProvider>
     </AppContext.Provider>
   );
 };

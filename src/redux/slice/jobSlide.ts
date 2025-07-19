@@ -23,11 +23,11 @@ interface IState {
 export const fetchJob = createAsyncThunk(
   "job/fetchJob",
   async ({ query, user }: { query: string; user: IUser }) => {
-    if (user.role?.name === "SUPER_ADMIN") {
-      const response = await callFetchJob(query);
-      return response;
-    } else if (user.company?.id) {
+    if (user.company?.id) {
       const response = await callFetchJobsByCompany(user.company.id, query);
+      return response;
+    } else {
+      const response = await callFetchJob(query);
       return response;
     }
   }

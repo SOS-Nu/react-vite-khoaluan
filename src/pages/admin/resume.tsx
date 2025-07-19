@@ -126,6 +126,11 @@ const ResumePage = () => {
         );
       },
     },
+    {
+      title: "email",
+      dataIndex: ["email"],
+      hideInSearch: true,
+    },
 
     {
       title: "Job",

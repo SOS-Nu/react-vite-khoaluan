@@ -15,6 +15,7 @@ import { fetchJob } from "@/redux/slice/jobSlide";
 import { fetchCompany } from "@/redux/slice/companySlide";
 import { Container } from "react-bootstrap";
 import Skill from "../skill";
+import { IUser } from "@/types/backend";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -33,7 +34,7 @@ const HomePage = () => {
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
   );
-  const user = useAppSelector((state) => state.account.user);
+  const user = useAppSelector((state) => state.account.user) as IUser;
 
   useEffect(() => {
     if (isAuthenticated && user?.company) {
@@ -45,7 +46,7 @@ const HomePage = () => {
     const defaultJobQuery = "sort=updatedAt,desc&size=6";
     const defaultCompanyQuery = "sort=updatedAt,desc&size=6";
 
-    dispatch(fetchJob({ query: defaultJobQuery }));
+    dispatch(fetchJob({ query: defaultJobQuery, user }));
     dispatch(fetchCompany({ query: defaultCompanyQuery }));
   }, [dispatch]);
 
