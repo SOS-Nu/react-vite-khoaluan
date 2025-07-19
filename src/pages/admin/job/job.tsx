@@ -2,7 +2,7 @@
 
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { IJob } from "@/types/backend";
+import { IJob, IUser } from "@/types/backend";
 import {
   CloudUploadOutlined,
   DeleteOutlined,

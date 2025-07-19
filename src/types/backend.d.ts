@@ -170,7 +170,7 @@ export interface IJob {
 export interface IResume {
   id?: string;
   email: string;
-  userId: string;
+  userId?: string;
   url: string;
   status: string;
   companyName?: string;
@@ -191,6 +191,7 @@ export interface IResume {
         id: string;
         name: string;
       };
+  user?: { id: number; name: string };
   history?: {
     status: string;
     updatedAt: Date;
