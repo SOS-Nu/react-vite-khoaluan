@@ -12,39 +12,84 @@ import {
   Button,
   Spinner,
   InputGroup,
+  Alert, // Import thêm Alert
+  Row, // Import thêm Row
+  Col, // Import thêm Col
 } from "react-bootstrap";
 import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
 import { FcGoogle } from "react-icons/fc";
 import { message, notification } from "antd";
 
 import styles from "styles/auth.module.scss";
-import { callLogin, callLoginWithGoogle } from "@/config/api";
+// Import thêm các hàm gọi API cần thiết
+import {
+  callLogin,
+  callLoginWithGoogle,
+  callSendOtpChangePassword,
+  callVerifyOtpAndChangePassword,
+} from "@/config/api";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
+
+// Interface cho Alert (tương tự ChangePasswordTab)
+interface IAlert {
+  show: boolean;
+  variant: "success" | "danger";
+  message: string;
+}
 
 const LoginPage = () => {
   const googleLoginRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [isSubmit, setIsSubmit] = useState(false);
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
   );
-  const [showPassword, setShowPassword] = useState(false);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const callback = params.get("callback");
 
-  // ===> TỐI ƯU HÓA <===
+  // State cho chế độ xem (đăng nhập hoặc quên mật khẩu)
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+
+  // === State cho form Đăng nhập ===
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // === State cho form Quên Mật khẩu (lấy từ ChangePasswordTab) ===
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [newPasswordOtp, setNewPasswordOtp] = useState("");
+  const [confirmPasswordOtp, setConfirmPasswordOtp] = useState("");
+  const [isRequestingOtp, setIsRequestingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [alert, setAlert] = useState<IAlert>({
+    show: false,
+    variant: "success",
+    message: "",
+  });
+
+  // Effect xử lý bộ đếm ngược
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  // Effect xử lý chuyển hướng khi đã đăng nhập
   useEffect(() => {
     if (isAuthenticated) {
-      // Dùng navigate để chuyển trang, không gây reload lại trang
       navigate(callback || "/");
     }
-  }, [isAuthenticated, navigate, callback]); // Thêm các dependency cần thiết
+  }, [isAuthenticated, navigate, callback]);
 
-  const onFinish = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Ngăn hành vi mặc định của form
+  // === Hàm xử lý cho form Đăng nhập ===
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsSubmit(true);
     const form = event.currentTarget;
     const username = (form.elements.namedItem("username") as HTMLInputElement)
@@ -58,7 +103,7 @@ const LoginPage = () => {
       localStorage.setItem("access_token", res.data.access_token);
       dispatch(setUserLoginInfo(res.data.user));
       message.success("Đăng nhập thành công");
-      navigate(callback || "/");
+      // navigate đã được xử lý trong useEffect
     } else {
       notification.error({
         message: "Có lỗi xảy ra",
@@ -67,136 +112,335 @@ const LoginPage = () => {
     }
   };
 
+  // === Các hàm xử lý cho form Quên Mật khẩu (lấy từ ChangePasswordTab) ===
+  const handleRequestOtp = async () => {
+    if (!otpEmail) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng nhập địa chỉ email.",
+      });
+      return;
+    }
+    setIsRequestingOtp(true);
+    const res = await callSendOtpChangePassword(otpEmail);
+    setIsRequestingOtp(false);
+
+    if (res?.statusCode === 200) {
+      notification.success({
+        message: "Thành công!",
+        description: `Mã OTP đã được gửi đến email ${otpEmail}`,
+      });
+      setOtpSent(true);
+      setCountdown(60);
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra!",
+        description: res?.message ?? "Không thể gửi mã OTP.",
+      });
+    }
+  };
+
+  const handleSubmitWithOtp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newPasswordOtp !== confirmPasswordOtp) {
+      setAlert({
+        show: true,
+        variant: "danger",
+        message: "Mật khẩu mới không khớp!",
+      });
+      return;
+    }
+    setAlert({ ...alert, show: false });
+    setIsVerifyingOtp(true);
+    const res = await callVerifyOtpAndChangePassword(
+      otpEmail,
+      otpCode,
+      newPasswordOtp
+    );
+    setIsVerifyingOtp(false);
+
+    if (res?.statusCode === 200) {
+      notification.success({
+        message: "Thành công!",
+        description: "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
+      });
+      // Reset state và quay về form đăng nhập
+      setIsForgotPasswordMode(false);
+      setOtpSent(false);
+      setCountdown(0);
+      setOtpEmail("");
+      setOtpCode("");
+      setNewPasswordOtp("");
+      setConfirmPasswordOtp("");
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra!",
+        description: res?.message ?? "Mã OTP không hợp lệ hoặc đã hết hạn.",
+      });
+    }
+  };
+
+  // === Giao diện render ===
+
+  const renderLoginForm = () => (
+    <>
+      <h2 className="text-center fw-bold mb-4">Đăng Nhập</h2>
+      <Form onSubmit={handleLogin}>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Nhập email của bạn"
+            name="username"
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Mật khẩu</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type={showPassword ? "text" : "password"}
+              placeholder="Nhập mật khẩu"
+              name="password"
+              required
+            />
+            <InputGroup.Text
+              onClick={() => setShowPassword(!showPassword)}
+              className={styles["password-toggle-icon"]}
+            >
+              {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
+            </InputGroup.Text>
+          </InputGroup>
+        </Form.Group>
+
+        <div className="d-flex justify-content-end mb-3">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsForgotPasswordMode(true);
+            }}
+            className="text-primary"
+            style={{ textDecoration: "none", fontSize: "14px" }}
+          >
+            Quên mật khẩu?
+          </a>
+        </div>
+
+        <Button
+          variant="primary"
+          type="submit"
+          className="w-100 fw-semibold"
+          disabled={isSubmit}
+        >
+          {isSubmit ? (
+            <Spinner as="span" animation="border" size="sm" />
+          ) : (
+            "Đăng nhập"
+          )}
+        </Button>
+      </Form>
+
+      <div className="d-flex align-items-center my-4">
+        <hr className="flex-grow-1" />
+        <span className="mx-3 text-muted">Or</span>
+        <hr className="flex-grow-1" />
+      </div>
+
+      <Button
+        className={`w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 ${styles["google-login-btn"]}`}
+        onClick={() => {
+          if (googleLoginRef.current) {
+            const clickableElement =
+              googleLoginRef.current.querySelector<HTMLElement>(
+                '[role="button"]'
+              );
+            if (clickableElement) {
+              clickableElement.click();
+            }
+          }
+        }}
+      >
+        <FcGoogle size={22} />
+        Đăng nhập với Google
+      </Button>
+
+      <div ref={googleLoginRef} style={{ display: "none" }}>
+        {/* Google Login Component */}
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            if (credentialResponse.credential) {
+              try {
+                const res = await callLoginWithGoogle(
+                  credentialResponse.credential
+                );
+                if (res?.data) {
+                  localStorage.setItem("access_token", res.data.access_token);
+                  dispatch(setUserLoginInfo(res.data.user));
+                  message.success("Đăng nhập bằng Google thành công!");
+                } else {
+                  notification.error({
+                    message: "Đăng nhập thất bại",
+                    description:
+                      res?.message ?? "Có lỗi xảy ra, vui lòng thử lại.",
+                  });
+                }
+              } catch (error) {
+                //...
+              }
+            }
+          }}
+          onError={() => {
+            notification.error({
+              message: "Đăng nhập Google thất bại",
+            });
+          }}
+        />
+      </div>
+
+      <p className="text-center mt-4">
+        Chưa có tài khoản?{" "}
+        <Link to="/register" className={styles["register-link"]}>
+          Đăng Ký
+        </Link>
+      </p>
+    </>
+  );
+
+  const renderForgotPasswordForm = () => (
+    <>
+      <h2 className="text-center fw-bold mb-4">Quên Mật Khẩu</h2>
+      {!otpSent ? (
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRequestOtp();
+          }}
+        >
+          <p>Vui lòng nhập email của bạn để nhận mã xác thực.</p>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type="email"
+                value={otpEmail}
+                onChange={(e) => setOtpEmail(e.target.value)}
+                placeholder="Nhập email của bạn"
+                required
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={isRequestingOtp}
+              >
+                {isRequestingOtp ? "Đang gửi..." : "Gửi mã"}
+              </Button>
+            </InputGroup>
+          </Form.Group>
+        </Form>
+      ) : (
+        <Form onSubmit={handleSubmitWithOtp}>
+          {alert.show && (
+            <Alert
+              variant={alert.variant}
+              onClose={() => setAlert({ ...alert, show: false })}
+              dismissible
+            >
+              {alert.message}
+            </Alert>
+          )}
+          <p>
+            Mã OTP đã được gửi tới <strong>{otpEmail}</strong>. Vui lòng kiểm
+            tra và nhập vào bên dưới.
+          </p>
+          <Form.Group className="mb-3">
+            <Form.Label>Mã OTP</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type="text"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                placeholder="Nhập mã OTP"
+                required
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={handleRequestOtp}
+                disabled={countdown > 0 || isRequestingOtp}
+              >
+                {countdown > 0 ? `Gửi lại sau (${countdown}s)` : "Gửi lại mã"}
+              </Button>
+            </InputGroup>
+          </Form.Group>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Mật khẩu mới</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type={showNew ? "text" : "password"}
+                    value={newPasswordOtp}
+                    onChange={(e) => setNewPasswordOtp(e.target.value)}
+                    required
+                  />
+                  <InputGroup.Text onClick={() => setShowNew(!showNew)}>
+                    {showNew ? <BsEyeSlashFill /> : <BsEyeFill />}
+                  </InputGroup.Text>
+                </InputGroup>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Xác nhận mật khẩu mới</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPasswordOtp}
+                    onChange={(e) => setConfirmPasswordOtp(e.target.value)}
+                    required
+                  />
+                  <InputGroup.Text onClick={() => setShowConfirm(!showConfirm)}>
+                    {showConfirm ? <BsEyeSlashFill /> : <BsEyeFill />}
+                  </InputGroup.Text>
+                </InputGroup>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Button
+            variant="primary"
+            type="submit"
+            className="w-100"
+            disabled={isVerifyingOtp}
+          >
+            {isVerifyingOtp ? "Đang xác thực..." : "Xác nhận đổi mật khẩu"}
+          </Button>
+        </Form>
+      )}
+      <div className="text-center mt-4">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setIsForgotPasswordMode(false);
+            setAlert({ ...alert, show: false }); // Reset alert khi quay lại
+          }}
+          className={styles["register-link"]}
+        >
+          &larr; Quay lại Đăng nhập
+        </a>
+      </div>
+    </>
+  );
+
   return (
     <div
       className={`${styles["login-page-bootstrap"]} vh-100 d-flex align-items-center justify-content-center`}
     >
       <Card className={styles["login-card"]}>
         <Card.Body>
-          <h2 className="text-center fw-bold mb-4">Đăng Nhập</h2>
-          <Form onSubmit={onFinish}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Nhập email của bạn"
-                name="username"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Mật khẩu</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Nhập mật khẩu"
-                  name="password"
-                  required
-                />
-                <InputGroup.Text
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={styles["password-toggle-icon"]}
-                >
-                  {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
-                </InputGroup.Text>
-              </InputGroup>
-            </Form.Group>
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100 fw-semibold"
-              disabled={isSubmit}
-            >
-              {isSubmit ? (
-                <Spinner as="span" animation="border" size="sm" />
-              ) : (
-                "Đăng nhập"
-              )}
-            </Button>
-          </Form>
-
-          <div className="d-flex align-items-center my-4">
-            <hr className="flex-grow-1" />
-            <span className="mx-3 text-muted">Or</span>
-            <hr className="flex-grow-1" />
-          </div>
-
-          <Button
-            className={`w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 ${styles["google-login-btn"]}`}
-            onClick={() => {
-              if (googleLoginRef.current) {
-                // Tìm phần tử có thể click được bên trong
-                const clickableElement =
-                  googleLoginRef.current.querySelector<HTMLElement>(
-                    '[role="button"]'
-                  );
-
-                if (clickableElement) {
-                  console.log(
-                    "Tìm thấy phần tử có thể click, đang click...",
-                    clickableElement
-                  );
-                  clickableElement.click();
-                } else {
-                  console.error(
-                    "Không tìm thấy phần tử Google Login có thể click được bên trong ref."
-                  );
-                }
-              }
-            }}
-          >
-            <FcGoogle size={22} />
-            Đăng nhập với Google
-          </Button>
-
-          <div ref={googleLoginRef} style={{ display: "none" }}>
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                if (credentialResponse.credential) {
-                  try {
-                    const res = await callLoginWithGoogle(
-                      credentialResponse.credential
-                    );
-                    if (res?.data) {
-                      localStorage.setItem(
-                        "access_token",
-                        res.data.access_token
-                      );
-                      dispatch(setUserLoginInfo(res.data.user));
-                      message.success("Đăng nhập bằng Google thành công!");
-                      // navigate đã được gọi trong useEffect nên không cần gọi lại ở đây
-                    } else {
-                      notification.error({
-                        message: "Đăng nhập thất bại",
-                        description:
-                          res?.message ?? "Có lỗi xảy ra, vui lòng thử lại.",
-                      });
-                    }
-                  } catch (error) {
-                    notification.error({
-                      message: "Đăng nhập thất bại",
-                      description:
-                        "Có lỗi xảy ra trong quá trình xác thực với máy chủ.",
-                    });
-                  }
-                }
-              }}
-              onError={() => {
-                notification.error({
-                  message: "Đăng nhập Google thất bại",
-                  description:
-                    "Không thể kết nối với Google. Vui lòng thử lại.",
-                });
-              }}
-            />
-          </div>
-
-          <p className="text-center mt-4">
-            Chưa có tài khoản?{" "}
-            <Link to="/register" className={styles["register-link"]}>
-              Đăng Ký
-            </Link>
-          </p>
+          {isForgotPasswordMode
+            ? renderForgotPasswordForm()
+            : renderLoginForm()}
         </Card.Body>
       </Card>
     </div>

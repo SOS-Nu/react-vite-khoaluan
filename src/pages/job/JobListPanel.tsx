@@ -21,7 +21,6 @@ const JobListPanel = (props: IProps) => {
           jobs={jobList}
           isLoading={isLoading}
           isListPage={true}
-          // THAY ĐỔI Ở ĐÂY: Truyền prop nhận được thay vì giá trị cứng
           showPagination={showPagination}
           showButtonAllJob={showButtonAllJob}
         />
