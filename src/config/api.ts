@@ -623,3 +623,7 @@ export const callEvaluateCVWithAI = (formData: FormData) => {
     },
   });
 };
+
+export const callNotifyUserAfterApproved = (resumeId: number) => {
+  return axios.post(`/api/v1/resumes/notify-user/${resumeId}`);
+};

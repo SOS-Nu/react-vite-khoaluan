@@ -1,6 +1,13 @@
-import { callUpdateResumeStatus } from "@/config/api";
+import {
+  callNotifyUserAfterApproved,
+  callUpdateResumeStatus,
+} from "@/config/api";
 import { IResume } from "@/types/backend";
-import { DownloadOutlined, FilePdfOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  FilePdfOutlined,
+  MessageOutlined,
+} from "@ant-design/icons";
 import {
   Badge,
   Button,
@@ -14,6 +21,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
 interface IProps {
@@ -27,13 +35,31 @@ const ViewDetailResume = (props: IProps) => {
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
   const { onClose, open, dataInit, setDataInit, reloadTable } = props;
   const [form] = Form.useForm();
+  const navigate = useNavigate(); // <<< KHỞI TẠO NAVIGATE
 
   const handleChangeStatus = async () => {
     setIsSubmit(true);
 
     const status = form.getFieldValue("status");
+
+    if (status === dataInit?.status) {
+      setIsSubmit(false);
+      return;
+    }
     const res = await callUpdateResumeStatus(dataInit?.id, status);
     if (res.data) {
+      if (status === "APPROVED") {
+        try {
+          await callNotifyUserAfterApproved(dataInit?.id);
+          message.success("Đã gửi thông báo trúng tuyển đến ứng viên!");
+        } catch (error) {
+          notification.error({
+            message: "Lỗi gửi tin nhắn",
+            description:
+              "Không thể gửi tin nhắn tự động. Vui lòng thử lại sau.",
+          });
+        }
+      }
       message.success("Update Resume status thành công!");
       setDataInit(null);
       onClose(false);
@@ -46,6 +72,18 @@ const ViewDetailResume = (props: IProps) => {
     }
 
     setIsSubmit(false);
+  };
+
+  const handleSendMessage = () => {
+    if (!dataInit?.user) {
+      notification.error({
+        message: "Lỗi",
+        description: "Không có thông tin ứng viên để nhắn tin.",
+      });
+      return;
+    }
+    // Điều hướng đến trang chat và truyền thông tin người nhận qua state
+    navigate("/chat/detail", { state: { receiver: dataInit.user } });
   };
 
   useEffect(() => {
@@ -69,13 +107,20 @@ const ViewDetailResume = (props: IProps) => {
         maskClosable={false}
         destroyOnClose
         extra={
-          <Button
-            loading={isSubmit}
-            type="primary"
-            onClick={handleChangeStatus}
-          >
-            Change Status
-          </Button>
+          <>
+            <Space>
+              <Button icon={<MessageOutlined />} onClick={handleSendMessage}>
+                Nhắn tin
+              </Button>
+              <Button
+                loading={isSubmit}
+                type="primary"
+                onClick={handleChangeStatus}
+              >
+                Change Status
+              </Button>
+            </Space>
+          </>
         }
       >
         <Descriptions title="" bordered column={2} layout="vertical">

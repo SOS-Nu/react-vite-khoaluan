@@ -253,6 +253,12 @@ const ResumePage = () => {
     }
 
     // temp += "&populate=companyId,jobId&fields=companyId.id, companyId.name, companyId.logo, jobId.id, jobId.name";
+    // <<< THAY ĐỔI DÒNG TRÊN BẰNG DÒNG DƯỚI >>>
+    // populate=user sẽ lấy toàn bộ thông tin của user lồng trong resume
+    // populate=job,user&fields=job.name,user.id,user.name,user.email,user.company
+    // Bạn có thể chọn các trường cụ thể để tối ưu
+    temp += "&populate=job,user";
+
     return temp;
   };
 
