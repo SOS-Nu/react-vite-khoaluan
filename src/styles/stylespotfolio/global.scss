@@ -372,15 +372,15 @@ body {
   }
 }
 
-.layout-admin {
-  // Ghi đè style cho link bên trong menu của Ant Design
-  .ant-menu-item a {
-    // Bỏ gạch chân
-    text-decoration: none;
-
-    // Xử lý khi hover (nếu Bootstrap cũng thêm gạch chân khi hover)
-    &:hover {
-      text-decoration: none;
-    }
-  }
-}
+// .layout-admin {
+//   // Ghi đè style cho link bên trong menu của Ant Design
+//   .ant-menu-item a {
+//     // Bỏ gạch chân
+//     text-decoration: none;
+//
+//     // Xử lý khi hover (nếu Bootstrap cũng thêm gạch chân khi hover)
+//     &:hover {
+//       text-decoration: none;
+//     }
+//   }
+// }

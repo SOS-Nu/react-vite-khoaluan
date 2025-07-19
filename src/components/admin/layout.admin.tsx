@@ -31,7 +31,7 @@ const LayoutAdmin = () => {
   const user = useAppSelector((state) => state.account.user);
 
   const permissions = useAppSelector(
-    (state) => state.account.user.role.permissions
+    (state) => state.account.user.role?.permissions
   );
   const [menuItems, setMenuItems] = useState<MenuProps["items"]>([]);
 
@@ -79,14 +79,22 @@ const LayoutAdmin = () => {
 
       const full = [
         {
-          label: <Link to="/admin">Dashboard</Link>,
+          label: (
+            <Link style={{ textDecoration: "none" }} to="/admin">
+              Dashboard
+            </Link>
+          ),
           key: "/admin",
           icon: <AppstoreOutlined />,
         },
         ...(viewCompany || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/company">Company</Link>,
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/company">
+                    Company
+                  </Link>
+                ),
                 key: "/admin/company",
                 icon: <BankOutlined />,
               },
@@ -96,7 +104,11 @@ const LayoutAdmin = () => {
         ...(viewUser || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/user">User</Link>,
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/user">
+                    User
+                  </Link>
+                ),
                 key: "/admin/user",
                 icon: <UserOutlined />,
               },
@@ -105,7 +117,11 @@ const LayoutAdmin = () => {
         ...(viewJob || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/job">Job</Link>,
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/job">
+                    Job
+                  </Link>
+                ),
                 key: "/admin/job",
                 icon: <ScheduleOutlined />,
               },
@@ -115,7 +131,11 @@ const LayoutAdmin = () => {
         ...(viewResume || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/resume">Resume</Link>,
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/resume">
+                    Resume
+                  </Link>
+                ),
                 key: "/admin/resume",
                 icon: <AliwangwangOutlined />,
               },
@@ -124,7 +144,14 @@ const LayoutAdmin = () => {
         ...(viewPermission || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/permission">Permission</Link>,
+                label: (
+                  <Link
+                    style={{ textDecoration: "none" }}
+                    to="/admin/permission"
+                  >
+                    Permission
+                  </Link>
+                ),
                 key: "/admin/permission",
                 icon: <ApiOutlined />,
               },
@@ -133,7 +160,11 @@ const LayoutAdmin = () => {
         ...(viewRole || ACL_ENABLE === "false"
           ? [
               {
-                label: <Link to="/admin/role">Role</Link>,
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/role">
+                    Role
+                  </Link>
+                ),
                 key: "/admin/role",
                 icon: <ExceptionOutlined />,
               },
@@ -151,7 +182,7 @@ const LayoutAdmin = () => {
   const handleLogout = async () => {
     const res = await callLogout();
     if (res && +res.statusCode === 200) {
-      dispatch(setLogoutAction({}));
+      dispatch(setLogoutAction());
       message.success("Đăng xuất thành công");
       navigate("/");
     }
