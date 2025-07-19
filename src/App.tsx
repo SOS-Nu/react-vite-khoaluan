@@ -48,6 +48,8 @@ import { useUsersConnected } from "./hooks/useUsersConnected";
 import { UserInfo } from "./types/backend";
 import ClientJobStandaloneDetailPage from "./pages/job/detail";
 import CVAIEvaluationPage from "./pages/cv-ai/CVAIEvaluation";
+import "dayjs/locale/vi";
+import "dayjs/locale/en";
 
 const formatDate = (timestamp: any) => {
   const date = new Date(timestamp);

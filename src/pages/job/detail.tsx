@@ -34,6 +34,8 @@ const ClientJobStandaloneDetailPage = () => {
         setIsLoading(true);
         const res = await callFetchJobById(id);
         setJobDetail(res?.data ?? null);
+        console.log("Kiểm tra dữ liệu jobDetail:", jobDetail);
+
         setIsLoading(false);
       }
     };
@@ -46,6 +48,8 @@ const ClientJobStandaloneDetailPage = () => {
     }
     return (salary + "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " đ";
   };
+
+  console.log("Kiểm tra dữ liệu jobDetail:", jobDetail);
 
   return (
     <div className="container" style={{ marginTop: 20, marginBottom: 40 }}>
@@ -185,7 +189,9 @@ const ClientJobStandaloneDetailPage = () => {
               <div>
                 <HistoryOutlined />
                 &nbsp; Cập nhật&nbsp;
-                {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
+                {dayjs(jobDetail.updatedAt || jobDetail.createdAt)
+                  .locale("vi")
+                  .fromNow()}
               </div>
               <Divider />
               <div className="job-description">

@@ -167,6 +167,13 @@ export interface IJob {
   updatedAt?: string;
 }
 
+export interface IJobWithScore {
+  score: number;
+  job: IJob;
+}
+
+export type IMeta = IModelPaginate<any>["meta"];
+
 export interface IResume {
   id?: string;
   email: string;

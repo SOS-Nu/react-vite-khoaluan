@@ -1,11 +1,12 @@
-// src/redux/slice/jobSlide.ts
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   callFetchJob,
   callFetchJobsByCompany,
-  callFindJobsByAI,
+  // Giả sử bạn đã có 2 hàm gọi API mới này
+  callInitiateSearchByAI,
+  callGetAiSearchResults,
 } from "@/config/api";
-import { IJob, IUser } from "@/types/backend";
+import { IJob, IUser, IJobWithScore } from "@/types/backend"; // Thêm IJobWithScore nếu cần
 
 interface IState {
   isFetching: boolean;
@@ -14,28 +15,37 @@ interface IState {
     pageSize: number;
     pages: number;
     total: number;
+    // Thêm các trường từ backend nếu có, ví dụ:
+    hasMore?: boolean;
   };
   result: IJob[];
   isAiSearch: boolean;
+  searchId: string | null; // << THÊM STATE MỚI CHO AI SEARCH
 }
 
-// Thunk 1: Fetch job with role-based logic
+// ===================================================================
+// THUNK TÌM KIẾM THƯỜNG (KHÔNG THAY ĐỔI)
+// ===================================================================
 export const fetchJob = createAsyncThunk(
   "job/fetchJob",
-  async ({ query, user }: { query: string; user: IUser }) => {
-    if (user.company?.id) {
+  async ({ query, user }: { query: string; user: IUser | null }) => {
+    if (user?.company?.id) {
       const response = await callFetchJobsByCompany(user.company.id, query);
-      return response;
+      return response.data; // Trả về data để reducer xử lý
     } else {
       const response = await callFetchJob(query);
-      return response;
+      return response.data; // Trả về data để reducer xử lý
     }
   }
 );
 
-// Thunk 2: Find jobs by AI
-export const findJobsByAI = createAsyncThunk(
-  "job/findJobsByAI",
+// ===================================================================
+// CÁC THUNK MỚI CHO TÌM KIẾM AI 2 BƯỚC
+// ===================================================================
+
+// Thunk Bước 1: Khởi tạo tìm kiếm
+export const initiateAiSearch = createAsyncThunk(
+  "job/initiateAiSearch",
   async ({
     formData,
     page,
@@ -45,21 +55,34 @@ export const findJobsByAI = createAsyncThunk(
     page: number;
     size: number;
   }) => {
-    const response = await callFindJobsByAI(formData, page, size);
-    return response;
+    const response = await callInitiateSearchByAI(formData, page, size);
+    return response.data; // Trả về { jobs, meta, searchId }
+  }
+);
+
+// Thunk Bước 2: Lấy các trang tiếp theo
+export const fetchMoreAiResults = createAsyncThunk(
+  "job/fetchMoreAiResults",
+  async ({
+    searchId,
+    page,
+    size,
+  }: {
+    searchId: string;
+    page: number;
+    size: number;
+  }) => {
+    const response = await callGetAiSearchResults(searchId, page, size);
+    return response.data; // Trả về { jobs, meta }
   }
 );
 
 const initialState: IState = {
   isFetching: false,
-  meta: {
-    page: 1,
-    pageSize: 10,
-    pages: 0,
-    total: 0,
-  },
+  meta: { page: 1, pageSize: 10, pages: 0, total: 0 },
   result: [],
   isAiSearch: false,
+  searchId: null, // << GIÁ TRỊ BAN ĐẦU
 };
 
 export const jobSlide = createSlice({
@@ -69,17 +92,15 @@ export const jobSlide = createSlice({
     clearJobs: (state) => {
       state.isFetching = false;
       state.result = [];
-      state.meta = {
-        page: 1,
-        pageSize: 10,
-        pages: 0,
-        total: 0,
-      };
+      state.meta = { page: 1, pageSize: 10, pages: 0, total: 0 };
       state.isAiSearch = false;
+      state.searchId = null; // << THÊM RESET searchId
     },
   },
   extraReducers: (builder) => {
-    // Handling fetchJob
+    // ===================================================================
+    // LOGIC REDUCER CHO TÌM KIẾM THƯỜNG (KHÔNG THAY ĐỔI)
+    // ===================================================================
     builder
       .addCase(fetchJob.pending, (state) => {
         state.isFetching = true;
@@ -90,26 +111,52 @@ export const jobSlide = createSlice({
       })
       .addCase(fetchJob.fulfilled, (state, action) => {
         state.isFetching = false;
-        if (action.payload && action.payload.data) {
-          state.meta = action.payload.data.meta;
-          state.result = action.payload.data.result;
+        if (action.payload) {
+          // action.payload giờ là data từ response
+          state.meta = action.payload.meta;
+          state.result = action.payload.result;
         }
       });
 
-    // Handling findJobsByAI
+    // ===================================================================
+    // LOGIC REDUCER MỚI CHỈ DÀNH CHO TÌM KIẾM AI
+    // ===================================================================
     builder
-      .addCase(findJobsByAI.pending, (state) => {
+      .addCase(initiateAiSearch.pending, (state) => {
         state.isFetching = true;
         state.isAiSearch = true;
       })
-      .addCase(findJobsByAI.rejected, (state) => {
+      .addCase(initiateAiSearch.rejected, (state) => {
+        state.isFetching = false;
+        state.searchId = null;
+      })
+      .addCase(initiateAiSearch.fulfilled, (state, action) => {
+        state.isFetching = false;
+        if (action.payload) {
+          state.meta = action.payload.meta;
+          state.searchId = action.payload.searchId;
+          // Tuân thủ logic gốc: chỉ lưu IJob vào state.result
+          const aiJobs = action.payload.jobs || [];
+          state.result = aiJobs.map(
+            (item: { score: number; job: IJob }) => item.job
+          );
+        }
+      });
+
+    builder
+      .addCase(fetchMoreAiResults.pending, (state) => {
+        state.isFetching = true;
+        state.isAiSearch = true;
+      })
+      .addCase(fetchMoreAiResults.rejected, (state) => {
         state.isFetching = false;
       })
-      .addCase(findJobsByAI.fulfilled, (state, action) => {
+      .addCase(fetchMoreAiResults.fulfilled, (state, action) => {
         state.isFetching = false;
-        if (action.payload && action.payload.data) {
-          state.meta = action.payload.data.meta;
-          const aiJobs = action.payload.data.jobs || [];
+        if (action.payload) {
+          state.meta = action.payload.meta;
+          // Tương tự, chỉ lưu IJob vào state.result
+          const aiJobs = action.payload.jobs || [];
           state.result = aiJobs.map(
             (item: { score: number; job: IJob }) => item.job
           );

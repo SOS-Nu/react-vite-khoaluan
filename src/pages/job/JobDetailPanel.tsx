@@ -28,6 +28,7 @@ const JobDetailPanel = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const { theme } = useCurrentApp();
+  const language = localStorage.getItem("language") || "vi";
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -40,6 +41,8 @@ const JobDetailPanel = () => {
     };
     fetchJobDetail();
   }, [id]);
+
+  console.log("Ngôn ngữ đang dùng:", language); // << THÊM DÒNG NÀY
 
   const formatSalary = (salary: number | undefined | null) => {
     if (salary === null || salary === undefined) {
@@ -178,8 +181,10 @@ const JobDetailPanel = () => {
             </div>
             <div>
               <HistoryOutlined />
-              &nbsp; Cập nhật&nbsp;
-              {dayjs(jobDetail.updatedAt).locale("vi").fromNow()}
+              &nbsp; &nbsp;
+              {jobDetail.updatedAt
+                ? dayjs(jobDetail.updatedAt).locale(language).fromNow()
+                : dayjs(jobDetail.createdAt).locale(language).fromNow()}
             </div>
             <Divider />
 

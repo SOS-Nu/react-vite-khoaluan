@@ -7,10 +7,7 @@ const LEVELS = ["INTERN", "FRESHER", "JUNIOR", "MIDDLE", "SENIOR"];
 
 interface IFilterData {
   levels: string[];
-  salary: {
-    min: string;
-    max: string;
-  };
+  salary: { min: string; max: string };
 }
 
 interface IProps {
@@ -25,38 +22,37 @@ const JobFilter = (props: IProps) => {
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
 
-  // =========================================================================
-  // >>> THAY ĐỔI LOGIC ĐỌC THAM SỐ TỪ URL <<<
-  // =========================================================================
+  // ===================================================================
+  // >>> THAY THẾ TOÀN BỘ useEffect BẰNG KHỐI CODE NÀY <<<
+  // Logic parser mới, "thông minh" hơn
+  // ===================================================================
   useEffect(() => {
-    const searchType = searchParams.get("search_type");
+    const filterParam = searchParams.get("filter") || "";
 
-    // Nếu là AI search, đọc các tham số riêng biệt
-    if (searchType === "ai") {
-      const levelsFromUrl = searchParams.getAll("level"); // Lấy tất cả giá trị 'level'
-      const minSalaryFromUrl = searchParams.get("salary_min") || "";
-      const maxSalaryFromUrl = searchParams.get("salary_max") || "";
-
-      setSelectedLevels(levelsFromUrl);
-      setMinSalary(minSalaryFromUrl);
-      setMaxSalary(maxSalaryFromUrl);
-    }
-    // Nếu là search thường, giữ logic cũ
-    else {
-      const filterParam = searchParams.get("filter") || "";
-
-      const levelMatches = filterParam.match(/level = '([^']*)'/g) || [];
-      const currentLevels = levelMatches.map((match) =>
-        match.replace(/level = '([^']*)'/, "$1")
+    // 1. Logic đọc Level
+    const levelGroupMatch = filterParam.match(/\(([^)]+)\)/); // Tìm chuỗi trong cặp dấu ngoặc (...)
+    let currentLevels: string[] = [];
+    if (levelGroupMatch && levelGroupMatch[1]) {
+      // Nếu có nhóm (a or b), tìm tất cả các giá trị level bên trong nhóm đó
+      const levelMatches = levelGroupMatch[1].matchAll(
+        /level\s*=\s*'([^']+)'/g
       );
-      setSelectedLevels(currentLevels);
-
-      const minSalaryMatch = filterParam.match(/salary >= (\d+)/);
-      setMinSalary(minSalaryMatch ? minSalaryMatch[1] : "");
-
-      const maxSalaryMatch = filterParam.match(/salary <= (\d+)/);
-      setMaxSalary(maxSalaryMatch ? maxSalaryMatch[1] : "");
+      currentLevels = Array.from(levelMatches, (match) => match[1]);
+    } else {
+      // Nếu không có nhóm, tìm một giá trị level đơn lẻ
+      const singleLevelMatch = filterParam.match(/level\s*=\s*'([^']+)'/);
+      if (singleLevelMatch) {
+        currentLevels = [singleLevelMatch[1]];
+      }
     }
+    setSelectedLevels(currentLevels);
+
+    // 2. Logic đọc Salary (giữ nguyên)
+    const minSalaryMatch = filterParam.match(/salary\s*>=\s*(\d+)/);
+    setMinSalary(minSalaryMatch ? minSalaryMatch[1] : "");
+
+    const maxSalaryMatch = filterParam.match(/salary\s*<=\s*(\d+)/);
+    setMaxSalary(maxSalaryMatch ? maxSalaryMatch[1] : "");
   }, [searchParams]);
 
   const handleLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {

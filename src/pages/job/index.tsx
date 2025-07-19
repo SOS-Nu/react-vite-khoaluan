@@ -1,14 +1,17 @@
-import { useEffect, useState, useRef } from "react"; // Đã có sẵn useRef
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { IJob, IUser } from "@/types/backend";
 import { callFetchJobById } from "@/config/api";
 import { Pagination } from "antd";
-import { LOCATION_LIST } from "@/config/utils";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ApplyModal from "@/components/client/modal/apply.modal";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchJob, findJobsByAI } from "@/redux/slice/jobSlide";
+import {
+  fetchJob,
+  initiateAiSearch,
+  fetchMoreAiResults,
+} from "@/redux/slice/jobSlide";
 import JobCard from "@/components/client/card/job.card";
 import SearchClient from "@/components/client/search.client";
 import JobDetailPanel from "./JobDetailPanel";
@@ -16,26 +19,28 @@ import JobFilter from "./JobFilter";
 
 dayjs.extend(relativeTime);
 
-const ClientJobDetailPage = () => {
+const ClientJobPage = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentSearchType, setCurrentSearchType] = useState<string>("job");
 
-  // >> BƯỚC 1: TẠO REF
   const jobListRef = useRef<HTMLDivElement>(null);
-
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const {
-    result: jobList,
+    result: regularJobList,
+    aiResult: aiJobList,
     isFetching: isLoadingList,
     meta,
+    searchId,
+    isAiSearch,
   } = useAppSelector((state) => state.job);
 
   const user = useAppSelector((state) => state.account.user) as IUser;
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const prevListQueryKey = useRef<string>();
   const prevId = useRef<string | null>();
 
@@ -57,54 +62,40 @@ const ClientJobDetailPage = () => {
     }
 
     if (currentListQueryKey !== prevListQueryKey.current) {
-      const params = new URLSearchParams(searchParams);
-      const searchType = params.get("search_type");
+      const page = parseInt(searchParams.get("page") || "1", 10);
+      const size = parseInt(searchParams.get("size") || "10", 10);
 
-      if (searchType === "ai") {
-        const prompt = params.get("prompt");
-        const loc = params.get("location");
-        const page = parseInt(params.get("page") || "1", 10);
-        const size = parseInt(params.get("size") || "2", 10);
+      if (searchTypeFromUrl === "ai") {
+        const prompt = searchParams.get("prompt");
+        const isNewSearch = location.state?.file || (page === 1 && !searchId);
 
-        if (prompt) {
-          let fullPrompt = prompt;
-          if (loc && loc !== "tatca") {
-            const locObj = LOCATION_LIST.find((l) => l.value === loc);
-            if (locObj) fullPrompt += ` ở ${locObj.label}`;
-          }
-
+        if (isNewSearch && (prompt || location.state?.file)) {
           const formData = new FormData();
-          formData.append("skillsDescription", fullPrompt);
-
+          formData.append("skillsDescription", prompt || "Phù hợp với CV");
           if (location.state?.file) {
             formData.append("file", location.state.file);
             navigate(location.pathname + location.search, {
-              state: {},
               replace: true,
+              state: {},
             });
           }
-          dispatch(findJobsByAI({ formData, page, size }));
+          dispatch(initiateAiSearch({ formData, page, size }));
+        } else if (searchId) {
+          dispatch(fetchMoreAiResults({ searchId, page, size }));
         }
       } else {
         const queryParams = new URLSearchParams(searchParams);
         queryParams.delete("id");
         queryParams.delete("search_type");
-
-        if (!queryParams.has("filter") && !queryParams.toString()) {
-          queryParams.set("sort", "updatedAt,desc");
-          queryParams.set("size", "2");
-        }
         dispatch(fetchJob({ query: queryParams.toString(), user }));
       }
     }
 
     if (currentId !== prevId.current) {
       if (currentId) {
-        const fetchJobDetail = async () => {
-          const res = await callFetchJobById(currentId);
-          setJobDetail(res?.data ?? null);
-        };
-        fetchJobDetail();
+        callFetchJobById(currentId).then((res) =>
+          setJobDetail(res?.data?.data ?? null)
+        );
       } else {
         setJobDetail(null);
       }
@@ -112,29 +103,25 @@ const ClientJobDetailPage = () => {
 
     prevListQueryKey.current = currentListQueryKey;
     prevId.current = currentId;
-  }, [searchParams, dispatch, location, navigate]);
+  }, [searchParams, dispatch, location, navigate, searchId, user]);
 
-  // >> BƯỚC 2: CẬP NHẬT HÀM CHUYỂN TRANG
   const handleOnchangePage = (page: number, pageSize: number) => {
     setSearchParams((prev) => {
       prev.set("page", page.toString());
       prev.set("size", pageSize.toString());
       return prev;
     });
-
-    // Thêm hành động cuộn trang
     if (jobListRef.current) {
-      const yOffset = -50; // Khoảng đệm 10px phía trên
+      const yOffset = -50;
       const elementPosition = jobListRef.current.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY + yOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     }
   };
 
+  // ===================================================================
+  // >>> SỬA LỖI TẠI ĐÂY: KHÔI PHỤC LẠI LOGIC CHO handleFilter <<<
+  // ===================================================================
   const handleFilter = async ({
     levels,
     salary,
@@ -145,23 +132,29 @@ const ClientJobDetailPage = () => {
     const currentFilter = searchParams.get("filter") || "";
     let newFilterParts: string[] = [];
 
-    const baseNamePart = currentFilter.match(/name~'[^']*'/);
+    const baseNamePart = currentFilter.match(/name\s*~\s*'[^']*'/);
     if (baseNamePart) {
       newFilterParts.push(baseNamePart[0]);
     }
-
-    const baseLocationPart = currentFilter.match(/location~'[^']*'/);
+    const baseLocationPart = currentFilter.match(/location\s*~\s*'[^']*'/);
     if (baseLocationPart) {
       newFilterParts.push(baseLocationPart[0]);
     }
 
-    if (salary.min) newFilterParts.push(`salary>=${salary.min}`);
-    if (salary.max) newFilterParts.push(`salary<=${salary.max}`);
+    // Thêm khoảng trắng cho nhất quán
+    if (salary.min) newFilterParts.push(`salary >= ${salary.min}`);
+    if (salary.max) newFilterParts.push(`salary <= ${salary.max}`);
+
     if (levels.length > 0) {
-      const levelConditions = levels.map((l) => `level='${l}'`).join(" or ");
-      newFilterParts.push(
-        levels.length > 1 ? `(${levelConditions})` : levelConditions
-      );
+      // Tạo chuỗi (level = 'A' or level = 'B')
+      const levelConditions = levels.map((l) => `level = '${l}'`).join(" or ");
+
+      // Nếu chỉ có 1 level thì không cần dấu ngoặc
+      if (levels.length === 1) {
+        newFilterParts.push(levelConditions);
+      } else {
+        newFilterParts.push(`(${levelConditions})`);
+      }
     }
 
     setSearchParams((prev) => {
@@ -175,11 +168,18 @@ const ClientJobDetailPage = () => {
     });
   };
 
+  const finalJobList = isAiSearch
+    ? (aiJobList || []).map((item) => ({ ...item.job, _score: item.score }))
+    : regularJobList || [];
+
+  const paginationTotal = () => {
+    // @ts-ignore
+    if (isAiSearch && meta.hasMore) return meta.total + meta.pageSize;
+    return meta.total;
+  };
+
   const shouldShowPagination =
-    !isLoadingList &&
-    jobList &&
-    jobList.length > 0 &&
-    meta.total > meta.pageSize;
+    !isLoadingList && finalJobList.length > 0 && meta.total > 0;
 
   return (
     <div className="container job-detail-page-container">
@@ -188,16 +188,16 @@ const ClientJobDetailPage = () => {
         onSearchTypeChange={setCurrentSearchType}
       />
 
+      {/* Điều kiện này đã được sửa lại cho đúng ở các bước trước */}
       {(currentSearchType === "job" || currentSearchType === "company") &&
         searchParams.has("filter") && <JobFilter onFilter={handleFilter} />}
 
-      {/* >> BƯỚC 3: GẮN REF VÀO ELEMENT MONG MUỐN */}
       <div className="row g-3" ref={jobListRef}>
         <div className="col-12 col-lg-4">
           <div className="left-panel-container">
             <div className="left-panel-body">
               <JobCard
-                jobs={jobList}
+                jobs={finalJobList}
                 isLoading={isLoadingList}
                 isListPage={true}
                 showButtonAllJob={true}
@@ -215,7 +215,7 @@ const ClientJobDetailPage = () => {
           <Pagination
             size="default"
             current={meta.page}
-            total={meta.total}
+            total={paginationTotal()}
             pageSize={meta.pageSize}
             onChange={handleOnchangePage}
             responsive
@@ -233,4 +233,4 @@ const ClientJobDetailPage = () => {
   );
 };
 
-export default ClientJobDetailPage;
+export default ClientJobPage;

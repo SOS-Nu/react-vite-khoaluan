@@ -40,6 +40,8 @@ const JobCard = (props: IProps) => {
   const [searchParams] = useSearchParams();
   const selectedJobId = searchParams.get("id");
 
+  const language = localStorage.getItem("language") || "vi";
+
   return (
     <div className="card-job-section">
       <div className="job-content">
@@ -282,10 +284,10 @@ const JobCard = (props: IProps) => {
                                   />
                                   {item.updatedAt
                                     ? dayjs(item.updatedAt)
-                                        .locale("en")
+                                        .locale(language)
                                         .fromNow()
                                     : dayjs(item.createdAt)
-                                        .locale("en")
+                                        .locale(language)
                                         .fromNow()}
                                 </p>
                               </div>

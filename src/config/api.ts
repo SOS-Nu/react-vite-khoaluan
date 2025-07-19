@@ -17,6 +17,8 @@ import {
   IOnlineResume,
   IWorkExperience,
   ICandidate,
+  IMeta,
+  IJobWithScore,
 } from "@/types/backend";
 import axios from "config/axios-customize";
 
@@ -335,6 +337,46 @@ export const callFindJobsByAI = (
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+};
+// API Bước 1: Khởi tạo tìm kiếm
+export const callInitiateSearchByAI = (
+  formData: FormData,
+  page: number,
+  size: number
+) => {
+  return axios<
+    IBackendRes<{
+      meta: IMeta;
+      jobs: IJobWithScore[]; // <<< SỬA LỖI: Đổi "result" thành "jobs"
+      searchId: string;
+    }>
+  >({
+    method: "post",
+    url: `/api/v1/gemini/initiate-search?page=${page}&size=${size}`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+// API Bước 2: Lấy các trang kết quả tiếp theo
+// Giả định rằng API này cũng trả về key "jobs" để nhất quán
+export const callGetAiSearchResults = (
+  searchId: string,
+  page: number,
+  size: number
+) => {
+  // Thay thế IModelPaginate bằng định nghĩa tường minh vì key là "jobs"
+  return axios<
+    IBackendRes<{
+      meta: IMeta;
+      jobs: IJobWithScore[]; // <<< SỬA LỖI: Đổi "result" thành "jobs"
+    }>
+  >({
+    method: "get",
+    url: `/api/v1/gemini/search-results?searchId=${searchId}&page=${page}&size=${size}`,
   });
 };
 
