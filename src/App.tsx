@@ -373,11 +373,13 @@ export default function App() {
     {
       path: "/admin",
       element: (
-        <AntdApp>
-          <LayoutApp>
-            <LayoutAdmin />{" "}
-          </LayoutApp>
-        </AntdApp>
+        <AppContextProvider>
+          <AntdApp>
+            <LayoutApp>
+              <LayoutAdmin />{" "}
+            </LayoutApp>
+          </AntdApp>
+        </AppContextProvider>
       ),
       errorElement: <NotFound />,
       children: [
