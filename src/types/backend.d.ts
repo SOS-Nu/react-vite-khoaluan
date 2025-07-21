@@ -331,3 +331,33 @@ interface LastMessage {
   senderId: number;
   timestamp: string; // Hoặc Date
 }
+
+//ai evualation
+// (Interfaces: IEvaluationResult, etc. không thay đổi)
+interface IImprovementSuggestion {
+  area: string;
+  suggestion: string;
+}
+
+interface IRoadmapStep {
+  step: number;
+  action: string;
+  reason: string;
+}
+
+interface ISuggestedJob {
+  jobTitle: string;
+  companyName: string;
+  matchReason: string;
+  jobId: number;
+}
+
+interface IEvaluationResult {
+  overallScore: number;
+  summary: string;
+  strengths: string[];
+  improvements: IImprovementSuggestion[];
+  estimatedSalaryRange: string;
+  suggestedRoadmap: IRoadmapStep[];
+  relevantJobs: ISuggestedJob[];
+}

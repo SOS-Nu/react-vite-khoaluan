@@ -16,7 +16,7 @@ import {
 } from "@ant-design/icons";
 import { useAppSelector } from "@/redux/hooks";
 import { callEvaluateCVWithAI, callFetchUserDetailById } from "@/config/api";
-import { IUser } from "@/types/backend";
+import { IEvaluationResult, IUser } from "@/types/backend";
 import {
   message,
   Tag,
@@ -30,40 +30,16 @@ import {
 } from "antd";
 import "./CVAIEvaluation.scss";
 import { useCurrentApp } from "@/components/context/app.context";
-
-// (Interfaces: IEvaluationResult, etc. remain the same)
-interface IImprovementSuggestion {
-  area: string;
-  suggestion: string;
-}
-
-interface IRoadmapStep {
-  step: number;
-  action: string;
-  reason: string;
-}
-
-interface ISuggestedJob {
-  jobTitle: string;
-  companyName: string;
-  matchReason: string;
-  jobId: number;
-}
-
-interface IEvaluationResult {
-  overallScore: number;
-  summary: string;
-  strengths: string[];
-  improvements: IImprovementSuggestion[];
-  estimatedSalaryRange: string;
-  suggestedRoadmap: IRoadmapStep[];
-  relevantJobs: ISuggestedJob[];
-}
+// THÊM MỚI: Import useNavigate để điều hướng
+import { useNavigate } from "react-router-dom";
 
 const CVAIEvaluationPage = () => {
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
   );
+
+  // THÊM MỚI: Khởi tạo hook navigate
+  const navigate = useNavigate();
 
   const user = useAppSelector((state) => state.account.user);
   const [evaluationType, setEvaluationType] = useState<"online" | "upload">(
@@ -81,31 +57,38 @@ const CVAIEvaluationPage = () => {
     fullUserData?.onlineResume && fullUserData.onlineResume.id;
 
   useEffect(() => {
-    const fetchUserDetail = async () => {
-      if (user?.id) {
-        setIsFetchingProfile(true);
-        try {
-          const res = await callFetchUserDetailById(user.id);
-          if (res && res.data) {
-            setFullUserData(res.data);
-            if (!res.data.onlineResume) {
-              setEvaluationType("upload");
+    // Chỉ fetch dữ liệu nếu đã đăng nhập
+    if (isAuthenticated) {
+      const fetchUserDetail = async () => {
+        if (user?.id) {
+          setIsFetchingProfile(true);
+          try {
+            const res = await callFetchUserDetailById(user.id);
+            if (res && res.data) {
+              setFullUserData(res.data);
+              if (!res.data.onlineResume) {
+                setEvaluationType("upload");
+              }
             }
+          } catch (e) {
+            message.error("Could not fetch your profile data.");
+          } finally {
+            setIsFetchingProfile(false);
           }
-        } catch (e) {
-          message.error("Could not fetch your profile data.");
-        } finally {
+        } else {
           setIsFetchingProfile(false);
+          setEvaluationType("upload");
         }
-      } else {
-        setIsFetchingProfile(false);
-        setEvaluationType("upload");
-      }
-    };
+      };
 
-    fetchUserDetail();
-  }, [user.id]);
+      fetchUserDetail();
+    } else {
+      // Nếu không đăng nhập, không cần fetch profile
+      setIsFetchingProfile(false);
+    }
+  }, [user.id, isAuthenticated]); // Thêm isAuthenticated vào dependency array
 
+  // ... (Các hàm handleFileChange, handleEvaluate, renderResults không thay đổi)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
@@ -151,7 +134,6 @@ const CVAIEvaluationPage = () => {
   const renderResults = () => {
     if (!result) return null;
 
-    // Logic này vẫn đúng, nhưng `currentTheme` giờ đã được lấy từ context
     const antdThemeAlgorithm =
       currentTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm;
 
@@ -168,60 +150,72 @@ const CVAIEvaluationPage = () => {
           },
         }}
       >
+               {" "}
         <Card className="result-card mt-5">
+                   {" "}
           <Card.Header as="h4">
-            <RobotOutlined /> AI Evaluation Result
+                        <RobotOutlined /> AI Evaluation Result          {" "}
           </Card.Header>
+                   {" "}
           <Card.Body>
+                       {" "}
             <Descriptions bordered column={1}>
+                           {" "}
               <Descriptions.Item label="Overall Score">
+                               {" "}
                 <Tag color={result.overallScore > 75 ? "green" : "orange"}>
-                  {result.overallScore} / 100
+                                    {result.overallScore} / 100              
+                   {" "}
                 </Tag>
+                             {" "}
               </Descriptions.Item>
+                           {" "}
               <Descriptions.Item label="Summary">
-                {result.summary}
+                                {result.summary}             {" "}
               </Descriptions.Item>
+                         {" "}
               <Descriptions.Item label="Estimated Salary">
-                {result.estimatedSalaryRange}
+                            {result.estimatedSalaryRange}           {" "}
               </Descriptions.Item>
+                         {" "}
             </Descriptions>
-
-            <Divider>Strengths</Divider>
+                        <Divider>Strengths</Divider>           {" "}
             <List
               bordered
               dataSource={result.strengths}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
-
-            <Divider>Areas for Improvement</Divider>
+                        <Divider>Areas for Improvement</Divider>           {" "}
             <List
               bordered
               dataSource={result.improvements}
               renderItem={(item) => (
                 <List.Item>
-                  <strong>{item.area}:</strong> {item.suggestion}
+                                    <strong>{item.area}:</strong>{" "}
+                  {item.suggestion}               {" "}
                 </List.Item>
               )}
             />
-
-            <Divider>Suggested Improvement Roadmap</Divider>
+                        <Divider>Suggested Improvement Roadmap</Divider>       
+               {" "}
             <List
               bordered
               dataSource={result.suggestedRoadmap}
               renderItem={(item) => (
                 <List.Item>
+                             {" "}
                   <Typography.Text>
+                               {" "}
                     <strong>
                       Step {item.step}: {item.action}
                     </strong>{" "}
-                    - {item.reason}
+                    - {item.reason}           {" "}
                   </Typography.Text>
+                             {" "}
                 </List.Item>
               )}
             />
-
-            <Divider>Relevant Jobs For You</Divider>
+                        <Divider>Relevant Jobs For You</Divider>           {" "}
             <List
               bordered
               dataSource={result.relevantJobs}
@@ -237,23 +231,53 @@ const CVAIEvaluationPage = () => {
                     </a>,
                   ]}
                 >
+                           {" "}
                   <List.Item.Meta
                     title={`${item.jobTitle} at ${item.companyName}`}
                     description={item.matchReason}
                   />
+                         {" "}
                 </List.Item>
               )}
             />
+               {" "}
           </Card.Body>
+             {" "}
         </Card>
+         {" "}
       </ConfigProvider>
     );
   };
+
+  // THÊM MỚI: Kiểm tra trạng thái đăng nhập
+  if (!isAuthenticated) {
+    return (
+      <Container className="my-5" style={{ minHeight: "60vh" }}>
+        <Row className="justify-content-center align-items-center h-100">
+          <Col md={8}>
+            <Alert variant="danger" className="text-center p-4">
+              <Alert.Heading>
+                <RobotOutlined style={{ marginRight: "8px" }} />
+                Yêu Cầu Đăng Nhập
+              </Alert.Heading>
+              <p className="mb-3">
+                Vui lòng đăng nhập để sử dụng tính năng Phân tích CV bằng AI.
+              </p>
+              <Button onClick={() => navigate("/login")} variant="primary">
+                Đi đến trang Đăng nhập
+              </Button>
+            </Alert>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
 
   if (isFetchingProfile) {
     return <Spin spinning={true} fullscreen tip="Loading your profile..." />;
   }
 
+  // RETURN GỐC: Chỉ hiển thị khi đã đăng nhập
   return (
     <Container className="cv-evaluation-container my-5">
       <Row className="justify-content-center">

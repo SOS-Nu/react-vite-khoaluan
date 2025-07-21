@@ -31,6 +31,9 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
   const navigate = useNavigate();
   const [hrCompany, setHrCompany] = useState<hrCompany | null>(null);
 
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
   useEffect(() => {
     const fetchCompanyDetail = async () => {
       setIsLoading(true);
@@ -91,17 +94,35 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                 </div>
               )}
             </div>
-            <Button
-              onClick={() => {
-                navigate("/chat/detail", {
-                  state: { receiver: hrCompany ?? {} },
-                });
-              }}
-              color="light"
-              className="mt-4"
-            >
-              nhan tin
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={() => {
+                  navigate("/chat/detail", {
+                    state: { receiver: hrCompany ?? {} },
+                  });
+                }}
+                color="light"
+                className="mt-4"
+              >
+                nhắn tin
+              </Button>
+            ) : (
+              <>
+                {" "}
+                <Button
+                  onClick={() => {
+                    navigate("/chat/detail", {
+                      state: { receiver: hrCompany ?? {} },
+                    });
+                  }}
+                  color="light"
+                  className="mt-4"
+                  disabled={true}
+                >
+                  vui lòng đăng nhập để nhắn tin
+                </Button>
+              </>
+            )}
           </div>
 
           {/* PHẦN NỘI DUNG CUỘN */}
