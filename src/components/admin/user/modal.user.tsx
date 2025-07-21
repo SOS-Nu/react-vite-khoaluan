@@ -65,12 +65,24 @@ const ModalUser = (props: IProps) => {
     const { name, email, password, address, age, gender, role, company, vip } =
       valuesForm;
 
+    // Logic xử lý company (giữ nguyên)
     const companyPayload = company
       ? {
           id: company.value ?? company.id,
           name: company.label ?? company.name,
         }
       : null;
+
+    // === START: ÁP DỤNG LOGIC TƯƠNG TỰ CHO ROLE ===
+    const rolePayload = role
+      ? {
+          id: role.value ?? role.id,
+          // Giả sử backend cũng cần 'name' cho role, giống như company
+          // Nếu không cần, bạn có thể xóa dòng name này.
+          name: role.label ?? role.name,
+        }
+      : null;
+    // === END ===
 
     if (dataInit?.id) {
       // UPDATE LOGIC
@@ -83,10 +95,8 @@ const ModalUser = (props: IProps) => {
         gender,
         address,
         vip,
-        // FIX: Sử dụng toán tử '??' để lấy 'id' từ 'role.value' (khi người dùng chọn mới)
-        // hoặc từ 'role.id' (khi giữ nguyên giá trị ban đầu).
-        role: { id: role.value ?? role.id },
-        company: companyPayload, // 2. Sử dụng payload đã chuẩn bị
+        role: rolePayload, // Sử dụng payload đã chuẩn bị
+        company: companyPayload,
       };
 
       const res = await callUpdateUser(user);
@@ -101,7 +111,7 @@ const ModalUser = (props: IProps) => {
         });
       }
     } else {
-      // CREATE LOGIC (giữ nguyên)
+      // CREATE LOGIC
       const user = {
         name,
         email,
@@ -110,9 +120,8 @@ const ModalUser = (props: IProps) => {
         gender,
         address,
         vip,
-        role: { id: role.value, name: "" }, // Khi tạo mới, luôn có role.value
-
-        company: companyPayload, // 2. Sử dụng payload đã chuẩn bị
+        role: rolePayload, // Sử dụng payload đã chuẩn bị
+        company: companyPayload,
       };
       const res = await callCreateUser(user);
       if (res.data) {
@@ -259,7 +268,7 @@ const ModalUser = (props: IProps) => {
             <ProForm.Item
               name="role"
               label="Vai trò"
-              rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
+              // rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
             >
               <DebounceSelect
                 allowClear

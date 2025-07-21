@@ -115,28 +115,28 @@ const JobDetailPanel = () => {
                 ) : (
                   <div className="company-name">Tên công ty</div>
                 )}
+                {jobDetail.company && (
+                  <div className="company-details-bottom">
+                    <div className="company-scale">
+                      <TeamOutlined />
+                      {/* &nbsp; đã được xóa */}
+                      <span>
+                        {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
+                      </span>
+                    </div>
+                    <div className="company-founding-year">
+                      <CalendarOutlined />
+                      {/* &nbsp; đã được xóa */}
+                      <span>
+                        {jobDetail.company.foundingYear
+                          ? `Thành lập năm ${jobDetail.company.foundingYear}`
+                          : "Chưa cập nhật năm thành lập"}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-            {jobDetail.company && (
-              <div className="company-details-bottom">
-                <div className="company-scale">
-                  <TeamOutlined />
-                  {/* &nbsp; đã được xóa */}
-                  <span>
-                    {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
-                  </span>
-                </div>
-                <div className="company-founding-year">
-                  <CalendarOutlined />
-                  {/* &nbsp; đã được xóa */}
-                  <span>
-                    {jobDetail.company.foundingYear
-                      ? `Thành lập năm ${jobDetail.company.foundingYear}`
-                      : "Chưa cập nhật năm thành lập"}
-                  </span>
-                </div>
-              </div>
-            )}
 
             <button onClick={() => setIsModalOpen(true)} className="btn-apply">
               Apply Now
