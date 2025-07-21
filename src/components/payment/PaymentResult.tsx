@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Spinner, Alert, Button, Card, Stack } from "react-bootstrap";
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import axios from "@/config/axios-customize"; // Dùng axios đã cấu hình của bạn
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 
 const PaymentResult = () => {
@@ -16,6 +16,7 @@ const PaymentResult = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const user = useAppSelector((state) => state.account.user);
 
   useEffect(() => {
     // Lấy tất cả các query params từ URL mà VNPay trả về
@@ -93,7 +94,7 @@ const PaymentResult = () => {
                 gap={2}
                 className="justify-content-center"
               >
-                {redirectPath && (
+                {redirectPath && !user.company && (
                   <Button
                     variant="success"
                     onClick={() => navigate(redirectPath)}

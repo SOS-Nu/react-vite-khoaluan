@@ -25,12 +25,12 @@ const RecruiterPage = () => {
     }
 
     // Sửa đổi ở đây: Nếu đã có công ty, hiển thị Dashboard
-    if (user.company) {
+    if (user.company && user.vip) {
       return <RecruiterDashboard />;
     }
 
     // Trường hợp 2: User đã có công ty -> Hiển thị form quản lý/cập nhật
-    if (user.company) {
+    if (user.company && user.vip) {
       return <CompanyForm initialData={user.company} />;
     }
 

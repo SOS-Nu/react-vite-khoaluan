@@ -50,12 +50,14 @@ interface IState {
     id: number | string;
     email: string;
     name: string;
-    age: number;
-    gender: string;
-    address: string | null;
+    age: number | undefined;
+    gender: string | undefined;
+    address: string | null | undefined;
     avatar?: string | null;
-    public: boolean;
-    vip?: boolean;
+    public: boolean | undefined;
+    vip?: boolean | null;
+    vipExpiryDate: string | null;
+
     company?: ICompany | null;
     role?: {
       id?: string | number;
@@ -99,6 +101,8 @@ const initialState: IState = {
     avatar: null,
     public: false,
     vip: false,
+    vipExpiryDate: null,
+
     company: null,
     role: {
       id: "",
@@ -151,6 +155,8 @@ export const accountSlide = createSlice({
         avatar: null,
         public: false,
         vip: false,
+        vipExpiryDate: null,
+
         company: null,
         role: {
           id: "",
@@ -186,6 +192,7 @@ export const accountSlide = createSlice({
         state.user.avatar = action.payload.user?.avatar;
         state.user.public = action.payload.user?.public;
         state.user.vip = action.payload.user?.vip;
+        state.user.vipExpiryDate = action.payload.user?.vipExpiryDate;
         state.user.company = action.payload.user?.company;
         state.user.role = action?.payload?.user?.role;
         if (!action?.payload?.user?.role) state.user.role = { permissions: [] };

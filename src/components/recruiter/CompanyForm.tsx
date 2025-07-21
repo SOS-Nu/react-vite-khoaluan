@@ -186,7 +186,6 @@ const CompanyForm = ({ initialData }: IProps) => {
               <Form.Group className="mb-3">
                 <Form.Label>Website</Form.Label>
                 <Form.Control
-                  type="url"
                   name="website"
                   value={formData.website || ""}
                   onChange={handleChange}

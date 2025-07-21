@@ -29,6 +29,8 @@ export interface IAccount {
     onlineResume?: IOnlineResume | null;
     workExperiences?: IWorkExperience[];
     public?: boolean;
+    vipExpiryDate: string | null;
+
     role: {
       id: string | number;
       name: string;
@@ -116,6 +118,7 @@ export interface IUser {
   onlineResume?: IOnlineResume | null;
   workExperiences?: IWorkExperience[];
   public?: boolean;
+  vipExpiryDate: string | null;
   vip?: boolean;
   role?: {
     id: string;

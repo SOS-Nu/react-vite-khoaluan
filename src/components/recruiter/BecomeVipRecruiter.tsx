@@ -4,9 +4,11 @@ import { Button, Card, Spinner } from "react-bootstrap";
 import { Gem } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
 import { callCreateVipPaymentUrl } from "@/config/api";
+import { useAppSelector } from "@/redux/hooks";
 
 const BecomeVipRecruiter = () => {
   const [isCreatingUrl, setIsCreatingUrl] = useState(false);
+  const user = useAppSelector((state) => state.account.user);
 
   const handleRegisterVip = async () => {
     setIsCreatingUrl(true);
@@ -35,12 +37,21 @@ const BecomeVipRecruiter = () => {
       <Card.Body>
         <Gem size={50} className="text-warning mb-3" />
         <Card.Title>Trở thành Nhà tuyển dụng VIP</Card.Title>
-        <Card.Text>
-          Để đăng tin tuyển dụng và quản lý công ty, bạn cần nâng cấp tài khoản
-          của mình thành tài khoản VIP.
-        </Card.Text>
+        {!user.vip && !user.company && (
+          <Card.Text>
+            Để đăng tin tuyển dụng và quản lý công ty, bạn cần nâng cấp tài
+            khoản của mình thành tài khoản VIP.
+          </Card.Text>
+        )}
+        {!user.vip && user.company && (
+          <Card.Text>
+            Tài khoản Vip của bạn đã hết hạn! Vui lòng đăng ký tài khoản Vip để
+            tiếp tục sử dụng chức năng của Nhà Tuyển dụng
+          </Card.Text>
+        )}
+
         <Button
-          variant="warning"
+          variant="success"
           size="lg"
           onClick={handleRegisterVip}
           disabled={isCreatingUrl}
