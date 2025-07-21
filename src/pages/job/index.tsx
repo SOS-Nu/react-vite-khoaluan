@@ -61,7 +61,10 @@ const ClientJobPage = () => {
       }
     }
 
-    if (currentListQueryKey !== prevListQueryKey.current) {
+    if (
+      currentListQueryKey !== prevListQueryKey.current ||
+      location.state?.file
+    ) {
       const page = parseInt(searchParams.get("page") || "1", 10);
       const size = parseInt(searchParams.get("size") || "10", 10);
 
@@ -74,10 +77,10 @@ const ClientJobPage = () => {
           formData.append("skillsDescription", prompt || "Phù hợp với CV");
           if (location.state?.file) {
             formData.append("file", location.state.file);
-            navigate(location.pathname + location.search, {
-              replace: true,
-              state: {},
-            });
+            // navigate(location.pathname + location.search, {
+            //   replace: true,
+            //   state: {},
+            // });
           }
           dispatch(initiateAiSearch({ formData, page, size }));
         } else if (searchId) {

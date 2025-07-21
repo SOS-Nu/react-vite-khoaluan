@@ -6,10 +6,10 @@ import {
   UploadOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { LOCATION_LIST } from "@/config/utils";
+import { getLocationName, LOCATION_LIST } from "@/config/utils";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearJobs } from "@/redux/slice/jobSlide";
 import Typewriter from "typewriter-effect";
 import "@/styles/stylespotfolio/search.client.scss";
@@ -28,11 +28,11 @@ const SearchClient = (props: IProps) => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { theme } = useCurrentApp();
+  const { isFetching } = useAppSelector((state) => state.job);
 
   useEffect(() => {
     const searchTypeParam = searchParams.get("search_type");
@@ -64,13 +64,19 @@ const SearchClient = (props: IProps) => {
   }, [searchParams, form, location.pathname, onSearchTypeChange]);
 
   const onFinish = async (values: any) => {
-    setIsLoading(true);
     try {
       const { searchQuery, location: locationValue } = values;
 
       if (searchType === "ai") {
         dispatch(clearJobs());
         let promptText = searchQuery || "Tìm việc phù hợp dựa trên CV của tôi";
+        if (locationValue && locationValue !== "tatca") {
+          const locationName = getLocationName(locationValue); // Chuyển 'hcm' thành 'Hồ Chí Minh'
+          if (locationName) {
+            // Nối chuỗi địa điểm vào cuối prompt
+            promptText = `${promptText.trim()} ở ${locationName}`;
+          }
+        }
         const params = new URLSearchParams();
         params.set("search_type", "ai");
         params.set("prompt", promptText);
@@ -107,7 +113,7 @@ const SearchClient = (props: IProps) => {
     } catch (error) {
       console.error("Lỗi khi thực hiện tìm kiếm:", error);
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
@@ -284,7 +290,7 @@ const SearchClient = (props: IProps) => {
               <Button
                 type="primary"
                 className="search-action-button"
-                loading={isLoading}
+                loading={isFetching}
                 htmlType="submit"
               >
                 Tìm kiếm
