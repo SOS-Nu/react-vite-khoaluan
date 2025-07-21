@@ -63,9 +63,14 @@ $light-theme: (
     "linear-gradient(to right, transparent, #fff, #fff, transparent)",
   linear-gradient-blue-purple-company: black,
   selected-job-card: "rgba(255, 0, 0, 0.6)",
+  form-check-label: "#cacad6",
+  form-check-control: "#212130",
 );
 
 $dark-theme: (
+  form-check-label: "#404058",
+  form-check-control: "#212130",
+
   selected-job-card: "rgb(255, 0, 0)",
   linear-gradient-failure: linear-gradient(to right, #b3535d, #fd0000),
   brand-social-blue: rgb(27, 116, 255),

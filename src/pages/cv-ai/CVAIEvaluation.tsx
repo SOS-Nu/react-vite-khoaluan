@@ -61,6 +61,10 @@ interface IEvaluationResult {
 }
 
 const CVAIEvaluationPage = () => {
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
+
   const user = useAppSelector((state) => state.account.user);
   const [evaluationType, setEvaluationType] = useState<"online" | "upload">(
     "online"

@@ -18,8 +18,10 @@ interface IState {
     // Thêm các trường từ backend nếu có, ví dụ:
     hasMore?: boolean;
   };
-  result: IJob[];
-  isAiSearch: boolean;
+  result?: IJob[];
+  isAiSearch?: boolean;
+  aiResult?: IJobWithScore[]; // <<< THÊM STATE MỚI
+
   searchId: string | null; // << THÊM STATE MỚI CHO AI SEARCH
 }
 
@@ -83,6 +85,7 @@ const initialState: IState = {
   result: [],
   isAiSearch: false,
   searchId: null, // << GIÁ TRỊ BAN ĐẦU
+  aiResult: [], // <<< KHỞI TẠO GIÁ TRỊ BAN ĐẦU
 };
 
 export const jobSlide = createSlice({
@@ -135,11 +138,9 @@ export const jobSlide = createSlice({
         if (action.payload) {
           state.meta = action.payload.meta;
           state.searchId = action.payload.searchId;
-          // Tuân thủ logic gốc: chỉ lưu IJob vào state.result
-          const aiJobs = action.payload.jobs || [];
-          state.result = aiJobs.map(
-            (item: { score: number; job: IJob }) => item.job
-          );
+          // <<< SỬA LOGIC TẠI ĐÂY >>>
+          state.aiResult = action.payload.jobs || []; // Lưu toàn bộ {score, job}
+          state.result = []; // Xóa kết quả thường cũ
         }
       });
 
@@ -155,11 +156,9 @@ export const jobSlide = createSlice({
         state.isFetching = false;
         if (action.payload) {
           state.meta = action.payload.meta;
-          // Tương tự, chỉ lưu IJob vào state.result
-          const aiJobs = action.payload.jobs || [];
-          state.result = aiJobs.map(
-            (item: { score: number; job: IJob }) => item.job
-          );
+          // <<< SỬA LOGIC TẠI ĐÂY >>>
+          state.aiResult = action.payload.jobs || []; // Lưu toàn bộ {score, job}
+          state.result = []; // Xóa kết quả thường cũ
         }
       });
   },

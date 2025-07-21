@@ -199,7 +199,9 @@
   // background-color: #2a2a3e;
 
   .form-check-input {
-    background-color: #404058;
+    // background-color: #cacad6;
+    // background-color: var(--form-check-label);
+
     border-color: #5a5a78;
 
     &:checked {
@@ -213,19 +215,19 @@
   }
 
   .form-control {
-    background-color: #212130;
-    color: white;
+    // background-color: #212130;
+    color: var(--text-white);
     border: 1px solid #444;
-    &:focus {
-      background-color: #212130;
-      color: white;
-      border-color: #a97af5;
-      box-shadow: none;
-    }
+    // &:focus {
+    //   background-color: #212130;
+    //   color: white;
+    //   border-color: #a97af5;
+    //   box-shadow: none;
+    // }
   }
 
   .input-group-text {
-    background-color: #212130;
+    // background-color: #212130;
     border: 1px solid #444;
     color: #a97af5;
     font-weight: bold;
