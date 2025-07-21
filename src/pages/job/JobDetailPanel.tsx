@@ -121,14 +121,14 @@ const JobDetailPanel = () => {
               <div className="company-details-bottom">
                 <div className="company-scale">
                   <TeamOutlined />
-                  &nbsp;
+                  {/* &nbsp; đã được xóa */}
                   <span>
                     {jobDetail.company.scale ?? "Chưa cập nhật quy mô"}
                   </span>
                 </div>
                 <div className="company-founding-year">
                   <CalendarOutlined />
-                  &nbsp;
+                  {/* &nbsp; đã được xóa */}
                   <span>
                     {jobDetail.company.foundingYear
                       ? `Thành lập năm ${jobDetail.company.foundingYear}`

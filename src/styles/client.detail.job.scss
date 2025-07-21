@@ -50,6 +50,15 @@
 .job-detail-header {
   // Là một flex item, không co lại
   flex-shrink: 0;
+
+  .company-details-bottom {
+    display: flex;
+    flex-direction: row; /* Quan trọng nhất */
+    align-items: center; /* Căn giữa cho đẹp */
+    gap: 1.5rem; /* Khoảng cách giữa 2 mục */
+    margin-top: 8px; /* Thêm khoảng cách với các mục ở trên */
+    margin-bottom: 8px;
+  }
 }
 
 /* Content bên trong panel phải */
@@ -115,13 +124,6 @@
     color: var(--text-white);
   }
 
-  .company-details-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-  }
-
   .job-description {
     p,
     li,
@@ -162,6 +164,7 @@
   border-bottom: 1px solid var(--border-hero-right);
   .company-info {
     display: flex;
+
     align-items: center;
     gap: 1rem;
 
