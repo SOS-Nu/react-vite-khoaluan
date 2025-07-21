@@ -78,6 +78,8 @@ const CompanyCard = (props: IProps) => {
                   <Link
                     to={`/company/${convertSlug(item.name ?? "")}?id=${item.id}`}
                     style={{ textDecoration: "none" }}
+                    target="_blank" // Thêm dòng này
+                    rel="noopener noreferrer" // Và thêm dòng này để bảo mật
                   >
                     <SimpleGlowCard identifier={`company-${item.id}`}>
                       <div className="p-0 pt-2 p-md-2 pb-2 position-relative">

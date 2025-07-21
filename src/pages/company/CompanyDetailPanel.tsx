@@ -1,5 +1,3 @@
-// src/components/company/CompanyDetailPanel.tsx
-
 import { useEffect, useState } from "react";
 import { hrCompany, ICompany } from "@/types/backend";
 import { Skeleton, Divider, Tag, Empty } from "antd";
@@ -55,14 +53,19 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
         </div>
       ) : companyDetail ? (
         <>
-          {/* PHẦN HEADER CỐ ĐỊNH */}
+          {/* PHẦN HEADER CỐ ĐỊNH - ĐÃ CẬP NHẬT */}
           <div className="panel-header">
-            <div className="company-info-header">
-              <img
-                src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${companyDetail.logo}`}
-                alt={`${companyDetail.name} logo`}
-                className="company-logo"
-              />
+            {/* Cột Trái: Logo */}
+            <img
+              src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${
+                companyDetail.logo
+              }`}
+              alt={`${companyDetail.name} logo`}
+              className="company-logo"
+            />
+
+            {/* Cột Phải: Toàn bộ thông tin */}
+            <div className="company-details-wrapper">
               <div className="company-title">
                 <h1 className="name">{companyDetail.name}</h1>
                 <div className="location">
@@ -70,59 +73,53 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                   &nbsp; {companyDetail.address}
                 </div>
               </div>
-            </div>
-            <div className="company-stats">
-              <div className="stat-item">
-                <TeamOutlined />
-                &nbsp; Quy mô: {companyDetail.scale ?? "N/A"}
-              </div>
-              <div className="stat-item">
-                <CalendarOutlined />
-                &nbsp; Thành lập: {companyDetail.foundingYear ?? "N/A"}
-              </div>
-              {companyDetail.website && (
+
+              <div className="company-stats">
                 <div className="stat-item">
-                  <GlobalOutlined />
-                  &nbsp;{" "}
-                  <a
-                    href={companyDetail.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {companyDetail.website}
-                  </a>
+                  <TeamOutlined />
+                  &nbsp; Quy mô: {companyDetail.scale ?? "N/A"}
                 </div>
-              )}
-            </div>
-            {isAuthenticated ? (
-              <Button
-                onClick={() => {
-                  navigate("/chat/detail", {
-                    state: { receiver: hrCompany ?? {} },
-                  });
-                }}
-                color="light"
-                className="mt-4"
-              >
-                nhắn tin
-              </Button>
-            ) : (
-              <>
-                {" "}
+                <div className="stat-item">
+                  <CalendarOutlined />
+                  &nbsp; Thành lập: {companyDetail.foundingYear ?? "N/A"}
+                </div>
+                {companyDetail.website && (
+                  <div className="stat-item">
+                    <GlobalOutlined />
+                    &nbsp;{" "}
+                    <a
+                      href={companyDetail.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Website
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {isAuthenticated ? (
                 <Button
                   onClick={() => {
                     navigate("/chat/detail", {
                       state: { receiver: hrCompany ?? {} },
                     });
                   }}
-                  color="light"
-                  className="mt-4"
+                  variant="primary" // Sử dụng variant thay cho color
+                  className="mt-2" // Giảm margin top
+                >
+                  Nhắn tin
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary" // Sử dụng variant khác cho trạng thái disabled
+                  className="mt-2"
                   disabled={true}
                 >
-                  vui lòng đăng nhập để nhắn tin
+                  Vui lòng đăng nhập để nhắn tin
                 </Button>
-              </>
-            )}
+              )}
+            </div>
           </div>
 
           {/* PHẦN NỘI DUNG CUỘN */}
