@@ -8,6 +8,8 @@ const LEVELS = ["INTERN", "FRESHER", "JUNIOR", "MIDDLE", "SENIOR"];
 interface IFilterData {
   levels: string[];
   salary: { min: string; max: string };
+  sortSalary: string;
+  sortTime: string; // Thêm trường sắp xếp thời gian
 }
 
 interface IProps {
@@ -18,41 +20,46 @@ const JobFilter = (props: IProps) => {
   const { onFilter } = props;
   const [searchParams] = useSearchParams();
 
+  // Thêm state cho cả hai loại sắp xếp
+  const [sortSalary, setSortSalary] = useState<string>("");
+  const [sortTime, setSortTime] = useState<string>("newest"); // Mặc định là mới nhất
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
 
-  // ===================================================================
-  // >>> THAY THẾ TOÀN BỘ useEffect BẰNG KHỐI CODE NÀY <<<
-  // Logic parser mới, "thông minh" hơn
-  // ===================================================================
   useEffect(() => {
     const filterParam = searchParams.get("filter") || "";
+    const sortParam = searchParams.get("sort") || "updatedAt,desc"; // Mặc định sort mới nhất
 
-    // 1. Logic đọc Level
-    const levelGroupMatch = filterParam.match(/\(([^)]+)\)/); // Tìm chuỗi trong cặp dấu ngoặc (...)
+    // Logic đọc filter (level, salary) không đổi
+    // ... (phần code này được giữ nguyên)
+    const levelGroupMatch = filterParam.match(/\(([^)]+)\)/);
     let currentLevels: string[] = [];
     if (levelGroupMatch && levelGroupMatch[1]) {
-      // Nếu có nhóm (a or b), tìm tất cả các giá trị level bên trong nhóm đó
       const levelMatches = levelGroupMatch[1].matchAll(
         /level\s*=\s*'([^']+)'/g
       );
       currentLevels = Array.from(levelMatches, (match) => match[1]);
     } else {
-      // Nếu không có nhóm, tìm một giá trị level đơn lẻ
       const singleLevelMatch = filterParam.match(/level\s*=\s*'([^']+)'/);
       if (singleLevelMatch) {
         currentLevels = [singleLevelMatch[1]];
       }
     }
     setSelectedLevels(currentLevels);
-
-    // 2. Logic đọc Salary (giữ nguyên)
     const minSalaryMatch = filterParam.match(/salary\s*>=\s*(\d+)/);
     setMinSalary(minSalaryMatch ? minSalaryMatch[1] : "");
-
     const maxSalaryMatch = filterParam.match(/salary\s*<=\s*(\d+)/);
     setMaxSalary(maxSalaryMatch ? maxSalaryMatch[1] : "");
+
+    // LOGIC MỚI: Đọc và phân loại tham số sort từ URL
+    if (sortParam.startsWith("salary")) {
+      setSortSalary(sortParam.includes("desc") ? "desc" : "asc");
+      setSortTime(""); // Nếu sort theo lương, bỏ chọn sort thời gian
+    } else {
+      setSortTime(sortParam.includes("asc") ? "oldest" : "newest");
+      setSortSalary(""); // Nếu sort theo thời gian, bỏ chọn sort lương
+    }
   }, [searchParams]);
 
   const handleLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,23 +69,34 @@ const JobFilter = (props: IProps) => {
     );
   };
 
+  // LOGIC MỚI: Khi chọn sort lương, reset sort thời gian
+  const handleSalarySortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSortSalary(e.target.value);
+    setSortTime(""); // Reset
+  };
+
+  // LOGIC MỚI: Khi chọn sort thời gian, reset sort lương
+  const handleTimeSortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSortTime(e.target.value);
+    setSortSalary(""); // Reset
+  };
+
   const handleApplyFilter = () => {
     onFilter({
       levels: selectedLevels,
-      salary: {
-        min: minSalary,
-        max: maxSalary,
-      },
+      salary: { min: minSalary, max: maxSalary },
+      sortSalary: sortSalary,
+      sortTime: sortTime, // Gửi cả hai state lên component cha
     });
   };
 
   return (
-    // ... JSX return không đổi ...
-    <div className="job-filter-container bg-dark p-3 rounded mb-4 border border-secondary">
-      <div className="row g-3 align-items-end">
+    <div className="job-filter-container bg-body-tertiary p-3 rounded mb-4 border">
+      {/* CẬP NHẬT LAYOUT: Điều chỉnh lại các cột */}
+      <div className="row g-3 align-items-start">
         {/* Level Filter */}
-        <div className="col-12 col-md-6">
-          <label className="form-label text-white-50">Trình độ (Level)</label>
+        <div className="col-12 col-md-3">
+          <label className="form-label text-body-secondary">Trình độ</label>
           <div className="d-flex flex-wrap gap-3">
             {LEVELS.map((level) => (
               <div className="form-check" key={level}>
@@ -91,7 +109,7 @@ const JobFilter = (props: IProps) => {
                   onChange={handleLevelChange}
                 />
                 <label
-                  className="form-check-label text-white"
+                  className="form-check-label text-body"
                   htmlFor={`level-${level}`}
                 >
                   {level}
@@ -102,8 +120,10 @@ const JobFilter = (props: IProps) => {
         </div>
 
         {/* Salary Filter */}
-        <div className="col-12 col-md-4">
-          <label className="form-label text-white-50">Mức lương (VND)</label>
+        <div className="col-12 col-md-3">
+          <label className="form-label text-body-secondary">
+            Mức lương (VND)
+          </label>
           <div className="input-group">
             <input
               type="number"
@@ -123,8 +143,88 @@ const JobFilter = (props: IProps) => {
           </div>
         </div>
 
-        {/* Apply Button */}
+        {/* Salary Sort */}
         <div className="col-12 col-md-2">
+          <label className="form-label text-body-secondary">
+            Sắp xếp lương
+          </label>
+          <div className="d-flex flex-column">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="salarySort"
+                id="sortAsc"
+                value="asc"
+                checked={sortSalary === "asc"}
+                onChange={handleSalarySortChange}
+              />
+              <label className="form-check-label text-body" htmlFor="sortAsc">
+                Tăng dần
+              </label>
+            </div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="salarySort"
+                id="sortDesc"
+                value="desc"
+                checked={sortSalary === "desc"}
+                onChange={handleSalarySortChange}
+              />
+              <label className="form-check-label text-body" htmlFor="sortDesc">
+                Giảm dần
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* >>> CỘT MỚI: Sắp xếp thời gian <<< */}
+        <div className="col-12 col-md-2">
+          <label className="form-label text-body-secondary">
+            Sắp xếp thời gian
+          </label>
+          <div className="d-flex flex-column">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="timeSort"
+                id="sortNewest"
+                value="newest"
+                checked={sortTime === "newest"}
+                onChange={handleTimeSortChange}
+              />
+              <label
+                className="form-check-label text-body"
+                htmlFor="sortNewest"
+              >
+                Mới nhất
+              </label>
+            </div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="timeSort"
+                id="sortOldest"
+                value="oldest"
+                checked={sortTime === "oldest"}
+                onChange={handleTimeSortChange}
+              />
+              <label
+                className="form-check-label text-body"
+                htmlFor="sortOldest"
+              >
+                Cũ nhất
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Apply Button */}
+        <div className="col-12 col-md-2 align-self-end">
           <button className="btn btn-primary w-100" onClick={handleApplyFilter}>
             Áp dụng
           </button>

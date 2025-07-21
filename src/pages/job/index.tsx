@@ -125,13 +125,18 @@ const ClientJobPage = () => {
   const handleFilter = async ({
     levels,
     salary,
+    sortSalary,
+    sortTime, // Thêm tham số sortTime
   }: {
     levels: string[];
     salary: { min: string; max: string };
+    sortSalary: string;
+    sortTime: string;
   }) => {
     const currentFilter = searchParams.get("filter") || "";
     let newFilterParts: string[] = [];
 
+    // Giữ lại các filter cơ bản (name, location) không đổi
     const baseNamePart = currentFilter.match(/name\s*~\s*'[^']*'/);
     if (baseNamePart) {
       newFilterParts.push(baseNamePart[0]);
@@ -141,20 +146,15 @@ const ClientJobPage = () => {
       newFilterParts.push(baseLocationPart[0]);
     }
 
-    // Thêm khoảng trắng cho nhất quán
+    // Thêm filter lương và level không đổi
     if (salary.min) newFilterParts.push(`salary >= ${salary.min}`);
     if (salary.max) newFilterParts.push(`salary <= ${salary.max}`);
 
     if (levels.length > 0) {
-      // Tạo chuỗi (level = 'A' or level = 'B')
       const levelConditions = levels.map((l) => `level = '${l}'`).join(" or ");
-
-      // Nếu chỉ có 1 level thì không cần dấu ngoặc
-      if (levels.length === 1) {
-        newFilterParts.push(levelConditions);
-      } else {
-        newFilterParts.push(`(${levelConditions})`);
-      }
+      newFilterParts.push(
+        levels.length === 1 ? levelConditions : `(${levelConditions})`
+      );
     }
 
     setSearchParams((prev) => {
@@ -163,7 +163,20 @@ const ClientJobPage = () => {
       } else {
         prev.delete("filter");
       }
-      prev.set("page", "1");
+
+      // >>> LOGIC MỚI: Ưu tiên sort lương, nếu không thì dùng sort thời gian <<<
+      if (sortSalary) {
+        // Nếu có chọn sắp xếp lương
+        prev.set("sort", sortSalary === "asc" ? "salary" : "salary,desc");
+      } else {
+        // Nếu không, dùng sắp xếp thời gian (mặc định là mới nhất)
+        prev.set(
+          "sort",
+          sortTime === "oldest" ? "updatedAt,asc" : "updatedAt,desc"
+        );
+      }
+
+      prev.set("page", "1"); // Reset về trang 1
       return prev;
     });
   };
