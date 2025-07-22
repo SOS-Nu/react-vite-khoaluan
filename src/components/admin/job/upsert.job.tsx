@@ -41,6 +41,9 @@ import dayjs from "dayjs";
 import { IJob, ISkill, IUser } from "@/types/backend";
 import { useAppSelector } from "@/redux/hooks";
 import viVN from "antd/lib/locale/vi_VN";
+import { theme as antdTheme } from "antd";
+
+import { useCurrentApp } from "@/components/context/app.context";
 
 interface ISkillSelect {
   label: string;

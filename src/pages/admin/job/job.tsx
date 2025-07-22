@@ -302,13 +302,16 @@ const JobPage = () => {
                     Export
                   </Button>
                 </CSVLink>
-                <Button
-                  icon={<CloudUploadOutlined />}
-                  type="primary"
-                  onClick={() => setOpenModalImportJob(true)}
-                >
-                  Import
-                </Button>
+                {user.role?.name === "SUPER_ADMIN" && (
+                  <Button
+                    icon={<CloudUploadOutlined />}
+                    type="primary"
+                    onClick={() => setOpenModalImportJob(true)}
+                  >
+                    Import
+                  </Button>
+                )}
+
                 <Button
                   icon={<PlusOutlined />}
                   type="primary"

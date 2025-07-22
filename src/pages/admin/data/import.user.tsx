@@ -8,6 +8,7 @@ import { Buffer } from "buffer";
 import Dragger from "antd/lib/upload/Dragger";
 import templateFile from "@/assets/template/user.xlsx?url";
 import { callBulkCreateUserAPI } from "@/config/api";
+import { ProFormUploadDragger } from "@ant-design/pro-components";
 
 interface IProps {
   openModalImport: boolean;
@@ -172,24 +173,26 @@ const ImportUser = (props: IProps) => {
       maskClosable={false}
       destroyOnClose={true}
     >
-      <Dragger {...propsUpload}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Click or drag file to this area to upload
-        </p>
-        <p className="ant-upload-hint">
-          Support for a single upload. Only accept .csv, .xls, .xlsx . or &nbsp;
-          <a
-            href={templateFile} // Ngăn lan truyền lên cha của Dragger
-            download
-            onClick={(e) => e.stopPropagation()}
-          >
-            Download Sample File
-          </a>
-        </p>
-      </Dragger>
+      <ProFormUploadDragger
+        name="file-upload-user" // Quan trọng: Cần có name cho form item
+        title="Kéo thả file vào đây hoặc nhấn để chọn"
+        description={
+          <>
+            Support for a single upload. Only accept .csv, .xls, .xlsx . or
+            &nbsp;
+            <a
+              href={templateFile} // Ngăn lan truyền lên cha của Dragger
+              download
+              onClick={(e) => e.stopPropagation()}
+            >
+              Download Sample File
+            </a>
+          </>
+        }
+        fieldProps={{
+          ...propsUpload, // Truyền các props xử lý file của bạn vào đây
+        }}
+      />
 
       <div style={{ paddingTop: 20 }}>
         <Table

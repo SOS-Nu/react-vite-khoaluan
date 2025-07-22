@@ -1,14 +1,23 @@
-import { App, Modal, Table } from "antd";
+import {
+  App,
+  ConfigProvider,
+  Modal,
+  Table,
+  theme as antdTheme,
+  theme,
+} from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { Upload } from "antd";
 import type { UploadProps } from "antd";
-import { useState } from "react";
+import { use, useState } from "react";
 import Exceljs from "exceljs";
 import { Buffer } from "buffer";
 import Dragger from "antd/lib/upload/Dragger";
 import templateFile from "@/assets/template/job.xlsx?url";
 import { callBulkCreateJobAPI, callBulkCreateUserAPI } from "@/config/api";
 import { Console } from "console";
+import { useCurrentApp } from "@/components/context/app.context";
+import { ProFormUploadDragger } from "@ant-design/pro-components";
 
 interface IProps {
   openModalImportJob: boolean;
@@ -77,6 +86,7 @@ const ImportJob = (props: IProps) => {
   const { message, notification } = App.useApp();
   const [dataImport, setDataImport] = useState<IDataImport[]>([]);
   const [dataShow, setDataShow] = useState<IDataShow[]>([]);
+  const { theme } = useCurrentApp();
 
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
   console.log("dataimport", dataImport);
@@ -240,26 +250,26 @@ const ImportJob = (props: IProps) => {
       maskClosable={false}
       destroyOnClose={true}
     >
-      <Dragger {...propsUpload}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">
-          Click or drag file to this area to upload
-        </p>
-        <p className="ant-upload-hint">
-          Support for a single upload. Only accept .csv, .xls, .xlsx . or &nbsp;
-          <a
-            href={templateFile}
-            download
-            onClick={(e) => e.stopPropagation()}
-            // Ngăn lan truyền lên cha của Dragger
-          >
-            Download Sample File
-          </a>
-        </p>
-      </Dragger>
-
+       {" "}
+      <ProFormUploadDragger
+        name="file" // Quan trọng: Cần có name cho form item
+        title="Kéo thả file vào đây hoặc nhấn để chọn"
+        description={
+          <>
+            Chỉ hỗ trợ file .xlsx, .xls, .csv. Tải file mẫu&nbsp;
+            <a
+              href={templateFile}
+              download
+              onClick={(e) => e.stopPropagation()}
+            >
+              tại đây
+            </a>
+          </>
+        }
+        fieldProps={{
+          ...propsUpload, // Truyền các props xử lý file của bạn vào đây
+        }}
+      />
       <div style={{ paddingTop: 20 }}>
         <Table
           rowKey={"id"}
