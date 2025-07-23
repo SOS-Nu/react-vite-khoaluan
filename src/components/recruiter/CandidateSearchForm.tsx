@@ -1,36 +1,41 @@
 // src/components/recruiter/CandidateSearchForm.tsx
-import React, { useState } from "react";
-import { Form, Button, Card, Row, Col, Spinner } from "react-bootstrap";
-import { toast } from "react-toastify";
-import { callFindCandidatesByAI } from "@/config/api";
-import { ICandidate } from "@/types/backend";
 
+import React, { useState } from "react";
+import { Form, Button, Card } from "react-bootstrap";
+import { toast } from "react-toastify";
+
+import { callInitiateCandidateSearch } from "@/config/api";
+import { ICandidate, IMeta } from "@/types/backend";
+
+// --- PROPS NHẬN VỀ TỪ COMPONENT CHA ---
 interface IProps {
   setIsSearching: (isSearching: boolean) => void;
   setCandidates: (candidates: ICandidate[]) => void;
+  setMeta: (meta: IMeta | null) => void;
+  setSearchId: (id: string | null) => void;
+  onNewSearch: () => void;
 }
 
 const CandidateSearchForm = (props: IProps) => {
-  const { setIsSearching, setCandidates } = props;
+  const { setIsSearching, setCandidates, setMeta, setSearchId, onNewSearch } =
+    props;
+
   const [jobDescription, setJobDescription] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // >>> THAY ĐỔI LOGIC VALIDATION <<<
-    // Chỉ cần 1 trong 2 trường có dữ liệu là được
     if (!jobDescription && !cvFile) {
-      toast.error(
-        "Vui lòng nhập mô tả công việc hoặc tải lên file mô tả công việc."
-      );
+      toast.error("Vui lòng nhập mô tả công việc hoặc tải lên file mô tả.");
       return;
     }
 
+    // 1. Reset các state của lần tìm kiếm trước
+    onNewSearch();
     setIsSearching(true);
 
-    // >>> THAY ĐỔI CÁCH TẠO FORMDATA <<<
-    // Chỉ thêm vào form data những trường có giá trị
+    // 2. Chuẩn bị dữ liệu form
     const formData = new FormData();
     if (jobDescription) {
       formData.append("jobDescription", jobDescription);
@@ -40,14 +45,19 @@ const CandidateSearchForm = (props: IProps) => {
     }
 
     try {
-      const res = await callFindCandidatesByAI(formData);
+      // 3. Gọi API để bắt đầu phiên tìm kiếm mới
+      const res = await callInitiateCandidateSearch(formData, 1, 10); // Bắt đầu từ trang 1, 10 kết quả/trang
+
       if (res.data?.candidates && res.data.candidates.length > 0) {
+        // 4. Cập nhật state ở component cha với kết quả nhận được
         setCandidates(res.data.candidates);
+        setMeta(res.data.meta);
+        setSearchId(res.data.searchId);
+
         toast.success(
           `Tìm thấy ${res.data.candidates.length} ứng viên phù hợp!`
         );
       } else {
-        setCandidates([]);
         toast.info("Không tìm thấy ứng viên nào khớp với yêu cầu.");
       }
     } catch (error) {
@@ -76,7 +86,9 @@ const CandidateSearchForm = (props: IProps) => {
               onChange={(e) => setJobDescription(e.target.value)}
             />
           </Form.Group>
+
           <div className="text-center my-3 fw-bold">HOẶC</div>
+
           <Form.Group className="mb-3">
             <Form.Label>2. Tải lên một file mô tả</Form.Label>
             <Form.Control
@@ -89,6 +101,7 @@ const CandidateSearchForm = (props: IProps) => {
               }}
             />
           </Form.Group>
+
           <Button variant="primary" type="submit">
             <i className="bi bi-search me-2"></i>
             Tìm kiếm

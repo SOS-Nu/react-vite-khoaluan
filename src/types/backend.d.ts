@@ -11,6 +11,7 @@ export interface IModelPaginate<T> {
     pageSize: number;
     pages: number;
     total: number;
+    hasMore?: boolean;
   };
   result: T[];
 }

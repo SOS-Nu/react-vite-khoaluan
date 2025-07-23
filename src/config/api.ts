@@ -644,16 +644,57 @@ export const callUpdateCompanyByUser = (companyData: ICompany) => {
   );
 };
 
-export const callFindCandidatesByAI = (formData: FormData) => {
-  // Kiểu trả về của data là một object chứa mảng candidates
-  return axios<IBackendRes<{ candidates: ICandidate[] }>>({
+// export const callFindCandidatesByAI = (formData: FormData) => {
+//   // Kiểu trả về của data là một object chứa mảng candidates
+//   return axios<IBackendRes<{ candidates: ICandidate[] }>>({
+//     method: "post",
+//     url: "/api/v1/gemini/find-candidates",
+//     data: formData,
+//     headers: {
+//       // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
+//       "Content-Type": "multipart/form-data",
+//     },
+//   });
+// };
+
+// >>> THÊM 2 HÀM API MỚI CHO TÌM KIẾM ỨNG VIÊN <<<
+
+// API Bước 1: Khởi tạo tìm kiếm ứng viên
+export const callInitiateCandidateSearch = (
+  formData: FormData,
+  page: number,
+  size: number
+) => {
+  return axios<
+    IBackendRes<{
+      meta: IMeta;
+      candidates: ICandidate[];
+      searchId: string;
+    }>
+  >({
     method: "post",
-    url: "/api/v1/gemini/find-candidates",
+    url: `/api/v1/gemini/initiate-candidate-search?page=${page}&size=${size}`,
     data: formData,
     headers: {
-      // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
       "Content-Type": "multipart/form-data",
     },
+  });
+};
+
+// API Bước 2: Lấy các trang kết quả ứng viên tiếp theo
+export const callGetCandidateSearchResults = (
+  searchId: string,
+  page: number,
+  size: number
+) => {
+  return axios<
+    IBackendRes<{
+      meta: IMeta;
+      candidates: ICandidate[];
+    }>
+  >({
+    method: "get",
+    url: `/api/v1/gemini/candidate-search-results?searchId=${searchId}&page=${page}&size=${size}`,
   });
 };
 
