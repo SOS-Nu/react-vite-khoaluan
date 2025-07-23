@@ -229,17 +229,35 @@ const PublicCvPage = () => {
 
                 <div className="contact-info text-start">
                   <h5 className="sidebar-heading">Contact</h5>
-                  <p>
-                    <MailOutlined /> &nbsp; {userData.email}
-                  </p>
+                  {userData.email && (
+                    <p>
+                      <MailOutlined /> &nbsp; {userData.email}
+                    </p>
+                  )}
+                  {!userData.email && (
+                    <p>
+                      <MailOutlined /> &nbsp; Private
+                    </p>
+                  )}
+
                   {onlineResume?.phone && (
                     <p>
                       <PhoneOutlined /> &nbsp; {onlineResume.phone}
                     </p>
                   )}
+                  {!onlineResume?.phone && (
+                    <p>
+                      <PhoneOutlined /> &nbsp; Private
+                    </p>
+                  )}
                   {userData.address && (
                     <p>
                       <HomeOutlined /> &nbsp; {userData.address}
+                    </p>
+                  )}
+                  {!userData.address && (
+                    <p>
+                      <HomeOutlined /> &nbsp; Private
                     </p>
                   )}
                 </div>

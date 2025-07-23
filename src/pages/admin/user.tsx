@@ -177,7 +177,7 @@ const UserPage = () => {
               placement="leftTop"
               title={"Xác nhận xóa user"}
               description={"Bạn có chắc chắn muốn xóa user này ?"}
-              onConfirm={() => handleDeleteUser(entity.id)}
+              onConfirm={() => handleDeleteUser(entity?.id)}
               okText="Xác nhận"
               cancelText="Hủy"
             >

@@ -3,6 +3,7 @@ import {
   ProForm,
   ProFormDigit,
   ProFormSelect,
+  ProFormSwitch,
   ProFormText,
 } from "@ant-design/pro-components";
 import { Col, Form, Row, message, notification } from "antd";
@@ -200,6 +201,7 @@ const ModalUser = (props: IProps) => {
         <Row gutter={16}>
           <Col lg={12} md={12} sm={24} xs={24}>
             <ProFormText
+              disabled={dataInit?.id ? true : false}
               label="Email"
               name="email"
               rules={[
@@ -253,14 +255,9 @@ const ModalUser = (props: IProps) => {
             />
           </Col>
           <Col lg={6} md={6} sm={24} xs={24}>
-            <ProFormSelect
+            <ProFormSwitch
               name="vip"
               label="Trạng thái VIP"
-              valueEnum={{
-                true: "Có",
-                false: "Không",
-              }}
-              placeholder="Chọn trạng thái VIP"
               rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
             />
           </Col>
