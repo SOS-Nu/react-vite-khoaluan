@@ -73,6 +73,14 @@ const ResumePage = () => {
       hideInSearch: true,
     },
     {
+      title: "Điểm CV",
+      dataIndex: "score",
+      sorter: true,
+      align: "center",
+      width: 80,
+      hideInSearch: true,
+    },
+    {
       title: "Trạng Thái",
       dataIndex: "status",
       sorter: true,
@@ -135,7 +143,7 @@ const ResumePage = () => {
     {
       title: "Job",
       dataIndex: ["job", "name"],
-      hideInSearch: true,
+      // hideInSearch: true,
     },
     {
       title: "Company",
@@ -218,9 +226,29 @@ const ResumePage = () => {
   const buildQuery = (params: any, sort: any, filter: any) => {
     const clone = { ...params };
 
-    if (clone?.status?.length) {
-      clone.filter = sfIn("status", clone.status).toString();
+    // Khởi tạo một mảng để chứa các điều kiện filter
+    const filterParts = [];
+
+    // Xử lý filter theo trạng thái (status)
+    if (clone.status?.length) {
+      filterParts.push(sfIn("status", clone.status).toString());
       delete clone.status;
+    }
+
+    // THÊM LOGIC NÀY: Xử lý filter theo tên job
+    // Khi người dùng nhập vào ô tìm kiếm của cột "Job", ProTable sẽ truyền vào params với key là `job.name`
+    // BẰNG ĐOẠN NÀY
+    // Xử lý filter theo tên job (với dataIndex lồng nhau)
+    if (clone.job?.name) {
+      // Truy cập đúng vào clone.job.name
+      filterParts.push(`job.name~'*${clone.job.name}*'`);
+
+      // Quan trọng: Xóa cả object 'job' khỏi clone để không bị stringify thành [object Object]
+      delete clone.job;
+    }
+    // Kết hợp các điều kiện filter bằng ' and '
+    if (filterParts.length > 0) {
+      clone.filter = filterParts.join(" and ");
     }
 
     clone.page = clone.current;
@@ -233,35 +261,26 @@ const ResumePage = () => {
 
     let sortBy = "";
     if (sort && sort.status) {
-      sortBy =
-        sort.status === "ascend" ? "sort=status,asc" : "sort=status,desc";
+      sortBy = `sort=status,${sort.status === "ascend" ? "asc" : "desc"}`;
     }
-
+    // THÊM LOGIC NÀY: Xử lý sort theo điểm CV
+    if (sort && sort.score) {
+      sortBy = `sort=score,${sort.score === "ascend" ? "asc" : "desc"}`;
+    }
     if (sort && sort.createdAt) {
-      sortBy =
-        sort.createdAt === "ascend"
-          ? "sort=createdAt,asc"
-          : "sort=createdAt,desc";
+      sortBy = `sort=createdAt,${sort.createdAt === "ascend" ? "asc" : "desc"}`;
     }
     if (sort && sort.updatedAt) {
-      sortBy =
-        sort.updatedAt === "ascend"
-          ? "sort=updatedAt,asc"
-          : "sort=updatedAt,desc";
+      sortBy = `sort=updatedAt,${sort.updatedAt === "ascend" ? "asc" : "desc"}`;
     }
 
-    //mặc định sort theo updatedAt
-    if (Object.keys(sortBy).length === 0) {
-      temp = `${temp}&sort=updatedAt,desc`;
+    if (sortBy) {
+      temp += `&${sortBy}`;
     } else {
-      temp = `${temp}&${sortBy}`;
+      // Mặc định sort theo updatedAt giảm dần nếu không có sort nào khác
+      temp += "&sort=updatedAt,desc";
     }
 
-    // temp += "&populate=companyId,jobId&fields=companyId.id, companyId.name, companyId.logo, jobId.id, jobId.name";
-    // <<< THAY ĐỔI DÒNG TRÊN BẰNG DÒNG DƯỚI >>>
-    // populate=user sẽ lấy toàn bộ thông tin của user lồng trong resume
-    // populate=job,user&fields=job.name,user.id,user.name,user.email,user.company
-    // Bạn có thể chọn các trường cụ thể để tối ưu
     temp += "&populate=job,user";
 
     return temp;

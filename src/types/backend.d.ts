@@ -185,6 +185,7 @@ export interface IResume {
   url: string;
   status: string;
   companyName?: string;
+  score?: number;
   job?: {
     id: string;
     name: string;
