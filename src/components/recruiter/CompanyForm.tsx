@@ -28,13 +28,11 @@ interface IProps {
 }
 
 const CompanyForm = ({ initialData }: IProps) => {
-  // State cho dữ liệu text của form
   const [formData, setFormData] = useState<Partial<ICompany>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
   const isEditMode = !!initialData;
 
-  // State riêng cho việc tải logo
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [newLogoFileName, setNewLogoFileName] = useState<string | null>(null);
@@ -88,17 +86,16 @@ const CompanyForm = ({ initialData }: IProps) => {
         const res = await callUpdateCompanyByUser(payload as ICompany);
         toast.success("Cập nhật thông tin công ty thành công!");
         if (res.data) {
-          setFormData(res.data); // Cập nhật form với dữ liệu mới nhất
+          setFormData(res.data);
         }
       } else {
         const res = await callCreateCompanyByUser(payload as ICompany);
         toast.success("Tạo công ty thành công!");
         if (res.data) {
-          setFormData(res.data); // Cập nhật form với dữ liệu mới nhất
+          setFormData(res.data);
         }
       }
 
-      // Đồng bộ Redux store và reset state tạm
       dispatch(fetchAccount());
       setNewLogoFileName(null);
       setLogoPreview(null);
@@ -153,7 +150,9 @@ const CompanyForm = ({ initialData }: IProps) => {
                 </div>
                 <Form.Label
                   htmlFor="logo-upload"
-                  className={`btn btn-sm btn-outline-primary ${isLogoUploading ? "disabled" : ""}`}
+                  className={`btn btn-sm btn-outline-primary ${
+                    isLogoUploading ? "disabled" : ""
+                  }`}
                 >
                   Tải lên Logo
                 </Form.Label>
@@ -186,12 +185,88 @@ const CompanyForm = ({ initialData }: IProps) => {
               <Form.Group className="mb-3">
                 <Form.Label>Website</Form.Label>
                 <Form.Control
+                  type="text"
                   name="website"
                   value={formData.website || ""}
                   onChange={handleChange}
+                  placeholder="https://example.com"
                 />
               </Form.Group>
             </Col>
+          </Row>
+
+          {/* ===== BẮT ĐẦU VÙNG CODE MỚI/CẬP NHẬT ===== */}
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Năm thành lập</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="foundingYear"
+                  value={formData.foundingYear || ""}
+                  onChange={handleChange}
+                  placeholder="Vd: 2024"
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Quy mô</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="scale"
+                  value={formData.scale || ""}
+                  onChange={handleChange}
+                  placeholder="Vd: 100-500 nhân viên"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Lĩnh vực hoạt động</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="field"
+                  value={formData.field || ""}
+                  onChange={handleChange}
+                  placeholder="Vd: Công nghệ thông tin"
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Tỉnh/Thành phố</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="location"
+                  value={formData.location || ""}
+                  onChange={handleChange}
+                  placeholder="Vd: Hồ Chí Minh"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={12}>
+              <Form.Group className="mb-3">
+                <Form.Label>Quốc gia</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="country"
+                  value={formData.country || ""}
+                  onChange={handleChange}
+                  placeholder="Vd: Việt Nam"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          {/* ===== KẾT THÚC VÙNG CODE MỚI/CẬP NHẬT ===== */}
+
+          <Row>
             <Col md={12}>
               <Form.Group className="mb-3">
                 <Form.Label>Địa chỉ</Form.Label>

@@ -6,7 +6,7 @@ import {
   ProColumns,
   ProFormSelect,
 } from "@ant-design/pro-components";
-import { Button, Flex, Space, Tooltip, message, notification } from "antd";
+import { Button, Flex, Space, Tag, Tooltip, message, notification } from "antd";
 import { useState, useRef } from "react";
 import dayjs from "dayjs";
 import { callDeleteResume } from "@/config/api";
@@ -73,11 +73,20 @@ const ResumePage = () => {
       hideInSearch: true,
     },
     {
-      title: "Điểm CV",
+      title: "Điểm CV By AI",
       dataIndex: "score",
+      render(dom, entity, index, action, schema) {
+        return (
+          <>
+            <Tag color={entity.score ? "green" : "red"}>
+              {entity.score ? entity.score : "Chưa có điểm"}
+            </Tag>
+          </>
+        );
+      },
       sorter: true,
       align: "center",
-      width: 80,
+
       hideInSearch: true,
     },
     {
