@@ -57,7 +57,7 @@ const ImportSkill = (props: IProps) => {
             console.log("ArrayBuffer Size:", arrayBuffer.byteLength);
             const buffer = Buffer.from(arrayBuffer);
             console.log("Buffer Created:", buffer.length);
-            await workbook.xlsx.load(buffer);
+            await workbook.xlsx.load(arrayBuffer);
 
             console.log(
               "Worksheets:",

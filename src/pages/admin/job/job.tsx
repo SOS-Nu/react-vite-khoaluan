@@ -2,7 +2,7 @@
 
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { IJob, IUser } from "@/types/backend";
+import { IJob, ISkill, IUser } from "@/types/backend";
 import {
   CloudUploadOutlined,
   DeleteOutlined,
@@ -29,7 +29,7 @@ import { CSVLink } from "react-csv";
 import ImportJob from "../data/import.job";
 
 const JobPage = () => {
-  const tableRef = useRef<ActionType>();
+  const tableRef = useRef<ActionType>(null);
 
   const isFetching = useAppSelector((state) => state.job.isFetching);
   const meta = useAppSelector((state) => state.job.meta);
@@ -41,12 +41,10 @@ const JobPage = () => {
 
   // Cập nhật jobExport để bao gồm trường address
   const jobExport = useMemo(() => {
-    return jobs.map((item) => ({
+    return (jobs || []).map((item) => ({
       ...item,
       company: item.company?.name ?? "",
-      skills: item.skills
-        .map((skill: { id: number; name: string }) => `[id ${skill.id}]`)
-        .join(","),
+      skills: item.skills.map((skill: ISkill) => `[id ${skill.id}]`).join(","),
     }));
   }, [jobs]);
 

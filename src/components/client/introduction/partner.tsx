@@ -55,7 +55,7 @@ const Partners = () => {
             {partners?.map((item) => (
               <Col xs={12} md={3} key={item.id}>
                 <Link
-                  to={`/company/${convertSlug(item.name)}?id=${item.id}`}
+                  to={`/company/${convertSlug(item?.name!)}?id=${item.id}`}
                   style={{ textDecoration: "none" }}
                 >
                   <SimpleGlowCard identifier={`partner-${item.id}`}>
@@ -87,7 +87,7 @@ const Partners = () => {
                           fontSize: "0.75rem",
                         }}
                       >
-                        {getLocationName(item.location)}
+                        {getLocationName(item?.location!)}
                       </p>
                     </div>
                   </SimpleGlowCard>

@@ -24,7 +24,7 @@ const SkillPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dataInit, setDataInit] = useState<ISkill | null>(null);
 
-  const tableRef = useRef<ActionType>();
+  const tableRef = useRef<ActionType>(null);
 
   const isFetching = useAppSelector((state) => state.skill.isFetching);
   const meta = useAppSelector((state) => state.skill.meta);

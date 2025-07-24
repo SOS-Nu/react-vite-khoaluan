@@ -249,7 +249,7 @@ export const callUpdateUser = (user: IUser) => {
   return axios.put<IBackendRes<IUser>>(`/api/v1/users`, { ...user });
 };
 
-export const callDeleteUser = (id: string) => {
+export const callDeleteUser = (id: number) => {
   return axios.delete<IBackendRes<IUser>>(`/api/v1/users/${id}`);
 };
 

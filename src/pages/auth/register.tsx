@@ -85,12 +85,12 @@ const RegisterPage = () => {
     const { name, email, password, age, gender, address } = formData;
     try {
       const res = await callRegister(
-        name,
-        email,
+        name!,
+        email!,
         password as string,
-        age,
-        gender,
-        address,
+        age!,
+        gender!,
+        address!,
         otp
       );
       if (res?.data?.id) {

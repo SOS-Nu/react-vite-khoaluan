@@ -103,7 +103,7 @@ const UpdateInfoTab = () => {
 
     // 1. Chuẩn bị payload
     const payload: Partial<IUser> = {
-      id: user.id,
+      id: +user.id,
       name,
       age,
       gender,

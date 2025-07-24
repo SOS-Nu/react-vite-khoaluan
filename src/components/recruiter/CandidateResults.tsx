@@ -61,7 +61,7 @@ const CandidateResults = ({ candidates }: IProps) => {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => handleViewProfile(user.id)}
+                  onClick={() => handleViewProfile(user.id!)}
                 >
                   Xem hồ sơ
                 </Button>

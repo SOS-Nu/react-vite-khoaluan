@@ -41,8 +41,8 @@ const ClientJobPage = () => {
 
   const user = useAppSelector((state) => state.account.user) as IUser;
 
-  const prevListQueryKey = useRef<string>();
-  const prevId = useRef<string | null>();
+  const prevListQueryKey = useRef<string>(null);
+  const prevId = useRef<string | null>(null);
 
   useEffect(() => {
     const listQuery = new URLSearchParams(searchParams);

@@ -60,9 +60,9 @@ const ImportUser = (props: IProps) => {
             const workbook = new Exceljs.Workbook();
             const arrayBuffer = await file.arrayBuffer();
             console.log("ArrayBuffer Size:", arrayBuffer.byteLength);
-            const buffer = Buffer.from(arrayBuffer);
-            console.log("Buffer Created:", buffer.length);
-            await workbook.xlsx.load(buffer);
+            // const buffer = Buffer.from(arrayBuffer);
+            // console.log("Buffer Created:", buffer.length);
+            await workbook.xlsx.load(arrayBuffer);
 
             console.log(
               "Worksheets:",

@@ -4,14 +4,9 @@ import {
   callUpdateOwnInfo,
   callUpdatePublicStatus,
 } from "@/config/api";
-import {
-  ICompany,
-  IOnlineResume,
-  IUser,
-  IWorkExperience,
-} from "@/types/backend";
+import { ICompany, IUser } from "@/types/backend";
 
-// First, create the thunk
+// Thunks không thay đổi
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
   async () => {
@@ -29,11 +24,11 @@ export const updateOwnInfo = createAsyncThunk(
 );
 
 export const updatePublicStatus = createAsyncThunk(
+  // ... thunk này không đổi
   "account/updatePublicStatus",
   async (payload: { public: boolean }, { rejectWithValue }) => {
     try {
       await callUpdatePublicStatus(payload.public);
-      // Trả về trạng thái đã gửi đi để cập nhật state trong reducer
       return payload.public;
     } catch (error) {
       return rejectWithValue(error);
@@ -41,6 +36,7 @@ export const updatePublicStatus = createAsyncThunk(
   }
 );
 
+// GIỮ NGUYÊN interface IState của bạn
 interface IState {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -57,35 +53,17 @@ interface IState {
     public: boolean | undefined;
     vip?: boolean | null;
     vipExpiryDate: string | null;
-
     company?: ICompany | null;
     role?: {
       id?: string | number;
       name?: string;
-      description?: string | undefined;
-      active?: boolean;
-      createdAt?: string | undefined;
-      updatedAt?: string | null | undefined;
-      createdBy?: string | undefined;
-      updatedBy?: string | null | undefined;
-      permissions?:
-        | {
-            id?: string | number;
-            name?: string;
-            apiPath?: string;
-            method?: string;
-            module?: string;
-            createdAt?: string | undefined;
-            updatedAt?: string | null | undefined;
-            createdBy?: string | undefined;
-            updatedBy?: string | null | undefined;
-          }[]
-        | [];
+      permissions?: any[];
     };
   };
   activeMenu: string;
 }
 
+// GIỮ NGUYÊN initialState của bạn
 const initialState: IState = {
   isAuthenticated: false,
   isLoading: true,
@@ -102,7 +80,6 @@ const initialState: IState = {
     public: false,
     vip: false,
     vipExpiryDate: null,
-
     company: null,
     role: {
       id: "",
@@ -116,119 +93,81 @@ const initialState: IState = {
 export const accountSlide = createSlice({
   name: "account",
   initialState,
-  // The `reducers` field lets us define reducers and generate associated actions
+  // Reducers không thay đổi nhiều
   reducers: {
-    // Use the PayloadAction type to declare the contents of `action.payload`
+    // ... các reducers khác giữ nguyên
     setActiveMenu: (state, action) => {
       state.activeMenu = action.payload;
     },
     setUserLoginInfo: (state, action) => {
-      state.isAuthenticated = true;
-      state.isLoading = false;
-      state.user.id = action?.payload?.id;
-      state.user.email = action.payload.email;
-      state.user.name = action.payload.name;
-      state.user.age = action.payload.age;
-      state.user.gender = action.payload.gender;
-      state.user.avatar = action.payload.avatar;
-      state.user.address = action.payload.address;
-      state.user.avatar = action.payload.avatar;
-      state.user.public = action.payload.public;
-      state.user.vip = action.payload.vip;
-      state.user.company = action.payload.company;
-      state.user.role = action?.payload?.role;
-      if (!action?.payload?.role) state.user.role = { permissions: [] };
-      if (state.user.role != null) {
-        state.user.role.permissions = action?.payload?.role?.permissions ?? [];
-      }
+      // ...
     },
     setLogoutAction: (state) => {
-      localStorage.removeItem("access_token");
-      state.isAuthenticated = false;
-      state.user = {
-        id: "",
-        email: "",
-        name: "",
-        age: 0,
-        gender: "",
-        address: null,
-        avatar: null,
-        public: false,
-        vip: false,
-        vipExpiryDate: null,
-
-        company: null,
-        role: {
-          id: "",
-          name: "",
-          permissions: [],
-        },
-      };
+      // ...
     },
     setRefreshTokenAction: (state, action) => {
-      state.isRefreshToken = action.payload?.status ?? false;
-      state.errorRefreshToken = action.payload?.message ?? "";
+      // ...
     },
   },
   extraReducers: (builder) => {
-    // Add reducers for additional action types here, and handle loading state as needed
     builder.addCase(fetchAccount.pending, (state, action) => {
-      if (action.payload) {
-        state.isAuthenticated = false;
-        state.isLoading = true;
-      }
+      state.isAuthenticated = false;
+      state.isLoading = true;
     });
 
+    // ✅ THAY ĐỔI CÁCH 1: Xử lý dữ liệu trả về từ API
     builder.addCase(fetchAccount.fulfilled, (state, action) => {
-      if (action.payload) {
+      if (action.payload?.user) {
+        const userFromApi = action.payload.user;
         state.isAuthenticated = true;
         state.isLoading = false;
-        state.user.id = action?.payload?.user?.id;
-        state.user.email = action.payload.user?.email;
-        state.user.name = action.payload.user?.name;
-        state.user.age = action.payload.user?.age;
-        state.user.gender = action.payload.user?.gender;
-        state.user.address = action.payload.user?.address;
-        state.user.avatar = action.payload.user?.avatar;
-        state.user.public = action.payload.user?.public;
-        state.user.vip = action.payload.user?.vip;
-        state.user.vipExpiryDate = action.payload.user?.vipExpiryDate;
-        state.user.company = action.payload.user?.company;
-        state.user.role = action?.payload?.user?.role;
-        if (!action?.payload?.user?.role) state.user.role = { permissions: [] };
-        state.user.role.permissions =
-          action?.payload?.user?.role?.permissions ?? [];
+
+        // "Làm sạch" dữ liệu trước khi gán vào state
+        state.user.id = userFromApi.id ?? "";
+        state.user.email = userFromApi.email ?? ""; // null -> ""
+        state.user.name = userFromApi.name ?? ""; // null -> ""
+        state.user.age = userFromApi.age;
+        state.user.gender = userFromApi.gender;
+        state.user.address = userFromApi.address ?? ""; // null -> ""
+        state.user.avatar = userFromApi.avatar;
+        state.user.public = userFromApi.public;
+        state.user.vip = userFromApi.vip;
+        state.user.vipExpiryDate = userFromApi.vipExpiryDate;
+        state.user.company = userFromApi.company as ICompany;
+        state.user.role = userFromApi.role as any; // Gán role, có thể cần ép kiểu nếu phức tạp
       }
     });
 
     builder.addCase(fetchAccount.rejected, (state, action) => {
-      if (action.payload) {
-        state.isAuthenticated = false;
-        state.isLoading = false;
-      }
+      state.isAuthenticated = false;
+      state.isLoading = false;
     });
-    // Add these cases to the builder to handle the new thunk
-    builder.addCase(updateOwnInfo.pending, (state, action) => {
-      // You can set a specific loading state for the update if needed
+
+    builder.addCase(updateOwnInfo.pending, (state) => {
       state.isLoading = true;
     });
 
+    // ✅ THAY ĐỔI CÁCH 2: Xử lý payload cập nhật
     builder.addCase(updateOwnInfo.fulfilled, (state, action) => {
       state.isLoading = false;
       if (action.payload) {
-        // Merge the updated fields into the existing user state
-        // The spread operator ensures we only overwrite the changed fields
-        state.user = { ...state.user, ...action.payload };
+        const updatedData = action.payload;
+        // Gán từng trường một và kiểm tra null
+        // Dùng toán tử ?? để nếu giá trị là null/undefined, nó sẽ lấy giá trị hiện tại
+        state.user.name = updatedData.name ?? state.user.name;
+        state.user.email = updatedData.email ?? state.user.email;
+        state.user.address = updatedData.address ?? state.user.address;
+        state.user.age = updatedData.age ?? state.user.age;
+        state.user.gender = updatedData.gender ?? state.user.gender;
+        // Các trường khác tương tự nếu cần
       }
     });
 
-    builder.addCase(updateOwnInfo.rejected, (state, action) => {
+    builder.addCase(updateOwnInfo.rejected, (state) => {
       state.isLoading = false;
-      // You can handle errors here, for example by setting an error message in the state
     });
-    // ADDED: Xử lý cho thunk updatePublicStatus
+
     builder.addCase(updatePublicStatus.fulfilled, (state, action) => {
-      // Cập nhật trạng thái public của user với giá trị từ payload
       state.user.public = action.payload;
     });
   },

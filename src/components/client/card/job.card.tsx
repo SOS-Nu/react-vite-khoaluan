@@ -16,7 +16,7 @@ import React from "react";
 dayjs.extend(relativeTime);
 
 interface IProps {
-  jobs: IJob[] | null;
+  jobs: IJob[] | undefined | null;
   isLoading: boolean;
   title?: string;
   showPagination?: boolean;

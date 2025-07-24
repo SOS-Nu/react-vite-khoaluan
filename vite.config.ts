@@ -1,18 +1,15 @@
-import { defineConfig, loadEnv, type PluginOption } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { visualizer } from "rollup-plugin-visualizer";
+// import { visualizer } from "rollup-plugin-visualizer";
 import dns from "dns";
 
 //running on localhost instead of IP 127.0.0.1
-// https://vitejs.dev/config/server-options.html#server-host
 dns.setDefaultResultOrder("verbatim");
 
 // https://vitejs.dev/config/
-// https://v2.vitejs.dev/config/#environment-variables
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [
@@ -29,13 +26,7 @@ export default defineConfig(({ command, mode }) => {
         "b212-2001-ee1-e605-7460-49e0-1317-1fb2-d762.ngrok-free.app",
       ],
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: "modern-compiler", // or "modern"
-        },
-      },
-    },
+
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src/"),

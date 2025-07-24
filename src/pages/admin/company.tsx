@@ -31,7 +31,7 @@ const CompanyPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dataInit, setDataInit] = useState<ICompany | null>(null);
 
-  const tableRef = useRef<ActionType>();
+  const tableRef = useRef<ActionType>(null);
 
   const isFetching = useAppSelector((state) => state.company.isFetching);
   const meta = useAppSelector((state) => state.company.meta);
@@ -262,7 +262,7 @@ const CompanyPage = () => {
             ),
           }}
           rowSelection={false}
-          toolBarRender={() => (
+          toolBarRender={() => [
             <Access permission={ALL_PERMISSIONS.COMPANIES.CREATE} hideChildren>
               <Button
                 icon={<PlusOutlined />}
@@ -271,8 +271,8 @@ const CompanyPage = () => {
               >
                 Thêm mới
               </Button>
-            </Access>
-          )}
+            </Access>,
+          ]}
         />
       </Access>
       <ModalCompany

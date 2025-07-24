@@ -98,6 +98,7 @@ const ModalUser = (props: IProps) => {
         vip,
         role: rolePayload, // Sử dụng payload đã chuẩn bị
         company: companyPayload,
+        vipExpiryDate: dataInit.vipExpiryDate,
       };
 
       const res = await callUpdateUser(user);

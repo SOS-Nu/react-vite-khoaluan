@@ -107,8 +107,8 @@ export interface ISkill {
 }
 
 export interface IUser {
-  id: number;
-  name: string;
+  id?: number | undefined;
+  name?: string | undefined;
   email?: string | null;
   password?: string;
   age?: number;
@@ -119,12 +119,12 @@ export interface IUser {
   onlineResume?: IOnlineResume | null;
   workExperiences?: IWorkExperience[];
   public?: boolean;
-  vipExpiryDate: string | null;
-  vip?: boolean;
+  vipExpiryDate?: string | null | undefined;
+  vip?: boolean | null;
   role?: {
     id: string;
     name: string;
-  };
+  } | null;
   company?: {
     id: string;
     name: string;

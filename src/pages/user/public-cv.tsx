@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactDOM from "react-dom/client";
-import html2pdf from "html2pdf.js";
 import moment from "moment";
+
+// ✅ BƯỚC 1: Import thư viện mới
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 // UI Components
 import {
@@ -31,30 +34,26 @@ import { IUser } from "@/types/backend";
 import classicCv from "@/assets/cv/classicCV.png";
 import modermCv from "@/assets/cv/modermCv.png";
 
-// PDF Templates (Giả sử bạn đã tạo các file này)
-
+// PDF Templates
 import CVTemplate_Modern from "./CVTemplate_Modern";
+import CVTemplate_Classic from "./CVTemplate_Classic";
 
 // Styles
 import "@/styles/stylespotfolio/public-cv.scss";
-import CVTemplate_Classic from "./CVTemplate_Classic";
 
 const PublicCvPage = () => {
   // === STATE MANAGEMENT ===
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // State cho dữ liệu và trạng thái trang
   const [userData, setUserData] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State cho chức năng xuất PDF
   const [isDownloading, setIsDownloading] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   // === TEMPLATE CONFIG ===
-  // Danh sách các mẫu CV có sẵn để chọn
   const templates = [
     { name: "Classic", preview: classicCv },
     { name: "Modern", preview: modermCv },
@@ -88,7 +87,6 @@ const PublicCvPage = () => {
   }, [id]);
 
   // === HELPER FUNCTIONS ===
-  // Hàm lấy URL avatar đầy đủ
   const getAvatarUrl = (avatarPath?: string | null) => {
     if (avatarPath) {
       return `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${avatarPath}`;
@@ -97,21 +95,23 @@ const PublicCvPage = () => {
   };
 
   // === PDF EXPORT LOGIC ===
-  const handleDownloadPdf = (templateName: string) => {
+  // ✅ BƯỚC 2: Cập nhật hoàn toàn logic hàm handleDownloadPdf
+  const handleDownloadPdf = async (templateName: string) => {
     if (!userData || !userData.onlineResume) return;
 
     setShowTemplateModal(false);
     setIsDownloading(true);
 
+    // Tạo container ẩn để render component CV
     const pdfContainer = document.createElement("div");
     pdfContainer.style.position = "absolute";
-    pdfContainer.style.left = "-9999px";
+    pdfContainer.style.left = "-9999px"; // Di chuyển ra ngoài màn hình
+    pdfContainer.style.top = "0";
     document.body.appendChild(pdfContainer);
 
     const root = ReactDOM.createRoot(pdfContainer);
     const avatarUrl = getAvatarUrl(userData.avatar);
 
-    // Dựa vào templateName để render component tương ứng
     let templateToRender;
     switch (templateName) {
       case "Modern":
@@ -126,40 +126,77 @@ const PublicCvPage = () => {
         );
         break;
     }
+
     root.render(templateToRender);
 
-    // Đợi một chút để component render xong
-    setTimeout(() => {
-      const options = {
-        margin: 0,
-        filename: `${userData.onlineResume?.fullName || userData.name}_${templateName}_CV.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      };
+    // Đợi một chút để đảm bảo React đã render xong component
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-      html2pdf()
-        .from(pdfContainer.firstElementChild)
-        .set(options)
-        .save()
-        .catch((err) => {
-          console.error("Could not generate PDF", err);
-          notification.error({ message: "Failed to generate PDF." });
-        })
-        .finally(() => {
-          document.body.removeChild(pdfContainer);
-          setIsDownloading(false);
-        });
-    }, 500);
+    const elementToCapture = pdfContainer.firstElementChild as HTMLElement;
+    if (!elementToCapture) {
+      notification.error({
+        message: "Could not find element to generate PDF.",
+      });
+      setIsDownloading(false);
+      document.body.removeChild(pdfContainer);
+      return;
+    }
+
+    try {
+      // 1. Dùng html2canvas để "chụp ảnh" component thành canvas
+      const canvas = await html2canvas(elementToCapture, {
+        scale: 2, // Tăng chất lượng ảnh
+        useCORS: true, // Cho phép tải ảnh từ domain khác (quan trọng cho avatar)
+      });
+
+      // Lấy dữ liệu ảnh từ canvas
+      const imgData = canvas.toDataURL("image/jpeg", 0.98); // Chất lượng 98%
+
+      // 2. Dùng jsPDF để tạo file PDF
+      const pdf = new jsPDF({
+        orientation: "portrait", // Hướng dọc
+        unit: "mm", // Đơn vị mm
+        format: "a4", // Khổ giấy A4
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Tính toán tỉ lệ của ảnh để vừa với trang A4
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const ratio = canvasWidth / canvasHeight;
+
+      let imgWidth = pdfWidth;
+      let imgHeight = imgWidth / ratio;
+
+      // Nếu chiều cao vượt quá trang, thì tính lại dựa trên chiều cao
+      if (imgHeight > pdfHeight) {
+        imgHeight = pdfHeight;
+        imgWidth = imgHeight * ratio;
+      }
+
+      // 3. Thêm ảnh vào PDF và lưu file
+      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+      const filename = `${userData.onlineResume?.fullName || userData.name}_${templateName}_CV.pdf`;
+      pdf.save(filename);
+    } catch (err) {
+      console.error("Could not generate PDF", err);
+      notification.error({
+        message: "Failed to generate PDF. Please check the console.",
+      });
+    } finally {
+      // 4. Dọn dẹp container ẩn sau khi hoàn tất
+      document.body.removeChild(pdfContainer);
+      setIsDownloading(false);
+    }
   };
 
   // === RENDER LOGIC ===
-  // 1. Trạng thái Loading
   if (isLoading) {
     return <Spin spinning={true} fullscreen />;
   }
 
-  // 2. Trạng thái Lỗi hoặc không có dữ liệu
   if (error || !userData?.onlineResume) {
     return (
       <Container className="public-cv-container my-5">
@@ -182,11 +219,11 @@ const PublicCvPage = () => {
 
   const { onlineResume, workExperiences } = userData;
 
-  // 3. Giao diện chính khi có dữ liệu
   return (
     <div className="public-cv-wrapper">
       {/* Main CV Display */}
       <Container className="public-cv-container my-5">
+        {/* ...Phần JSX còn lại giữ nguyên... */}
         <Row>
           {/* Cột trái - Sidebar */}
           <Col md={4} className="sidebar-col">

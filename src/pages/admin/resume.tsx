@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 
 const ResumePage = () => {
-  const tableRef = useRef<ActionType>();
+  const tableRef = useRef<ActionType>(null);
 
   const isFetching = useAppSelector((state) => state.resume.isFetching);
   const meta = useAppSelector((state) => state.resume.meta);

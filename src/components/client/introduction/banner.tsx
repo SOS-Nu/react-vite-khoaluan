@@ -73,14 +73,15 @@ const Banner = () => {
               minHeight: isMobile ? "200px" : "300px", // Đảm bảo không gian cho animation
             }}
           >
-            <AnimationLottie
-              width={isMobile ? "80%" : "60%"} // Tăng kích thước để cân đối
-              animationPath={JSON.parse(CONTACT_LOTTIE)}
+            <div
               style={{
-                maxWidth: "400px", // Giới hạn để tránh quá lớn trên desktop
+                width: isMobile ? "80%" : "60%",
+                maxWidth: "400px",
                 marginBottom: "0.5rem",
               }}
-            />
+            >
+              <AnimationLottie animationPath={JSON.parse(CONTACT_LOTTIE)} />
+            </div>
             <h4
               style={{
                 fontSize: isMobile ? "1rem" : "1.25rem",

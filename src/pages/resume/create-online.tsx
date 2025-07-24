@@ -56,7 +56,9 @@ const CreateOnlineResumePage = () => {
   >([defaultEmptyExperience]);
 
   // State mới cho CV chính
-  const [mainResumeName, setMainResumeName] = useState<string | null>(null);
+  const [mainResumeName, setMainResumeName] = useState<
+    string | null | undefined
+  >(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [allSkills, setAllSkills] = useState<ISkill[]>([]);
@@ -290,7 +292,8 @@ const CreateOnlineResumePage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button variant="primary" icon={<DownloadOutlined />}>
+                        <Button variant="primary">
+                          <DownloadOutlined />
                           Download
                         </Button>
                       </a>
@@ -311,8 +314,8 @@ const CreateOnlineResumePage = () => {
                         variant="primary"
                         onClick={handleUploadMainResume}
                         disabled={!selectedFile || isUploading}
-                        icon={<UploadOutlined />}
                       >
+                        <DownloadOutlined />
                         {isUploading ? "Uploading..." : "Upload"}
                       </Button>
                       {selectedFile && (
@@ -338,8 +341,8 @@ const CreateOnlineResumePage = () => {
                         variant="primary"
                         onClick={handleUploadMainResume}
                         disabled={!selectedFile || isUploading}
-                        icon={<UploadOutlined />}
                       >
+                        <DownloadOutlined />
                         {isUploading ? "Uploading..." : "Upload New Version"}
                       </Button>
                     </div>

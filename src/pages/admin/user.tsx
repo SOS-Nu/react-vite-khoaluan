@@ -32,7 +32,7 @@ const UserPage = () => {
 
   // const [currentDataTable, setCurrentDataTable] = useState<IUser[]>([]);
 
-  const tableRef = useRef<ActionType>();
+  const tableRef = useRef<ActionType>(null);
 
   const isFetching = useAppSelector((state) => state.user.isFetching);
   const meta = useAppSelector((state) => state.user.meta);
@@ -53,7 +53,7 @@ const UserPage = () => {
   }, [users]); // Dependency array: userExport sẽ được tính toán lại khi users thay đổi
   console.log("userExport>>>", userExport);
 
-  const handleDeleteUser = async (id: string | undefined) => {
+  const handleDeleteUser = async (id: number | undefined) => {
     if (id) {
       const res = await callDeleteUser(id);
       if (+res.statusCode === 200) {
