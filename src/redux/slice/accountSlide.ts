@@ -6,7 +6,7 @@ import {
 } from "@/config/api";
 import { ICompany, IUser } from "@/types/backend";
 
-// Thunks không thay đổi
+// First, create the thunk
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
   async () => {
@@ -24,7 +24,6 @@ export const updateOwnInfo = createAsyncThunk(
 );
 
 export const updatePublicStatus = createAsyncThunk(
-  // ... thunk này không đổi
   "account/updatePublicStatus",
   async (payload: { public: boolean }, { rejectWithValue }) => {
     try {
@@ -36,7 +35,6 @@ export const updatePublicStatus = createAsyncThunk(
   }
 );
 
-// GIỮ NGUYÊN interface IState của bạn
 interface IState {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -44,7 +42,7 @@ interface IState {
   errorRefreshToken: string;
   user: {
     id: number | string;
-    email: string;
+    email: string | null; // Đã sửa: cho phép null
     name: string;
     age: number | undefined;
     gender: string | undefined;
@@ -57,13 +55,30 @@ interface IState {
     role?: {
       id?: string | number;
       name?: string;
-      permissions?: any[];
+      description?: string | undefined;
+      active?: boolean;
+      createdAt?: string | undefined;
+      updatedAt?: string | null | undefined;
+      createdBy?: string | undefined;
+      updatedBy?: string | null | undefined;
+      permissions?:
+        | {
+            id?: string | number;
+            name?: string;
+            apiPath?: string;
+            method?: string;
+            module?: string;
+            createdAt?: string | undefined;
+            updatedAt?: string | null | undefined;
+            createdBy?: string | undefined;
+            updatedBy?: string | null | undefined;
+          }[]
+        | [];
     };
   };
   activeMenu: string;
 }
 
-// GIỮ NGUYÊN initialState của bạn
 const initialState: IState = {
   isAuthenticated: false,
   isLoading: true,
@@ -71,7 +86,7 @@ const initialState: IState = {
   errorRefreshToken: "",
   user: {
     id: "",
-    email: "",
+    email: null, // Đã sửa: giá trị khởi tạo là null
     name: "",
     age: 0,
     gender: "",
@@ -93,82 +108,130 @@ const initialState: IState = {
 export const accountSlide = createSlice({
   name: "account",
   initialState,
-  // Reducers không thay đổi nhiều
   reducers: {
-    // ... các reducers khác giữ nguyên
     setActiveMenu: (state, action) => {
       state.activeMenu = action.payload;
     },
     setUserLoginInfo: (state, action) => {
-      // ...
+      state.isAuthenticated = true;
+      state.isLoading = false;
+      state.user.id = action?.payload?.id;
+      state.user.email = action.payload.email;
+      state.user.name = action.payload.name;
+      state.user.age = action.payload.age;
+      state.user.gender = action.payload.gender;
+      state.user.avatar = action.payload.avatar;
+      state.user.address = action.payload.address;
+      state.user.public = action.payload.public;
+      state.user.vip = action.payload.vip;
+      state.user.company = action.payload.company;
+      state.user.role = action?.payload?.role;
+      if (!action?.payload?.role) state.user.role = { permissions: [] };
+      if (state.user.role != null) {
+        state.user.role.permissions = action?.payload?.role?.permissions ?? [];
+      }
     },
     setLogoutAction: (state) => {
-      // ...
+      localStorage.removeItem("access_token");
+      state.isAuthenticated = false;
+      state.user = {
+        id: "",
+        email: null, // Đã sửa: reset về null
+        name: "",
+        age: 0,
+        gender: "",
+        address: null,
+        avatar: null,
+        public: false,
+        vip: false,
+        vipExpiryDate: null,
+        company: null,
+        role: {
+          id: "",
+          name: "",
+          permissions: [],
+        },
+      };
     },
     setRefreshTokenAction: (state, action) => {
-      // ...
+      state.isRefreshToken = action.payload?.status ?? false;
+      state.errorRefreshToken = action.payload?.message ?? "";
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchAccount.pending, (state, action) => {
-      state.isAuthenticated = false;
-      state.isLoading = true;
+      if (action.payload) {
+        state.isAuthenticated = false;
+        state.isLoading = true;
+      }
     });
 
-    // ✅ THAY ĐỔI CÁCH 1: Xử lý dữ liệu trả về từ API
     builder.addCase(fetchAccount.fulfilled, (state, action) => {
-      if (action.payload?.user) {
-        const userFromApi = action.payload.user;
+      if (action.payload) {
         state.isAuthenticated = true;
         state.isLoading = false;
-
-        // "Làm sạch" dữ liệu trước khi gán vào state
-        state.user.id = userFromApi.id ?? "";
-        state.user.email = userFromApi.email ?? ""; // null -> ""
-        state.user.name = userFromApi.name ?? ""; // null -> ""
-        state.user.age = userFromApi.age;
-        state.user.gender = userFromApi.gender;
-        state.user.address = userFromApi.address ?? ""; // null -> ""
-        state.user.avatar = userFromApi.avatar;
-        state.user.public = userFromApi.public;
-        state.user.vip = userFromApi.vip;
-        state.user.vipExpiryDate = userFromApi.vipExpiryDate;
-        state.user.company = userFromApi.company as ICompany;
-        state.user.role = userFromApi.role as any; // Gán role, có thể cần ép kiểu nếu phức tạp
+        state.user.id = action?.payload?.user?.id;
+        state.user.email = action.payload.user?.email;
+        state.user.name = action.payload.user?.name;
+        state.user.age = action.payload.user?.age;
+        state.user.gender = action.payload.user?.gender;
+        state.user.address = action.payload.user?.address;
+        state.user.avatar = action.payload.user?.avatar;
+        state.user.public = action.payload.user?.public;
+        state.user.vip = action.payload.user?.vip;
+        state.user.vipExpiryDate = action.payload.user?.vipExpiryDate;
+        state.user.company = action.payload.user?.company as ICompany;
+        state.user.role = action?.payload?.user?.role;
+        if (!action?.payload?.user?.role) state.user.role = { permissions: [] };
+        if (state.user.role) {
+          state.user.role.permissions =
+            action?.payload?.user?.role?.permissions ?? [];
+        }
       }
     });
 
     builder.addCase(fetchAccount.rejected, (state, action) => {
-      state.isAuthenticated = false;
-      state.isLoading = false;
-    });
-
-    builder.addCase(updateOwnInfo.pending, (state) => {
-      state.isLoading = true;
-    });
-
-    // ✅ THAY ĐỔI CÁCH 2: Xử lý payload cập nhật
-    builder.addCase(updateOwnInfo.fulfilled, (state, action) => {
-      state.isLoading = false;
       if (action.payload) {
-        const updatedData = action.payload;
-        // Gán từng trường một và kiểm tra null
-        // Dùng toán tử ?? để nếu giá trị là null/undefined, nó sẽ lấy giá trị hiện tại
-        state.user.name = updatedData.name ?? state.user.name;
-        state.user.email = updatedData.email ?? state.user.email;
-        state.user.address = updatedData.address ?? state.user.address;
-        state.user.age = updatedData.age ?? state.user.age;
-        state.user.gender = updatedData.gender ?? state.user.gender;
-        // Các trường khác tương tự nếu cần
+        state.isAuthenticated = false;
+        state.isLoading = false;
       }
     });
 
-    builder.addCase(updateOwnInfo.rejected, (state) => {
+    builder.addCase(updateOwnInfo.pending, (state, action) => {
+      state.isLoading = true;
+    });
+
+    // SỬA LỖI Ở ĐÂY
+    builder.addCase(updateOwnInfo.fulfilled, (state, action) => {
+      state.isLoading = false;
+      if (action.payload) {
+        // Tách `role` và `company` ra khỏi payload để xử lý riêng
+        const { role, company, ...rest } = action.payload;
+
+        // Hợp nhất các thuộc tính tương thích (string, number, boolean...)
+        Object.assign(state.user, rest);
+
+        // Hợp nhất thông tin `company` nếu có
+        if (company) {
+          if (!state.user.company) {
+            state.user.company = { logo: null }; // Khởi tạo nếu chưa có
+          }
+          Object.assign(state.user.company, company);
+        }
+
+        // Bỏ qua việc cập nhật `role` từ payload này vì nó thiếu chi tiết (permissions)
+        // và sẽ gây lỗi kiểu dữ liệu.
+      }
+    });
+
+    builder.addCase(updateOwnInfo.rejected, (state, action) => {
       state.isLoading = false;
     });
 
     builder.addCase(updatePublicStatus.fulfilled, (state, action) => {
-      state.user.public = action.payload;
+      if (state.user) {
+        state.user.public = action.payload;
+      }
     });
   },
 });

@@ -72,7 +72,7 @@ export interface ICompany {
   id?: string;
   name?: string;
   address?: string;
-  logo: string;
+  logo?: string | null | undefined;
   description?: string;
   createdBy?: string;
   isDeleted?: boolean;
