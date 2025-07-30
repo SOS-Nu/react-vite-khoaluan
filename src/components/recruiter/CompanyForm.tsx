@@ -22,6 +22,16 @@ import { useAppDispatch } from "@/redux/hooks";
 
 import defaultLogo from "@/assets/avatar.svg";
 import { fetchAccount } from "@/redux/slice/accountSlide";
+import {
+  COUNTRY_LIST,
+  FIELD_LIST,
+  LOCATION_LIST,
+  SCALE_LIST,
+} from "@/config/utils";
+// ===== BẮT ĐẦU VÙNG CODE MỚI/CẬP NHẬT =====
+// Giả sử đường dẫn này là chính xác
+
+// ===== KẾT THÚC VÙNG CODE MỚI/CẬP NHẬT =====
 
 interface IProps {
   initialData?: ICompany | null;
@@ -43,12 +53,16 @@ const CompanyForm = ({ initialData }: IProps) => {
     }
   }, [initialData]);
 
+  // ===== BẮT ĐẦU VÙNG CODE MỚI/CẬP NHẬT =====
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  // ===== KẾT THÚC VÙNG CODE MỚI/CẬP NHẬT =====
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -212,13 +226,20 @@ const CompanyForm = ({ initialData }: IProps) => {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Quy mô</Form.Label>
-                <Form.Control
-                  type="text"
+                <Form.Select
                   name="scale"
                   value={formData.scale || ""}
                   onChange={handleChange}
-                  placeholder="Vd: 100-500 nhân viên"
-                />
+                >
+                  <option value="" disabled>
+                    Chọn quy mô
+                  </option>
+                  {SCALE_LIST.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
@@ -227,25 +248,39 @@ const CompanyForm = ({ initialData }: IProps) => {
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Lĩnh vực hoạt động</Form.Label>
-                <Form.Control
-                  type="text"
+                <Form.Select
                   name="field"
                   value={formData.field || ""}
                   onChange={handleChange}
-                  placeholder="Vd: Công nghệ thông tin"
-                />
+                >
+                  <option value="" disabled>
+                    Chọn lĩnh vực
+                  </option>
+                  {FIELD_LIST.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Tỉnh/Thành phố</Form.Label>
-                <Form.Control
-                  type="text"
+                <Form.Select
                   name="location"
                   value={formData.location || ""}
                   onChange={handleChange}
-                  placeholder="Vd: Hồ Chí Minh"
-                />
+                >
+                  <option value="" disabled>
+                    Chọn tỉnh/thành phố
+                  </option>
+                  {LOCATION_LIST.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>
@@ -254,13 +289,20 @@ const CompanyForm = ({ initialData }: IProps) => {
             <Col md={12}>
               <Form.Group className="mb-3">
                 <Form.Label>Quốc gia</Form.Label>
-                <Form.Control
-                  type="text"
+                <Form.Select
                   name="country"
                   value={formData.country || ""}
                   onChange={handleChange}
-                  placeholder="Vd: Việt Nam"
-                />
+                >
+                  <option value="" disabled>
+                    Chọn quốc gia
+                  </option>
+                  {COUNTRY_LIST.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
           </Row>

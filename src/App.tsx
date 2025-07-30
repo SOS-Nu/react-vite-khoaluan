@@ -217,7 +217,7 @@ const LayoutClient = () => {
       client.subscribe(`/user/${user.email}/queue/messages`, onMessageReceived);
 
       // b. Đăng ký nhận các cập nhật trạng thái chung
-      client.subscribe("/user/public", onUserStatusChange);
+      client.subscribe("/topic/public", onUserStatusChange);
 
       // c. Gửi thông tin của người dùng hiện tại lên server
       client.send(

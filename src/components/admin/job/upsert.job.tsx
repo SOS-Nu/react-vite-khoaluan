@@ -153,26 +153,20 @@ const ViewUpsertJob = (props: any) => {
   }
 
   const onFinish = async (values: any) => {
-    const cp = values?.company?.value?.split("@#$");
+    // Logic xử lý skills giữ nguyên
     let arrSkills = [];
     if (typeof values?.skills?.[0] === "object") {
-      arrSkills = values?.skills?.map((item: any) => {
-        return { id: item.value };
-      });
+      arrSkills = values?.skills?.map((item: any) => ({ id: item.value }));
     } else {
-      arrSkills = values?.skills?.map((item: any) => {
-        return { id: +item };
-      });
+      arrSkills = values?.skills?.map((item: any) => ({ id: +item }));
     }
 
-    const jobData = {
+    // --- BẮT ĐẦU SỬA TỪ ĐÂY ---
+
+    // 1. Tạo đối tượng payload cơ bản không có trường 'company'
+    const jobPayload: any = {
       name: values.name,
       skills: arrSkills,
-      company: {
-        id: cp && cp.length > 0 ? cp[0] : "",
-        name: values.name,
-        logo: cp && cp.length > 1 ? cp[1] : "",
-      },
       location: values.location,
       address: values.address,
       salary: values.salary,
@@ -188,22 +182,43 @@ const ViewUpsertJob = (props: any) => {
       active: values.active,
     };
 
+    // 2. Chỉ thêm trường 'company' nếu user là SUPER_ADMIN
+    if (user.role?.name === "SUPER_ADMIN") {
+      // Kiểm tra xem admin đã chọn công ty chưa
+      if (!values.company?.value) {
+        notification.error({ message: "Vui lòng chọn công ty." });
+        return; // Dừng thực thi nếu chưa chọn
+      }
+      const cp = values.company.value.split("@#$");
+      jobPayload.company = {
+        id: cp[0],
+        // Lấy tên công ty từ 'label' của select, không phải tên job
+        name: values.company.label,
+        logo: cp[1] || "",
+      };
+    }
+    // Đối với các vai trò khác, không cần thêm trường 'company' vào payload.
+
+    // 3. Gọi API với payload đã được xây dựng đúng
     let res;
     if (dataUpdate?.id) {
       // Update
       if (user.role?.name === "SUPER_ADMIN") {
-        res = await callUpdateJob(jobData, dataUpdate.id);
+        res = await callUpdateJob(jobPayload, dataUpdate.id);
       } else if (user.company?.id) {
-        res = await callUpdateJobForCompany(jobData, dataUpdate.id);
+        res = await callUpdateJobForCompany(jobPayload, dataUpdate.id);
       }
     } else {
       // Create
       if (user.role?.name === "SUPER_ADMIN") {
-        res = await callCreateJob(jobData);
+        res = await callCreateJob(jobPayload);
       } else if (user.company?.id) {
-        res = await callCreateJobForCompany(jobData);
+        // API call này sẽ nhận payload không có trường `company`, đúng như mong đợi
+        res = await callCreateJobForCompany(jobPayload);
       }
     }
+
+    // --- KẾT THÚC PHẦN SỬA ---
 
     if (res && res.data) {
       message.success(
