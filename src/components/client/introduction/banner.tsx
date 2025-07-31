@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 import styles from "styles/client.module.scss";
 import AnimationLottie from "@/components/share/glowcard/animation-lottie";
 import { CONTACT_LOTTIE } from "@/assets/lottie/string/contact";
+import { useTranslation } from "react-i18next"; // <-- Thêm import
 
 const Banner = () => {
   const { theme } = useCurrentApp();
+  const { t } = useTranslation(); // <-- Thêm hook
 
   return (
     <div
@@ -33,8 +35,7 @@ const Banner = () => {
                 lineHeight: "1.2",
               }}
             >
-              Tìm Việc Làm Mơ Ước Với{" "}
-              <span className="brand-red">JobHunter</span>
+              {t("banner.title")} <span className="brand-red">JobHunter</span>
             </h1>
             <p
               style={{
@@ -44,8 +45,7 @@ const Banner = () => {
                 lineHeight: "1.5",
               }}
             >
-              Khám phá hàng ngàn cơ hội việc làm từ các công ty hàng đầu. Bắt
-              đầu hành trình sự nghiệp của bạn ngay hôm nay!
+              {t("banner.subtitle")}
             </p>
             <Link to="/job" style={{ textDecoration: "none" }}>
               <Button
@@ -60,7 +60,7 @@ const Banner = () => {
                   borderRadius: "0.5rem",
                 }}
               >
-                Tìm Việc Ngay
+                {t("banner.button")}
               </Button>
             </Link>
           </Col>
@@ -91,7 +91,7 @@ const Banner = () => {
                 marginTop: "0.5rem",
               }}
             >
-              Khám Phá Ngay!
+              {t("banner.cta")}
             </h4>
           </Col>
         </Row>

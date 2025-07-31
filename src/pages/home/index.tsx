@@ -5,7 +5,6 @@ import JobCard from "@/components/client/card/job.card";
 import CompanyCard from "@/components/client/card/company.card";
 import ManageCV from "@/components/client/card/management.card";
 import Banner from "@/components/client/introduction/banner";
-import Partners from "@/components/client/introduction/partner";
 import Introduction from "@/components/client/introduction/introduction";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useNavigate } from "react-router-dom";
@@ -16,10 +15,13 @@ import { fetchCompany } from "@/redux/slice/companySlide";
 import { Container } from "react-bootstrap";
 import Skill from "../skill";
 import { IUser } from "@/types/backend";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const { t } = useTranslation(); // Lấy hàm t từ hook
 
   // >> THÊM MỚI: Thêm state để quản lý search type cho SearchClient
   const [currentSearchType, setCurrentSearchType] = useState("job");
@@ -67,18 +69,18 @@ const HomePage = () => {
       <JobCard
         jobs={jobsResult}
         isLoading={isJobFetching}
-        title="Công Việc Mới Nhất"
+        title={t("job.newjob")}
       />
       <Divider />
       <CompanyCard
         companies={companiesResult}
         isLoading={isCompanyFetching}
-        title="Nhà Tuyển Dụng Hàng Đầu"
+        title={t("company.newcompany")}
       />
       <Divider />
       <Introduction />
       <Banner />
-      <Partners />
+      {/* <Partners /> */}
       <section>
         <Container>
           <Skill />

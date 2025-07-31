@@ -6,7 +6,75 @@
     "company": "Tìm công ty",
     "project": "Dự án",
     "contact": "Liên hệ",
-    "about": "Về tác giả"
+    "about": "Về tác giả",
+    "recruiter": "Nhà Tuyển Dụng",
+    "evaluateCV": "Đánh Giá CV",
+    "profileCV": "Profile CV",
+    "onlineResume": "Online Resume",
+    "cvPage": "Trang Cá Nhân CV",
+    "manageAccount": "Quản lý tài khoản",
+    "adminPage": "Trang Quản Trị",
+    "messages": "Tin Nhắn",
+    "logout": "Đăng xuất",
+    "logoutSuccess": "Đăng xuất thành công",
+    "login": "Đăng Nhập",
+    "languageEn": "Tiếng Anh",
+    "languageVi": "Tiếng Việt",
+    "offcanvasTitle": "Chức năng"
+  },
+  "searchClient": {
+    "aiPlaceholder": "Nhập mô tả công việc bạn mong muốn, kỹ năng của bạn...",
+    "companyPlaceholder": "Nhập tên công ty bạn quan tâm...",
+    "jobPlaceholder": "Nhập tên công việc, ví dụ: Java, Frontend, DevOps...",
+    "typewriter1": "Tìm Việc làm nhanh chóng",
+    "typewriter2": "mới nhất toàn quốc",
+    "typewriter3": "Tìm Việc làm Bởi AI",
+    "selectJob": "Tên Job",
+    "selectCompany": "Công ty",
+    "selectAI": "Dùng AI",
+    "locationPlaceholder": "Địa Điểm",
+    "locationNotFound": "Không tìm thấy",
+    "searchButton": "Tìm kiếm",
+    "uploadCV": "Tải lên CV",
+    "defaultPrompt": "Tìm việc phù hợp dựa trên CV của tôi",
+    "searchError": "Lỗi khi thực hiện tìm kiếm:"
+  },
+  "banner": {
+    "title": "Tìm Việc Làm Mơ Ước Với",
+    "subtitle": "Khám phá hàng ngàn cơ hội việc làm từ các công ty hàng đầu. Bắt đầu hành trình sự nghiệp của bạn ngay hôm nay!",
+    "button": "Tìm Việc Ngay",
+    "cta": "Khám Phá Ngay!"
+  },
+  "footer": {
+    "about": {
+      "title": "Về chúng tôi",
+      "items": ["Giới thiệu", "Cơ hội việc làm", "Tin tức", "Đối tác"]
+    },
+    "services": {
+      "title": "Dịch vụ",
+      "items": ["Tư vấn CV", "Phỏng vấn thử", "Xây dựng lộ trình", "Workshop"]
+    },
+    "career": {
+      "title": "Nghề nghiệp",
+      "items": ["Blog", "Hướng dẫn", "Sự kiện", "Cộng đồng"]
+    },
+    "contact": {
+      "title": "Liên hệ",
+      "hotline": "Hotline: ",
+      "email": "Email: "
+    },
+    "newsletter": {
+      "title": "Đăng ký nhận bản tin",
+      "placeholder": "Nhập email của bạn",
+      "button": "Đăng ký"
+    },
+    "app": {
+      "title": "Tải ứng dụng",
+      "download": "Tải về trên",
+      "googlePlay": "Google Play",
+      "appStore": "App Store"
+    },
+    "copyright": "JobHunter Cơ hội việc làm, chỉ một cú click! © President SOS Nu {{year}}. Đã đăng ký bản quyền."
   },
   "heroSection": {
     "exp": "Kinh nghiệm",
@@ -26,5 +94,27 @@
   },
   "skill": {
     "title": "Kỹ năng Thịnh Hành"
+  },
+  "manageCV": {
+    "title": "Công cụ tốt nhất hỗ trợ quá trình ứng tuyển việc làm của bạn"
+  },
+  "job": {
+    "newjob": "Công Việc Mới Nhất",
+    "viewAll": "Xem Tất Cả",
+    "job": "Công Việc"
+  },
+  "company": {
+    "newcompany": "Nhà Tuyển Dụng Hàng Đầu",
+    "viewAll": "Xem Tất Cả",
+    "company": "Công Ty"
+  },
+  "introduction": {
+    "title": "là nền tảng tuyển dụng hàng đầu, kết nối hàng ngàn ứng viên với các cơ hội việc làm từ những công ty uy tín. Hãy bắt đầu hành trình sự nghiệp của bạn ngay hôm nay!"
+  },
+  "user": {
+    "user": "Người Dùng"
+  },
+  "resumes": {
+    "resumesApproved": "Hồ Sơ Được Duyệt"
   }
 }

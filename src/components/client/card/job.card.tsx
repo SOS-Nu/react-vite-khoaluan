@@ -12,6 +12,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
 import styles from "@/styles/client.module.scss";
 import React from "react";
+import { t } from "i18next";
 
 dayjs.extend(relativeTime);
 
@@ -61,7 +62,7 @@ const JobCard = (props: IProps) => {
               >
                 {!isListPage && (
                   <span className={styles["title"]} id="job-tilte-new">
-                    Công Việc Mới Nhất
+                    {t("job.newjob")}
                   </span>
                 )}
                 {!showButtonAllJob && (
@@ -75,7 +76,7 @@ const JobCard = (props: IProps) => {
                         style={{ padding: "0px" }}
                         variant="primary"
                       >
-                        Xem tất cả
+                        {t("job.viewAll")}
                       </Button>
                     </Link>
                   </Col>

@@ -11,6 +11,7 @@ import { BsGeoAlt, BsBriefcase, BsPeople } from "react-icons/bs";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { t } from "i18next";
 
 dayjs.extend(relativeTime);
 
@@ -65,7 +66,7 @@ const CompanyCard = (props: IProps) => {
                           style={{ padding: "0px" }}
                           variant="primary"
                         >
-                          Xem tất cả
+                          {t("company.viewAll")}
                         </Button>
                       </Link>
                     </Col>

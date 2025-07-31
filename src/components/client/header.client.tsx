@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     const res = await callLogout();
     if (res && res.statusCode === 200) {
       dispatch(setLogoutAction());
-      message.success("Đăng xuất thành công");
+      message.success(t("appHeader.logoutSuccess"));
       navigate("/");
     }
   };
@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   if (user && user.company) {
     // Menu dành cho nhà tuyển dụng
     navItems = [
-      { label: "Recruiter", key: "/recruiter", to: "/recruiter" }, // Luôn giữ lại trang chủ
+      { label: t("appHeader.recruiter"), key: "/recruiter", to: "/recruiter" },
     ];
   } else {
     // Menu mặc định dành cho người tìm việc
@@ -112,18 +112,23 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
       { label: t("appHeader.home"), key: "/", to: "/" },
       { label: t("appHeader.findjobs"), key: "/job", to: "/job", isNew: true },
       { label: t("appHeader.company"), key: "/company", to: "/company" },
-      // Lưu ý: Em đã sửa lại đường dẫn "to" ở đây từ "/company" thành "/CVAI" cho đúng
-      { label: "Đánh Giá CV", key: "/cv-ai", to: "/cv-ai", isNew: true },
+      {
+        label: t("appHeader.evaluateCV"),
+        key: "/cv-ai",
+        to: "/cv-ai",
+        isNew: true,
+      },
       {
         label: (
           <span>
-            Profile CV <FaChevronDown style={{ marginLeft: 5, fontSize: 12 }} />
+            {t("appHeader.profileCV")}{" "}
+            <FaChevronDown style={{ marginLeft: 5, fontSize: 12 }} />
           </span>
         ),
         key: "/profile-cv",
         dropdownItems: [
           {
-            label: "Online Resume",
+            label: t("appHeader.onlineResume"),
             key: "/resume/create",
             to: "/resume/create",
           },
@@ -131,13 +136,11 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
             ? []
             : [
                 {
-                  label: "Trang Cá Nhân CV",
+                  label: t("appHeader.cvPage"),
                   key: "pagecv",
                   to: `/user/online-resumes/${user.id}`,
                 },
               ]),
-          // { label: "Evaluation CV By AI", key: "evaluation-cv" },
-          // { label: "AI Roadmap", key: "ai-roadmap" },
         ],
       },
     ];
@@ -150,24 +153,26 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
           style={{ cursor: "pointer" }}
           onClick={() => setOpenManageAccount(true)}
         >
-          Quản lý tài khoản
+          {t("appHeader.manageAccount")}
         </label>
       ),
       key: "manage-account",
       onClick: () => setOpenManageAccount(true),
     },
     ...(user?.role?.permissions?.length
-      ? [{ label: "Trang Quản Trị", key: "admin", to: "/admin" }]
+      ? [{ label: t("appHeader.adminPage"), key: "admin", to: "/admin" }]
       : []),
     {
-      label: <label style={{ cursor: "pointer" }}>Tin Nhắn</label>,
+      label: (
+        <label style={{ cursor: "pointer" }}>{t("appHeader.messages")}</label>
+      ),
       key: "chat",
       to: "/chat/detail",
     },
     {
       label: (
         <label style={{ cursor: "pointer" }} onClick={handleLogout}>
-          Đăng xuất
+          {t("appHeader.logout")}
         </label>
       ),
       key: "logout",
@@ -211,7 +216,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       id={`nav-dropdown-${item.key}`}
                       className={`${current === item.key ? "active" : ""} ${
                         item.key === "/profile-cv" ? "profile-cv-dropdown" : ""
-                      }`} // Thêm class cho Profile CV
+                      }`}
                     >
                       {item.dropdownItems.map((dropdownItem) =>
                         dropdownItem.to ? (
@@ -237,50 +242,33 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       key={item.key}
                       to={item.to!}
                       className={({ isActive }) =>
-                        // Thêm class 'position-relative' để định vị cho nhãn "NEW"
-                        `nav-link position-relative ${isActive && current === item.key ? "active" : ""}`
+                        `nav-link position-relative ${
+                          isActive && current === item.key ? "active" : ""
+                        }`
                       }
-                      onClick={
-                        () => {
-                          setCurrent(item.key);
-                          scrollToTop();
-                        } // Cuộn về đầu trang
-                      }
+                      onClick={() => {
+                        setCurrent(item.key);
+                        scrollToTop();
+                      }}
                     >
                       {item.label}
-                      {/* THÊM KHỐI LỆNH NÀY */}
                       {item.isNew && <span className="new-badge">AI</span>}
-                      {/* KẾT THÚC KHỐI LỆNH THÊM */}
                     </NavLink>
                   )
                 )}
               </Nav>
-              {/* <Form className="d-flex mx-3" onSubmit={handleSearch}>
-                <Form.Control
-                  type="search"
-                  placeholder="Tìm kiếm việc làm"
-                  className="me-2"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Button variant="outline-primary" type="submit">
-                  Tìm
-                </Button>
-              </Form> */}
               <Nav className="ms-auto align-items-center">
                 {isAuthenticated ? (
                   <NavDropdown
                     title={
                       <span>
                         {user?.name}{" "}
-                        {/* <span className="avatar" style={{ marginLeft: 8 }}>
-                          {user?.name?.substring(0, 2)?.toUpperCase()}
-                        </span> */}
-                        {/* avatar user */}
                         <img
                           src={
                             user.avatar
-                              ? `${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${user.avatar}`
+                              ? `${
+                                  import.meta.env.VITE_BACKEND_URL
+                                }/storage/avatar/${user.avatar}`
                               : avatardefault
                           }
                           alt="user avatar"
@@ -289,7 +277,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       </span>
                     }
                     id="user-dropdown"
-                    className="user-dropdown-custom" // Thêm class
+                    className="user-dropdown-custom"
                   >
                     {dropdownItems.map((item) =>
                       item.to ? (
@@ -306,10 +294,10 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                 ) : (
                   <>
                     <Nav.Link as={Link} to="/login?callback=/recruiter">
-                      Nhà Tuyển Dụng
+                      {t("appHeader.recruiter")}
                     </Nav.Link>
                     <Nav.Link as={Link} to="/login">
-                      Đăng Nhập
+                      {t("appHeader.login")}
                     </Nav.Link>
                   </>
                 )}
@@ -338,7 +326,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       src={enFlag}
                       alt="english"
                     />
-                    English
+                    {t("appHeader.languageEn")}
                   </NavDropdown.Item>
                   <NavDropdown.Item
                     onClick={() => i18n.changeLanguage("vi")}
@@ -349,7 +337,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       src={viFlag}
                       alt="vietnamese"
                     />
-                    Tiếng Việt
+                    {t("appHeader.languageVi")}
                   </NavDropdown.Item>
                 </NavDropdown>
               </Nav>
@@ -365,7 +353,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
         data-bs-theme={theme}
       >
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Chức năng</Offcanvas.Title>
+          <Offcanvas.Title>{t("appHeader.offcanvasTitle")}</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Nav className="flex-column">
@@ -394,7 +382,9 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   key={item.key}
                   to={item.to!}
                   className={({ isActive }) =>
-                    `nav-link ${isActive && current === item.key ? "active" : ""}`
+                    `nav-link ${
+                      isActive && current === item.key ? "active" : ""
+                    }`
                   }
                   onClick={() => {
                     setCurrent(item.key);
@@ -437,7 +427,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   to="/login"
                   onClick={() => setShowOffcanvas(false)}
                 >
-                  Đăng Nhập
+                  {t("appHeader.login")}
                 </Nav.Link>
               </>
             )}

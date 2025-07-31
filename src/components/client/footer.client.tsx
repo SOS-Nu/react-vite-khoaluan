@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { useInView } from "react-intersection-observer"; // Import hook
+import { useInView } from "react-intersection-observer";
+import { useTranslation } from "react-i18next"; // Import hook
 import {
   FaFacebook,
   FaInstagram,
@@ -13,51 +13,60 @@ import {
 import { FaApple } from "react-icons/fa6";
 import bg from "assets/section.svg";
 
-const footerLinks = {
-  about: {
-    title: "Về chúng tôi",
-    items: ["Giới thiệu", "Cơ hội việc làm", "Tin tức", "Đối tác"],
-  },
-  services: {
-    title: "Dịch vụ",
-    items: ["Tư vấn CV", "Phỏng vấn thử", "Xây dựng lộ trình", "Workshop"],
-  },
-  career: {
-    title: "Nghề nghiệp",
-    items: ["Blog", "Hướng dẫn", "Sự kiện", "Cộng đồng"],
-  },
-  contact: {
-    title: "Contact Me",
-    items: [
-      { type: "text", label: "Hotline: ", value: "+84 385382597" },
-      { type: "text", label: "Email: ", value: "nu1412sos@gmail.com" },
-    ],
-  },
-};
-
 const Footer = () => {
-  // Sử dụng hook useInView để theo dõi footer
+  const { t } = useTranslation(); // Sử dụng hook useTranslation
+
+  // Xây dựng cấu trúc links từ file ngôn ngữ
+  const footerLinks = {
+    about: {
+      title: t("footer.about.title"),
+      items: t("footer.about.items", { returnObjects: true }) as string[],
+    },
+    services: {
+      title: t("footer.services.title"),
+      items: t("footer.services.items", { returnObjects: true }) as string[],
+    },
+    career: {
+      title: t("footer.career.title"),
+      items: t("footer.career.items", { returnObjects: true }) as string[],
+    },
+    contact: {
+      title: t("footer.contact.title"),
+      items: [
+        {
+          type: "text",
+          label: t("footer.contact.hotline"),
+          value: "+84 385382597",
+        },
+        {
+          type: "text",
+          label: t("footer.contact.email"),
+          value: "nu1412sos@gmail.com",
+        },
+      ],
+    },
+  };
+
   const { ref, inView } = useInView({
-    triggerOnce: true, // Chỉ chạy animation một lần
-    threshold: 0.4, // Kích hoạt khi 10% của footer hiện ra
+    triggerOnce: true,
+    threshold: 0.1, // Giảm ngưỡng để kích hoạt sớm hơn
   });
 
   return (
-    // Gắn `ref` và thêm class `is-visible` khi footer trong tầm nhìn
     <footer ref={ref} className={`site-footer ${inView ? "is-visible" : ""}`}>
       <div
         style={{
           backgroundImage: `url(${bg})`,
           width: "100%",
-          height: "100%", // Khớp với chiều cao footer
+          height: "100%",
           position: "absolute",
           top: 0,
           left: 0,
           backgroundRepeat: "no-repeat",
-          backgroundSize: "cover", // Hoặc "contain" tùy thuộc vào ảnh
-          backgroundPosition: "center", // Căn giữa ảnh
-          zIndex: 0, // Đặt dưới tất cả nội dung
-          pointerEvents: "none", // Không chặn sự kiện chuột
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          zIndex: 0,
+          pointerEvents: "none",
         }}
       ></div>
       <Container>
@@ -65,7 +74,6 @@ const Footer = () => {
           <Row className="g-4 g-lg-5">
             <Col lg={7} xl={8}>
               <Row className="g-4">
-                {/* Thêm class animate và style delay cho từng cột */}
                 <Col
                   xs={6}
                   md={3}
@@ -143,36 +151,44 @@ const Footer = () => {
                 <Form>
                   <Form.Group className="mb-3" controlId="newsletterEmail">
                     <Form.Label className="fw-semibold mb-2">
-                      Đăng ký nhận bản tin
+                      {t("footer.newsletter.title")}
                     </Form.Label>
                     <div className="d-flex">
                       <Form.Control
                         type="email"
-                        placeholder="Nhập email của bạn"
+                        placeholder={t("footer.newsletter.placeholder")}
                         className="me-2"
                       />
                       <Button type="submit" className="resize-button">
-                        Đăng ký
+                        {t("footer.newsletter.button")}
                       </Button>
                     </div>
                   </Form.Group>
                 </Form>
                 <hr className="divider my-4" />
                 <div>
-                  <p className="fw-semibold mb-3">Tải ứng dụng</p>
+                  <p className="fw-semibold mb-3">{t("footer.app.title")}</p>
                   <div className="d-sm-flex gap-3">
                     <a href="#" className="app-download-btn mb-2 mb-sm-0">
                       <FaGooglePlay className="app-icon" />
                       <div>
-                        <div className="text-xs">Tải về trên</div>
-                        <div className="font-sans fw-semibold">Google Play</div>
+                        <div className="text-xs">
+                          {t("footer.app.download")}
+                        </div>
+                        <div className="font-sans fw-semibold">
+                          {t("footer.app.googlePlay")}
+                        </div>
                       </div>
                     </a>
                     <a href="#" className="app-download-btn">
                       <FaApple className="app-icon" />
                       <div>
-                        <div className="text-xs">Tải về trên</div>
-                        <div className="font-sans fw-semibold">App Store</div>
+                        <div className="text-xs">
+                          {t("footer.app.download")}
+                        </div>
+                        <div className="font-sans fw-semibold">
+                          {t("footer.app.appStore")}
+                        </div>
                       </div>
                     </a>
                   </div>
@@ -202,8 +218,7 @@ const Footer = () => {
 
         <div className="footer-bottom py-3 py-lg-4">
           <p className="mb-0 text-center">
-            JobHunter Cơ hội việc làm, chỉ một cú click! &copy; President SOS Nu{" "}
-            {new Date().getFullYear()}. All rights reserved.
+            {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </Container>

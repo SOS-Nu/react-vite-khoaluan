@@ -33,7 +33,7 @@ const SearchClient = (props: IProps) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { theme } = useCurrentApp();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation(); // Lấy hàm t từ hook
 
   const { isFetching } = useAppSelector((state) => state.job);
 
@@ -72,11 +72,10 @@ const SearchClient = (props: IProps) => {
 
       if (searchType === "ai") {
         dispatch(clearJobs());
-        let promptText = searchQuery || "Tìm việc phù hợp dựa trên CV của tôi";
+        let promptText = searchQuery || t("searchClient.defaultPrompt");
         if (locationValue && locationValue !== "tatca") {
-          const locationName = getLocationName(locationValue); // Chuyển 'hcm' thành 'Hồ Chí Minh'
+          const locationName = getLocationName(locationValue);
           if (locationName) {
-            // Nối chuỗi địa điểm vào cuối prompt
             promptText = `${promptText.trim()} ở ${locationName}`;
           }
         }
@@ -107,14 +106,13 @@ const SearchClient = (props: IProps) => {
           return;
         }
 
-        // >> SỬA LỖI: Thêm page=1 và size=2 vào query
         const query = `filter=${filterParts.join(" and ")}&sort=updatedAt,desc&page=1&size=2`;
         const targetPath =
           searchType === "job" ? `/job?${query}` : `/company?${query}`;
         navigate(targetPath);
       }
     } catch (error) {
-      console.error("Lỗi khi thực hiện tìm kiếm:", error);
+      console.error(t("searchClient.searchError"), error);
     } finally {
       // setIsLoading(false);
     }
@@ -135,7 +133,7 @@ const SearchClient = (props: IProps) => {
           <div className="ai-input-wrapper">
             <Form.Item name="searchQuery" noStyle>
               <Input.TextArea
-                placeholder="Nhập mô tả công việc bạn mong muốn, kỹ năng của bạn..."
+                placeholder={t("searchClient.aiPlaceholder")}
                 rows={1}
                 bordered={false}
                 autoSize={{ minRows: 1, maxRows: 1 }}
@@ -163,7 +161,7 @@ const SearchClient = (props: IProps) => {
                 >
                   <Button icon={<UploadOutlined />} type="text">
                     {" "}
-                    Tải lên CV{" "}
+                    {t("searchClient.uploadCV")}{" "}
                   </Button>
                 </Upload>
               )}
@@ -175,7 +173,7 @@ const SearchClient = (props: IProps) => {
           <div className="ai-input-wrapper">
             <Form.Item name="searchQuery" noStyle>
               <Input
-                placeholder="Nhập tên công ty bạn quan tâm..."
+                placeholder={t("searchClient.companyPlaceholder")}
                 bordered={false}
               />
             </Form.Item>
@@ -187,7 +185,7 @@ const SearchClient = (props: IProps) => {
           <div className="ai-input-wrapper">
             <Form.Item name="searchQuery" noStyle>
               <Input
-                placeholder="Nhập tên công việc, ví dụ: Java, Frontend, DevOps..."
+                placeholder={t("searchClient.jobPlaceholder")}
                 bordered={false}
               />
             </Form.Item>
@@ -220,9 +218,9 @@ const SearchClient = (props: IProps) => {
               <Typewriter
                 options={{
                   strings: [
-                    "Tìm Việc làm nhanh chóng ",
-                    "mới nhất toàn quốc",
-                    "Tìm Việc làm Bởi AI",
+                    t("searchClient.typewriter1"),
+                    t("searchClient.typewriter2"),
+                    t("searchClient.typewriter3"),
                   ],
                   autoStart: true,
                   loop: true,
@@ -244,13 +242,13 @@ const SearchClient = (props: IProps) => {
                     dropdownClassName="search-type-dropdown"
                   >
                     <Option value="job">
-                      <SearchOutlined /> Tên Job
+                      <SearchOutlined /> {t("searchClient.selectJob")}
                     </Option>
                     <Option value="company">
-                      <ApartmentOutlined /> Công ty
+                      <ApartmentOutlined /> {t("searchClient.selectCompany")}
                     </Option>
                     <Option value="ai">
-                      <FileTextOutlined /> Dùng AI
+                      <FileTextOutlined /> {t("searchClient.selectAI")}
                     </Option>
                   </Select>
                   {renderSearchInput()}
@@ -275,10 +273,10 @@ const SearchClient = (props: IProps) => {
                               .replace(/[\u0300-\u036f]/g, "")
                           )
                       }
-                      notFoundContent="Không tìm thấy"
+                      notFoundContent={t("searchClient.locationNotFound")}
                       allowClear
                       showArrow
-                      placeholder="Địa Điểm"
+                      placeholder={t("searchClient.locationPlaceholder")}
                       optionLabelProp="label"
                       options={LOCATION_LIST}
                       className="location-select-standalone"
@@ -296,7 +294,7 @@ const SearchClient = (props: IProps) => {
                 loading={isFetching}
                 htmlType="submit"
               >
-                Tìm kiếm
+                {t("searchClient.searchButton")}
               </Button>
             </Col>
           </Row>

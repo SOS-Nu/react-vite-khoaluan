@@ -16,6 +16,7 @@ import CountUp from "react-countup";
 import { useState, useEffect, useRef } from "react";
 import { IDashboardData } from "@/types/backend";
 import { callGetDashboard } from "@/config/api";
+import { t } from "i18next";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -76,7 +77,12 @@ const Introduction = () => {
   };
 
   const chartData = {
-    labels: ["Công việc", "Công ty", "Người dùng", "Hồ sơ duyệt"],
+    labels: [
+      t("job.job"),
+      t("company.company"),
+      t("user.user"),
+      t("resumes.resumesApproved"),
+    ],
     datasets: [
       {
         label: "Thống kê",
@@ -181,10 +187,8 @@ const Introduction = () => {
                 marginBottom: "1.5rem",
               }}
             >
-              <span className="brand-red">JobHunter</span> là nền tảng tuyển
-              dụng hàng đầu, kết nối hàng ngàn ứng viên với các cơ hội việc làm
-              từ những công ty uy tín. Hãy bắt đầu hành trình sự nghiệp của bạn
-              ngay hôm nay!
+              <span className="brand-red">JobHunter</span>
+              {""} {t("introduction.title")}
             </p>
             <Row className="g-3">
               <Col xs={6} sm={3}>
@@ -225,7 +229,7 @@ const Introduction = () => {
                         lineHeight: "1.2",
                       }}
                     >
-                      Công việc
+                      {t("job.job")}
                     </p>
                   </div>
                 </SimpleGlowCard>
@@ -268,7 +272,7 @@ const Introduction = () => {
                         lineHeight: "1.2",
                       }}
                     >
-                      Công ty
+                      {t("company.company")}
                     </p>
                   </div>
                 </SimpleGlowCard>
@@ -311,7 +315,7 @@ const Introduction = () => {
                         lineHeight: "1.2",
                       }}
                     >
-                      Người dùng
+                      {t("user.user")}
                     </p>
                   </div>
                 </SimpleGlowCard>
@@ -354,7 +358,7 @@ const Introduction = () => {
                         lineHeight: "1.2",
                       }}
                     >
-                      Hồ sơ duyệt
+                      {t("resumes.resumesApproved")}
                     </p>
                   </div>
                 </SimpleGlowCard>

@@ -4,10 +4,82 @@
     "home": "Home",
     "findjobs": "Find Job",
     "company": "Find company",
-
     "project": "Project",
     "contact": "Contact",
-    "about": "About"
+    "about": "About",
+    "recruiter": "Recruiter",
+    "evaluateCV": "CV Evaluation",
+    "profileCV": "CV Profile",
+    "onlineResume": "Online Resume",
+    "cvPage": "CV Page",
+    "manageAccount": "Manage Account",
+    "adminPage": "Admin Page",
+    "messages": "Messages",
+    "logout": "Logout",
+    "logoutSuccess": "Logout successful",
+    "login": "Login",
+    "languageEn": "English",
+    "languageVi": "Vietnamese",
+    "offcanvasTitle": "Features"
+  },
+  "searchClient": {
+    "aiPlaceholder": "Enter the job description you want, your skills...",
+    "companyPlaceholder": "Enter the name of the company you are interested in...",
+    "jobPlaceholder": "Enter job title, e.g., Java, Frontend, DevOps...",
+    "typewriter1": "Find Jobs quickly",
+    "typewriter2": "latest nationwide",
+    "typewriter3": "Find Jobs By AI",
+    "selectJob": "Job Title",
+    "selectCompany": "Company",
+    "selectAI": "Use AI",
+    "locationPlaceholder": "Location",
+    "locationNotFound": "Not found",
+    "searchButton": "Search",
+    "uploadCV": "Upload CV",
+    "defaultPrompt": "Find suitable jobs based on my CV",
+    "searchError": "Error while performing search:"
+  },
+  "banner": {
+    "title": "Find Your Dream Job With",
+    "subtitle": "Discover thousands of job opportunities from top companies. Start your career journey today!",
+    "button": "Find Jobs Now",
+    "cta": "Discover Now!"
+  },
+  "footer": {
+    "about": {
+      "title": "About Us",
+      "items": ["Introduction", "Careers", "News", "Partners"]
+    },
+    "services": {
+      "title": "Services",
+      "items": [
+        "CV Consulting",
+        "Mock Interview",
+        "Roadmap Building",
+        "Workshop"
+      ]
+    },
+    "career": {
+      "title": "Career",
+      "items": ["Blog", "Guides", "Events", "Community"]
+    },
+    "contact": {
+      "title": "Contact Me",
+      "hotline": "Hotline: ",
+      "email": "Email: "
+    },
+    "newsletter": {
+      "title": "Subscribe to our newsletter",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    },
+    "app": {
+      "title": "Download App",
+      "download": "Get it on",
+      "googlePlay": "Google Play",
+      "appStore": "App Store"
+    },
+    "copyright": "JobHunter Job opportunities, just a click away! © President SOS Nu {{year}}. All rights reserved."
   },
   "heroSection": {
     "exp": "My Skill",
@@ -27,5 +99,27 @@
   },
   "skill": {
     "title": "Skills Hot"
+  },
+  "manageCV": {
+    "title": " The best tools to support your job application journey"
+  },
+  "job": {
+    "newjob": "New Jobs",
+    "viewAll": "View All Jobs",
+    "job": "Job"
+  },
+  "company": {
+    "newcompany": "Recruiter Top",
+    "viewAll": "View All Companies",
+    "company": "Companies"
+  },
+  "introduction": {
+    "title": "is the leading recruitment platform, connecting thousands of candidates with job opportunities from reputable companies. Start your career today!"
+  },
+  "user": {
+    "user": "User"
+  },
+  "resumes": {
+    "resumesApproved": "Resumes Approved"
   }
 }
