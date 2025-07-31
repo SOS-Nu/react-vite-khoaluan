@@ -106,7 +106,15 @@
   "job": {
     "newjob": "New Jobs",
     "viewAll": "View All Jobs",
-    "job": "Job"
+    "job": "Job",
+    "listTitle": "Job List",
+    "loading": "Loading...",
+    "blurAlt": "Blur background",
+    "newIconAlt": "New icon",
+    "companyLogoAlt": "Company logo",
+    "salary": "$ {{value}}",
+    "levelUndefined": "Undefined",
+    "requiredSkills": "Required Skills:"
   },
   "company": {
     "newcompany": "Recruiter Top",

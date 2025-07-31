@@ -12,7 +12,7 @@ import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
 import styles from "@/styles/client.module.scss";
 import React from "react";
-import { t } from "i18next";
+import i18next, { t, i18n } from "i18next";
 
 dayjs.extend(relativeTime);
 
@@ -30,7 +30,7 @@ const JobCard = (props: IProps) => {
   const {
     jobs,
     isLoading,
-    title = "Danh sách công việc",
+    title = t("job.listTitle"), // Sửa giá trị mặc định
     showPagination,
     isListPage = false,
     showButtonAllJob,
@@ -41,15 +41,13 @@ const JobCard = (props: IProps) => {
   const [searchParams] = useSearchParams();
   const selectedJobId = searchParams.get("id");
 
-  const language = localStorage.getItem("language") || "vi";
-
   return (
     <div className="card-job-section">
       <div className="job-content">
         {isLoading ? (
           <div className="text-center py-4">
             <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">{t("job.loading")}</span>
             </div>
           </div>
         ) : (
@@ -89,29 +87,24 @@ const JobCard = (props: IProps) => {
                 ? "col-12"
                 : "col-12 col-sm-6 col-md-4";
 
-              // Chỉ highlight thẻ khi không mở ở tab mới
               const isSelected =
                 !openInNewTab && String(item.id) === selectedJobId;
 
-              // === LOGIC TẠO LINK ===
               let linkTo = "";
               let linkTarget: React.HTMLAttributeAnchorTarget = "_self";
               let linkRel: string | undefined = undefined;
 
               if (openInNewTab) {
-                // Mở trang chi tiết độc lập ở tab mới
                 linkTo = `/job/detail/${item.id}`;
                 linkTarget = "_blank";
                 linkRel = "noopener noreferrer";
               } else {
-                // Giữ lại hành vi cũ, cập nhật URL trên trang hiện tại
                 const newSearchParams = new URLSearchParams(
                   searchParams.toString()
                 );
                 newSearchParams.set("id", item.id!);
                 linkTo = `/job?${newSearchParams.toString()}`;
               }
-              // === KẾT THÚC LOGIC LINK ===
 
               const relevantDate = item.updatedAt || item.createdAt;
               const isNew = dayjs().diff(dayjs(relevantDate), "day") < 3;
@@ -140,7 +133,7 @@ const JobCard = (props: IProps) => {
                                 height: 200,
                               }}
                               src={blurImg}
-                              alt="Blur background"
+                              alt={t("job.blurAlt")}
                             />
                           )}
                           <div className="experience-container">
@@ -169,7 +162,7 @@ const JobCard = (props: IProps) => {
                                   >
                                     <img
                                       src={upload3}
-                                      alt="Wave icon"
+                                      alt={t("job.newIconAlt")}
                                       style={{
                                         width: "20px",
                                         height: "20px",
@@ -186,8 +179,10 @@ const JobCard = (props: IProps) => {
                             >
                               <div className="icon">
                                 <img
-                                  alt="company logo"
-                                  src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.company?.logo}`}
+                                  alt={t("job.companyLogoAlt")}
+                                  src={`${
+                                    import.meta.env.VITE_BACKEND_URL
+                                  }/storage/company/${item?.company?.logo}`}
                                   style={{
                                     width: "80px",
                                     height: "80px",
@@ -241,11 +236,12 @@ const JobCard = (props: IProps) => {
                                       gap: "1",
                                     }}
                                   />
-                                  {(item.salary + "").replace(
-                                    /\B(?=(\d{3})+(?!\d))/g,
-                                    ","
-                                  )}{" "}
-                                  đ
+                                  {t("job.salary", {
+                                    value: (item.salary + "").replace(
+                                      /\B(?=(\d{3})+(?!\d))/g,
+                                      ","
+                                    ),
+                                  })}
                                 </p>
                                 <p
                                   className="company"
@@ -265,7 +261,7 @@ const JobCard = (props: IProps) => {
                                   >
                                     📊{" "}
                                   </span>
-                                  {item.level || "Không xác định"}
+                                  {item.level || t("job.levelUndefined")}
                                 </p>
                                 <p
                                   className="time"
@@ -283,13 +279,9 @@ const JobCard = (props: IProps) => {
                                       fontSize: "0.875rem",
                                     }}
                                   />
-                                  {item.updatedAt
-                                    ? dayjs(item.updatedAt)
-                                        .locale(language)
-                                        .fromNow()
-                                    : dayjs(item.createdAt)
-                                        .locale(language)
-                                        .fromNow()}
+                                  {dayjs(relevantDate)
+                                    .locale(i18next.language) // Sử dụng ngôn ngữ hiện tại của i18next
+                                    .fromNow()}
                                 </p>
                               </div>
                             </div>
@@ -305,7 +297,7 @@ const JobCard = (props: IProps) => {
                                   fontWeight: 500,
                                 }}
                               >
-                                Kỹ năng yêu cầu:
+                                {t("job.requiredSkills")}
                               </p>
                               <div
                                 style={{

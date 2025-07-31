@@ -101,7 +101,15 @@
   "job": {
     "newjob": "Công Việc Mới Nhất",
     "viewAll": "Xem Tất Cả",
-    "job": "Công Việc"
+    "job": "Công Việc",
+    "listTitle": "Danh sách công việc",
+    "loading": "Đang tải...",
+    "blurAlt": "Ảnh nền mờ",
+    "newIconAlt": "Icon mới",
+    "companyLogoAlt": "Logo công ty",
+    "salary": "{{value}} đ",
+    "levelUndefined": "Không xác định",
+    "requiredSkills": "Kỹ năng yêu cầu:"
   },
   "company": {
     "newcompany": "Nhà Tuyển Dụng Hàng Đầu",

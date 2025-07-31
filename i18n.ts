@@ -18,9 +18,16 @@ i18n
   .init({
     debug: false,
     fallbackLng: "en",
-    lng: "en", // default language
+
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
+    },
+    detection: {
+      // thứ tự ưu tiên phát hiện ngôn ngữ
+      order: ["localStorage", "navigator"],
+
+      // chỉ định nơi lưu lựa chọn của người dùng
+      caches: ["localStorage"],
     },
   });
 
