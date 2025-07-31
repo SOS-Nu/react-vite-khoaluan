@@ -14,6 +14,7 @@ import { clearJobs } from "@/redux/slice/jobSlide";
 import Typewriter from "typewriter-effect";
 import "@/styles/stylespotfolio/search.client.scss";
 import { useCurrentApp } from "../context/app.context";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
@@ -32,6 +33,8 @@ const SearchClient = (props: IProps) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { theme } = useCurrentApp();
+  const { t, i18n } = useTranslation();
+
   const { isFetching } = useAppSelector((state) => state.job);
 
   useEffect(() => {

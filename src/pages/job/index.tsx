@@ -16,6 +16,7 @@ import JobCard from "@/components/client/card/job.card";
 import SearchClient from "@/components/client/search.client";
 import JobDetailPanel from "./JobDetailPanel";
 import JobFilter from "./JobFilter";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 dayjs.extend(relativeTime);
 
@@ -43,6 +44,9 @@ const ClientJobPage = () => {
 
   const prevListQueryKey = useRef<string>(null);
   const prevId = useRef<string | null>(null);
+  // >> THÊM DÒNG NÀY: Kiểm tra màn hình mobile
+  // 991.98px là breakpoint lg của Bootstrap 5
+  const isMobile = useMediaQuery("(max-width: 991.98px)");
 
   useEffect(() => {
     const listQuery = new URLSearchParams(searchParams);
@@ -209,7 +213,7 @@ const ClientJobPage = () => {
         searchParams.has("filter") && <JobFilter onFilter={handleFilter} />}
 
       <div className="row g-3" ref={jobListRef}>
-        <div className="col-12 col-lg-4">
+        <div className={isMobile ? "col-12" : "col-12 col-lg-4"}>
           <div className="left-panel-container">
             <div className="left-panel-body">
               <JobCard
@@ -217,13 +221,16 @@ const ClientJobPage = () => {
                 isLoading={isLoadingList}
                 isListPage={true}
                 showButtonAllJob={true}
+                openInNewTab={isMobile}
               />
             </div>
           </div>
         </div>
-        <div className="col-12 col-lg-8">
-          <JobDetailPanel />
-        </div>
+        {!isMobile && (
+          <div className="col-12 col-lg-8">
+            <JobDetailPanel />
+          </div>
+        )}
       </div>
 
       {shouldShowPagination && (
