@@ -339,7 +339,7 @@ export const callFindJobsByAI = (
     },
   });
 };
-// API Bước 1: Khởi tạo tìm kiếm
+// API Bước 1: Khởi tạo tìm kiếm job
 export const callInitiateSearchByAI = (
   formData: FormData,
   page: number,

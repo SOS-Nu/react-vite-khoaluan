@@ -41,7 +41,7 @@ const CandidateSearchForm = (props: IProps) => {
       formData.append("jobDescription", jobDescription);
     }
     if (cvFile) {
-      formData.append("cv", cvFile);
+      formData.append("file", cvFile);
     }
 
     try {
@@ -58,7 +58,7 @@ const CandidateSearchForm = (props: IProps) => {
           `Tìm thấy ${res.data.candidates.length} ứng viên phù hợp!`
         );
       } else {
-        toast.info("Không tìm thấy ứng viên nào khớp với yêu cầu.");
+        toast.info(res?.message);
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra trong quá trình tìm kiếm.");
