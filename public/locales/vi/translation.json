@@ -107,7 +107,7 @@
     "blurAlt": "Ảnh nền mờ",
     "newIconAlt": "Icon mới",
     "companyLogoAlt": "Logo công ty",
-    "salary": "{{value}} đ",
+    "salary": "{{value}} VNĐ",
     "levelUndefined": "Không xác định",
     "requiredSkills": "Kỹ năng yêu cầu:"
   },

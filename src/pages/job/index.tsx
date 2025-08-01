@@ -79,12 +79,15 @@ const ClientJobPage = () => {
         if (isNewSearch && (prompt || location.state?.file)) {
           const formData = new FormData();
           formData.append("skillsDescription", prompt || "Phù hợp với CV");
+
           if (location.state?.file) {
             formData.append("file", location.state.file);
-            // navigate(location.pathname + location.search, {
-            //   replace: true,
-            //   state: {},
-            // });
+            // >> THÊM DÒNG NÀY ĐỂ XÓA STATE SAU KHI DÙNG <<
+            // Dùng 'replace: true' để không tạo thêm một mục trong lịch sử trình duyệt
+            navigate(location.pathname + location.search, {
+              replace: true,
+              state: {}, // Ghi đè state bằng một object rỗng
+            });
           }
           dispatch(initiateAiSearch({ formData, page, size }));
         } else if (searchId) {
