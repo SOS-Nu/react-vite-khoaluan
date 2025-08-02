@@ -1,13 +1,28 @@
-# Stage 1: Build the application
-FROM gradle:8.7-jdk17 AS build
-COPY --chown=gradle:gradle . /hoidanit/jobhunter
-WORKDIR /hoidanit/jobhunter
+# STAGE 1: Build ứng dụng React với môi trường UAT
+FROM node:20-alpine AS build
+WORKDIR /app
 
-#skip task: test
-RUN gradle clean build -x test --no-daemon
+# Copy package.json và cài đặt dependencies
+COPY package*.json ./
+RUN npm install
 
-# Stage 2: Run the application
-FROM openjdk:17-slim
-EXPOSE 8080
-COPY --from=build /hoidanit/jobhunter/build/libs/*.jar /hoidanit/spring-boot-job-hunter.jar
-ENTRYPOINT ["java", "-jar", "/hoidanit/spring-boot-job-hunter.jar"]
+# Copy toàn bộ source code
+COPY . .
+
+# Chạy lệnh build-uat của bạn để tạo folder /dist
+RUN npm run build-uat
+
+# STAGE 2: Serve các file tĩnh đã build bằng Nginx
+FROM nginx:1.23-alpine
+
+# Copy kết quả từ stage 'build' vào thư mục mặc định của Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy file cấu hình Nginx của bạn vào container
+# (File này nên nằm trong thư mục project frontend)
+COPY default.conf /etc/nginx/conf.d/default.conf
+# Mở port 80 để Nginx có thể nhận request
+EXPOSE 80
+
+# Lệnh để khởi chạy Nginx
+CMD ["nginx", "-g", "daemon off;"]
