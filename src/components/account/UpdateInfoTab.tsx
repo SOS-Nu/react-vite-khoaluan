@@ -204,7 +204,7 @@ const UpdateInfoTab = () => {
               <Col sm="9">
                 <Form.Control
                   type="email"
-                  value={user.email}
+                  value={user.email!}
                   readOnly
                   plaintext
                 />

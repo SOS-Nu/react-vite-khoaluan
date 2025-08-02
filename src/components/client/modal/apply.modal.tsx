@@ -61,7 +61,7 @@ const ApplyModal = (props: IProps) => {
         const res = await callCreateResume(
           urlCV,
           jobDetail?.id,
-          user.email,
+          user?.email!,
           user.id
         );
         if (res.data) {

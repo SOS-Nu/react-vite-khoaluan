@@ -140,7 +140,7 @@ const ChangePasswordTab = () => {
     setAlert({ ...alert, show: false });
     setIsVerifyingOtp(true);
     const res = await callVerifyOtpAndChangePassword(
-      otpEmail,
+      otpEmail!,
       otpCode,
       newPasswordOtp
     );
@@ -276,7 +276,7 @@ const ChangePasswordTab = () => {
                 <InputGroup>
                   <Form.Control
                     type="email"
-                    value={otpEmail}
+                    value={otpEmail!}
                     onChange={(e) => setOtpEmail(e.target.value)}
                     placeholder="Nhập email của bạn"
                     required
