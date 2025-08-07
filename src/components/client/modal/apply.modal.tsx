@@ -122,7 +122,7 @@ const ApplyModal = (props: IProps) => {
         maskClosable={false}
         okText={isAuthenticated ? "Rải CV Nào " : "Đăng Nhập Nhanh"}
         cancelButtonProps={{ style: { display: "none" } }}
-        destroyOnClose={true}
+        destroyOnHidden={true}
         confirmLoading={isLoading}
       >
         <Divider />

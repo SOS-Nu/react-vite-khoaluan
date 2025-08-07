@@ -171,7 +171,7 @@ const ImportUser = (props: IProps) => {
         loading: isSubmit,
       }}
       maskClosable={false}
-      destroyOnClose={true}
+      destroyOnHidden={true}
     >
       <ProFormUploadDragger
         name="file-upload-user" // Quan trọng: Cần có name cho form item

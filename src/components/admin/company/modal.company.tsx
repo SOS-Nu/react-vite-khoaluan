@@ -298,7 +298,7 @@ const ModalCompany = (props: IProps) => {
                 handleReset();
               },
               afterClose: () => handleReset(),
-              destroyOnClose: true,
+              destroyOnHidden: true,
               width: isMobile ? "100%" : 900,
               footer: null,
               keyboard: false,

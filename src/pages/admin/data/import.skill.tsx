@@ -161,7 +161,7 @@ const ImportSkill = (props: IProps) => {
         loading: isSubmit,
       }}
       maskClosable={false}
-      destroyOnClose={true}
+      destroyOnHidden={true}
     >
       <ProFormUploadDragger
         name="file-upload-skill" // Quan trọng: Cần có name cho form item

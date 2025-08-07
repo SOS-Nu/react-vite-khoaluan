@@ -105,7 +105,7 @@ const ViewDetailResume = (props: IProps) => {
         open={open}
         width={"40vw"}
         maskClosable={false}
-        destroyOnClose
+        destroyOnHidden
         extra={
           <>
             <Space>

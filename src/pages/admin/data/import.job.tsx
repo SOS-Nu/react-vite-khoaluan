@@ -248,7 +248,7 @@ const ImportJob = (props: IProps) => {
         loading: isSubmit,
       }}
       maskClosable={false}
-      destroyOnClose={true}
+      destroyOnHidden={true}
     >
        {" "}
       <ProFormUploadDragger
