@@ -607,11 +607,11 @@ export const callVerifyOtpAndChangePassword = (
   });
 
 export const getUsersConnected = (id: number) => {
-  return axios.get(`/users-connected?id=${id}`);
+  return axios.get(`/api/v1/users-connected?id=${id}`);
 };
 
 export const getAllMessages = (senderId: number, recipientId: number) => {
-  return axios.get(`/messages/${senderId}/${recipientId}`);
+  return axios.get(`/api/v1/messages/${senderId}/${recipientId}`);
 };
 
 export const callUpdateOwnInfo = (data: Partial<IUser>) => {
