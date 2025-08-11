@@ -101,12 +101,24 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
               {isAuthenticated ? (
                 <Button
                   onClick={() => {
+                    if (!hrCompany) return;
                     navigate("/chat/detail", {
-                      state: { receiver: hrCompany ?? {} },
+                      state: {
+                        receiverId: hrCompany.id,
+                        // normalize: đảm bảo luôn có company để header dùng
+                        receiver: {
+                          ...hrCompany,
+                          company: {
+                            id: companyDetail?.id,
+                            name: companyDetail?.name,
+                            logoUrl: companyDetail?.logo,
+                          },
+                        },
+                      },
                     });
                   }}
-                  variant="primary" // Sử dụng variant thay cho color
-                  className="mt-2" // Giảm margin top
+                  variant="primary"
+                  className="mt-2"
                 >
                   Nhắn tin
                 </Button>

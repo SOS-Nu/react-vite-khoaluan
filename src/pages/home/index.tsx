@@ -59,7 +59,6 @@ const HomePage = () => {
   return (
     <div className={`${styles["container"]} ${styles["home-section"]}`}>
       <div className="search-content" style={{ marginTop: 20 }}>
-        {/* >> SỬA LỖI: Truyền props cần thiết xuống cho SearchClient */}
         <SearchClient
           searchType={currentSearchType}
           onSearchTypeChange={setCurrentSearchType}

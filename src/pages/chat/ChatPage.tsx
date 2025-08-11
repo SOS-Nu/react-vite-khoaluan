@@ -23,9 +23,7 @@ const ChatPage = () => {
   const user = useAppSelector((state) => state.account.user);
   const messages = useAppSelector((state) => state.chat.messages);
 
-  const [userSelected, setUserSelected] = useState<UserInfo | null>(
-    location?.state?.receiver ?? null
-  );
+  const [userSelected, setUserSelected] = useState<UserInfo | null>(null);
   const [inputMessage, setInputMessage] = useState<string>("");
   const [connectedUsers, setConnectedUsers] = useState<UserInfo[]>([]);
   // State mới để quản lý giao diện mobile
@@ -33,6 +31,22 @@ const ChatPage = () => {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const { res: resUsersConnected } = useUsersConnected();
+  const { state } = useLocation() as {
+    state?: { receiver?: UserInfo; receiverId?: number };
+  };
+
+  // Khi danh sách online/connected đổi, hoặc khi state thay đổi → chọn theo id
+  useEffect(() => {
+    const wantedId = state?.receiverId ?? state?.receiver?.id;
+    if (!wantedId) return;
+
+    const match = connectedUsers.find((u) => u.id === wantedId);
+    if (match) {
+      setUserSelected(match); // Ưu tiên object trong list (đảm bảo highlight đồng nhất)
+    } else if (state?.receiver) {
+      setUserSelected(state.receiver); // Fallback nếu người đó chưa có trong list (offline/chưa load)
+    }
+  }, [connectedUsers, state]);
 
   // Cập nhật danh sách người dùng online
   useEffect(() => {

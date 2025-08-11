@@ -58,7 +58,6 @@ const CandidateSearchForm = (props: IProps) => {
           `Tìm thấy ${res.data.candidates.length} ứng viên phù hợp!`
         );
       } else {
-        toast.info(res?.message);
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra trong quá trình tìm kiếm.");
