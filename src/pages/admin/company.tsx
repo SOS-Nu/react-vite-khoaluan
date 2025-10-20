@@ -251,6 +251,8 @@ const CompanyPage = () => {
           }}
           scroll={{ x: true }}
           pagination={{
+            size: "default",
+
             current: meta.page,
             pageSize: meta.pageSize,
             showSizeChanger: true,

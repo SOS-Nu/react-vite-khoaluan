@@ -14,7 +14,7 @@ import Exceljs from "exceljs";
 import { Buffer } from "buffer";
 import Dragger from "antd/lib/upload/Dragger";
 import templateFile from "@/assets/template/job.xlsx?url";
-import { callBulkCreateJobAPI, callBulkCreateUserAPI } from "@/config/api";
+import { callBulkCreateJobAPI } from "@/config/api";
 import { Console } from "console";
 import { useCurrentApp } from "@/components/context/app.context";
 import { ProFormUploadDragger } from "@ant-design/pro-components";
@@ -28,7 +28,6 @@ interface IProps {
 interface IDataImport {
   name: string;
   location: string;
-
   address: string;
   salary: string;
   company: number;
@@ -41,13 +40,13 @@ interface IDataImport {
   skills: {
     id: number;
   }[];
+  id?: number; // Thêm id vào interface
 }
 
 interface IDataSubmit {
   name: string;
   location: string;
   address: string;
-
   salary: string;
   company: { id: number };
   quantity: number;
@@ -60,7 +59,6 @@ interface IDataSubmit {
     id: number;
   }[];
 }
-//datamit conver
 
 interface IDataShow {
   name: string;
@@ -77,6 +75,7 @@ interface IDataShow {
   skills: {
     id: number;
   }[];
+  id?: number; // Thêm id vào interface
 }
 
 const ImportJob = (props: IProps) => {
@@ -211,10 +210,11 @@ const ImportJob = (props: IProps) => {
 
   const handleImport = async () => {
     setIsSubmit(true);
-    const dataSubmit: IDataSubmit[] = dataImport.map((item) => ({
+    //khi tham số đầu vào tách ra là id , ...item thì đã tách id ra khỏi item , khi ...item thì không có trường id nữa
+    const dataSubmit: IDataSubmit[] = dataImport.map(({ id, ...item }) => ({
       ...item,
       company: { id: item.company },
-      skills: item.skills.map((item: { id: number }) => ({ id: item.id })),
+      skills: item.skills.map((skill: { id: number }) => ({ id: skill.id })),
       //item là mỗi phần trong mảng skills , trong trường hợp này nó là {"id": 1}
       // Lặp qua từng phần tử trong skills
     }));
@@ -222,8 +222,8 @@ const ImportJob = (props: IProps) => {
     const res = await callBulkCreateJobAPI(dataSubmit);
     if (res?.data) {
       notification.success({
-        message: "Bulk Create Users",
-        description: `total Users= ${res.data?.total}.||.Success = ${res.data.success}.||.Error = ${res.data.failed}`,
+        message: "Bulk Create Jobs",
+        description: `total Jobs= ${res.data?.total}.||.Success = ${res.data.success}.||.Error = ${res.data.failed}`,
       });
     }
     setIsSubmit(false);
@@ -234,7 +234,7 @@ const ImportJob = (props: IProps) => {
 
   return (
     <Modal
-      title="Import data user"
+      title="Import data jobs"
       width={"80vw"}
       open={openModalImportJob}
       onOk={() => handleImport()}
@@ -285,7 +285,6 @@ const ImportJob = (props: IProps) => {
             { dataIndex: "name", title: "Tên hiển thị" },
             { dataIndex: "location", title: "Địa điểm" },
             { dataIndex: "address", title: "Địa chỉ" },
-
             { dataIndex: "salary", title: "Lương" },
             { dataIndex: "quantity", title: "Số lượng" },
             { dataIndex: "level", title: "Cấp độ" },

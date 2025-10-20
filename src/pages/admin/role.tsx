@@ -227,6 +227,8 @@ const RolePage = () => {
           }}
           scroll={{ x: true }}
           pagination={{
+            size: "default",
+
             current: meta.page,
             pageSize: meta.pageSize,
             showSizeChanger: true,

@@ -267,6 +267,7 @@ const UserPage = () => {
             pageSize: meta.pageSize,
             showSizeChanger: true,
             total: meta.total,
+            size: "default",
             showTotal: (total, range) => {
               return (
                 <div>

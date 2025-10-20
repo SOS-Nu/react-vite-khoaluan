@@ -280,6 +280,7 @@ const JobPage = () => {
           pagination={{
             current: meta.page,
             pageSize: meta.pageSize,
+            size: "default",
             showSizeChanger: true,
             total: meta.total,
             showTotal: (total, range) => {

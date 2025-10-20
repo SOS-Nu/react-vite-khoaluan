@@ -144,6 +144,27 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
               <strong>Khu vực:&nbsp;</strong>
               <span>{getLocationName(companyDetail?.location!)}</span>
             </div>
+            {companyDetail.address && (
+              <div className="content-section" style={{ marginTop: "1.5rem" }}>
+                <strong>Bản đồ</strong>
+                <iframe
+                  title={`Bản đồ địa chỉ ${companyDetail.name}`}
+                  width="100%"
+                  height="300" // Bạn có thể điều chỉnh chiều cao
+                  style={{
+                    border: 0,
+                    borderRadius: "8px",
+                    marginTop: "8px",
+                  }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    companyDetail.address
+                  )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                ></iframe>
+              </div>
+            )}
             <Divider />
             <div className="description-html">
               {parse(
