@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 // import { visualizer } from "rollup-plugin-visualizer";
 import dns from "dns";
+import vue from "@vitejs/plugin-vue";
 
 //running on localhost instead of IP 127.0.0.1
 dns.setDefaultResultOrder("verbatim");
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      vue(),
       // visualizer() as PluginOption
     ],
     define: {

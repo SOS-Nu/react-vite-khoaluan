@@ -25,6 +25,7 @@
     "@tanstack/react-query": "5.61.0",
     "@tanstack/react-query-devtools": "5.61.0",
     "@types/file-saver": "2.0.7",
+    "@vitejs/plugin-vue": "^6.0.1",
     "antd": "5.26.0",
     "async-mutex": "0.4.0",
     "axios": "1.6.5",
@@ -37,6 +38,7 @@
     "file-saver": "2.0.5",
     "flowbite-react": "0.10.2",
     "framer-motion": "^12.6.3",
+    "gsap": "^3.13.0",
     "html-react-parser": "4.0.0",
     "html2canvas": "1.4.1",
     "i": "0.3.7",
@@ -81,7 +83,8 @@
     "tesseract.js": "^6.0.1",
     "tsparticles": "3.8.1",
     "typewriter-effect": "2.21.0",
-    "uuid": "9.0.0"
+    "uuid": "9.0.0",
+    "vue": "^3.5.22"
   },
   "devDependencies": {
     "@eslint/js": "9.12.0",

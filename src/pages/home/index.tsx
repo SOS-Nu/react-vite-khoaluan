@@ -17,6 +17,8 @@ import Skill from "../skill";
 import { IUser } from "@/types/backend";
 import { useTranslation } from "react-i18next";
 import bg from "assets/top-bg.svg";
+import { VueHeroWrapper } from "@/components/HeroAnimation/VueHeroWrapper";
+import { isMobile } from "react-device-detect";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -59,24 +61,28 @@ const HomePage = () => {
 
   return (
     <>
-      <div
-        style={{
-          backgroundImage: `url(${bg})`,
-          width: "100%",
-          height: 500,
-          position: "absolute",
-          top: 50,
-          backgroundRepeat: "repeat",
-          zIndex: 0,
-        }}
-      ></div>
+      <VueHeroWrapper />
+
+      {/* <div
+      // style={{
+      //   backgroundImage: `url(${bg})`,
+      //   width: "100%",
+      //   height: 500,
+      //   position: "absolute",
+      //   top: 50,
+      //   backgroundRepeat: "repeat",
+      //   zIndex: 0,
+      // }}
+      ></div> */}
       <div className={`${styles["container"]} ${styles["home-section"]}`}>
-        <div className="search-content" style={{ marginTop: 20 }}>
+        <div className="search-content">
           <SearchClient
             searchType={currentSearchType}
             onSearchTypeChange={setCurrentSearchType}
           />
         </div>
+        <div></div>
+        {!isMobile ? <div style={{ height: "30rem" }}></div> : <Divider />}
         <ManageCV />
         <JobCard
           jobs={jobsResult}

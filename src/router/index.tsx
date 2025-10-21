@@ -36,6 +36,7 @@ import CVAIEvaluationPage from "pages/cv-ai/CVAIEvaluation";
 
 // Import LayoutClient từ file mới
 import { LayoutClient } from "components/client/LayoutClient";
+import { VueHeroWrapper } from "@/components/HeroAnimation/VueHeroWrapper";
 
 const queryClient = new QueryClient();
 
