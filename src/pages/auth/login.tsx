@@ -29,6 +29,7 @@ import {
   callVerifyOtpAndChangePassword,
 } from "@/config/api";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
+import bg from "assets/top-bg.svg";
 
 // Interface cho Alert (tương tự ChangePasswordTab)
 interface IAlert {
@@ -433,17 +434,30 @@ const LoginPage = () => {
   );
 
   return (
-    <div
-      className={`${styles["login-page-bootstrap"]} vh-100 d-flex align-items-center justify-content-center`}
-    >
-      <Card className={styles["login-card"]}>
-        <Card.Body>
-          {isForgotPasswordMode
-            ? renderForgotPasswordForm()
-            : renderLoginForm()}
-        </Card.Body>
-      </Card>
-    </div>
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 0,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div
+        className={`${styles["login-page-bootstrap"]} vh-100 d-flex align-items-center justify-content-center`}
+      >
+        <Card className={styles["login-card"]}>
+          <Card.Body>
+            {isForgotPasswordMode
+              ? renderForgotPasswordForm()
+              : renderLoginForm()}
+          </Card.Body>
+        </Card>
+      </div>
+    </>
   );
 };
 

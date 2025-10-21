@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { clearCompanies, fetchCompany } from "@/redux/slice/companySlide"; // Import action fetchCompany
+import bg from "assets/top-bg.svg";
 
 const ClientCompanyPage = () => {
   // Sử dụng Redux và Router hooks
@@ -62,50 +63,63 @@ const ClientCompanyPage = () => {
   };
 
   return (
-    <div className={styles["container"]} style={{ marginTop: 20 }}>
-      <Row gutter={[20, 20]}>
-        {/* Thêm thanh tìm kiếm vào trang company */}
-        <Col span={24}>
-          <SearchClient
-            searchType={currentSearchType}
-            onSearchTypeChange={setCurrentSearchType}
-          />
-        </Col>
-        <Divider />
-
-        <Col span={24}>
-          {/* Truyền dữ liệu từ Redux store xuống CompanyCard */}
-          <CompanyCard
-            companies={result}
-            isLoading={isFetching}
-            title="Danh sách công ty"
-            showPagination={true}
-            companyListRef={companyListRef}
-          />
-        </Col>
-
-        {/* Quản lý Pagination ở trang cha */}
-        <Col
-          span={24}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            padding: "20px 0",
-          }}
-        >
-          {!isFetching && meta.total > 0 && (
-            <Pagination
-              current={meta.page}
-              total={meta.total}
-              pageSize={meta.pageSize}
-              onChange={handleOnchangePage}
-              responsive
-              showSizeChanger
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div className={styles["container"]} style={{ marginTop: 20 }}>
+        <Row gutter={[20, 20]}>
+          {/* Thêm thanh tìm kiếm vào trang company */}
+          <Col span={24}>
+            <SearchClient
+              searchType={currentSearchType}
+              onSearchTypeChange={setCurrentSearchType}
             />
-          )}
-        </Col>
-      </Row>
-    </div>
+          </Col>
+          <Divider />
+
+          <Col span={24}>
+            {/* Truyền dữ liệu từ Redux store xuống CompanyCard */}
+            <CompanyCard
+              companies={result}
+              isLoading={isFetching}
+              title="Danh sách công ty"
+              showPagination={true}
+              companyListRef={companyListRef}
+            />
+          </Col>
+
+          {/* Quản lý Pagination ở trang cha */}
+          <Col
+            span={24}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              padding: "20px 0",
+            }}
+          >
+            {!isFetching && meta.total > 0 && (
+              <Pagination
+                current={meta.page}
+                total={meta.total}
+                pageSize={meta.pageSize}
+                onChange={handleOnchangePage}
+                responsive
+                showSizeChanger
+              />
+            )}
+          </Col>
+        </Row>
+      </div>
+    </>
   );
 };
 

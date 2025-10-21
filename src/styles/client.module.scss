@@ -71,58 +71,6 @@
   }
 }
 
-.header-section {
-  display: block;
-  width: 100%;
-  height: 55px;
-  background-color: #222831;
-  position: fixed;
-  z-index: 9999;
-
-  .brand {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    svg {
-      cursor: pointer;
-      color: #1677ff;
-      font-size: 30px;
-      margin-top: 7px;
-      animation: spin 20s linear infinite;
-    }
-  }
-
-  .top-menu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-
-    .extra {
-      a,
-      span {
-        cursor: pointer;
-        display: block;
-        color: #a7a7a7;
-        text-decoration: none;
-
-        &:hover {
-          color: #fff;
-        }
-      }
-    }
-  }
-
-  .header-mobile {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 55px;
-    color: white;
-  }
-}
-
 .card-job-section {
   .empty {
     display: flex;

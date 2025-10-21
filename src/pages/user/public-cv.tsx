@@ -40,6 +40,7 @@ import CVTemplate_Classic from "./CVTemplate_Classic";
 
 // Styles
 import "@/styles/stylespotfolio/public-cv.scss";
+import hero from "assets/hero.svg";
 
 const PublicCvPage = () => {
   // === STATE MANAGEMENT ===
@@ -220,255 +221,268 @@ const PublicCvPage = () => {
   const { onlineResume, workExperiences } = userData;
 
   return (
-    <div className="public-cv-wrapper">
-      {/* Main CV Display */}
-      <Container className="public-cv-container my-5">
-        {/* ...Phần JSX còn lại giữ nguyên... */}
-        <Row>
-          {/* Cột trái - Sidebar */}
-          <Col md={4} className="sidebar-col">
-            <Card className="sidebar-card">
-              <Card.Body className="text-center">
-                <Image
-                  src={getAvatarUrl(userData.avatar)}
-                  roundedCircle
-                  className="profile-avatar mb-3"
-                />
-                <h2 className="user-name">{userData.name}</h2>
-                <p className="resume-title-sidebar">{onlineResume?.title}</p>
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${hero})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div className="public-cv-wrapper">
+        {/* Main CV Display */}
+        <Container className="public-cv-container my-5">
+          {/* ...Phần JSX còn lại giữ nguyên... */}
+          <Row>
+            {/* Cột trái - Sidebar */}
+            <Col md={4} className="sidebar-col">
+              <Card className="sidebar-card">
+                <Card.Body className="text-center">
+                  <Image
+                    src={getAvatarUrl(userData.avatar)}
+                    roundedCircle
+                    className="profile-avatar mb-3"
+                  />
+                  <h2 className="user-name">{userData.name}</h2>
+                  <p className="resume-title-sidebar">{onlineResume?.title}</p>
 
-                <div className="d-grid gap-2 my-4">
-                  {userData.mainResume && (
-                    <a
-                      href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${userData.mainResume}&folder=resumes`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  <div className="d-grid gap-2 my-4">
+                    {userData.mainResume && (
+                      <a
+                        href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${userData.mainResume}&folder=resumes`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="primary" className="w-100">
+                          <DownloadOutlined /> Download Full CV
+                        </Button>
+                      </a>
+                    )}
+                    <Button
+                      variant="outline-primary"
+                      className="w-100"
+                      onClick={() => setShowTemplateModal(true)}
+                      disabled={isDownloading}
                     >
-                      <Button variant="primary" className="w-100">
-                        <DownloadOutlined /> Download Full CV
-                      </Button>
-                    </a>
-                  )}
-                  <Button
-                    variant="outline-primary"
-                    className="w-100"
-                    onClick={() => setShowTemplateModal(true)}
-                    disabled={isDownloading}
-                  >
-                    <FilePdfOutlined />{" "}
-                    {isDownloading
-                      ? "Generating..."
-                      : "Export Online CV to PDF"}
-                  </Button>
-                </div>
-
-                <hr />
-
-                <div className="contact-info text-start">
-                  <h5 className="sidebar-heading">Contact</h5>
-                  {userData.email && (
-                    <p>
-                      <MailOutlined /> &nbsp; {userData.email}
-                    </p>
-                  )}
-                  {!userData.email && (
-                    <p>
-                      <MailOutlined /> &nbsp; Private
-                    </p>
-                  )}
-
-                  {onlineResume?.phone && (
-                    <p>
-                      <PhoneOutlined /> &nbsp; {onlineResume.phone}
-                    </p>
-                  )}
-                  {!onlineResume?.phone && (
-                    <p>
-                      <PhoneOutlined /> &nbsp; Private
-                    </p>
-                  )}
-                  {userData.address && (
-                    <p>
-                      <HomeOutlined /> &nbsp; {userData.address}
-                    </p>
-                  )}
-                  {!userData.address && (
-                    <p>
-                      <HomeOutlined /> &nbsp; Private
-                    </p>
-                  )}
-                </div>
-                <hr />
-                <div className="skills-info text-start">
-                  <h5 className="sidebar-heading">Skills</h5>
-                  <div>
-                    {onlineResume?.skills?.map((skill) => (
-                      <Tag color="blue" key={skill.id} className="skill-tag">
-                        {skill.name}
-                      </Tag>
-                    ))}
+                      <FilePdfOutlined />{" "}
+                      {isDownloading
+                        ? "Generating..."
+                        : "Export Online CV to PDF"}
+                    </Button>
                   </div>
-                </div>
-                <hr />
-                <div className="skills-info text-start">
-                  <h5 className="sidebar-heading">Languages</h5>
-                  <div className="language-text">
-                    {onlineResume?.languages?.split("\n").map((lang, i) => (
-                      <p key={i} className="mb-1">
-                        {lang}
+
+                  <hr />
+
+                  <div className="contact-info text-start">
+                    <h5 className="sidebar-heading">Contact</h5>
+                    {userData.email && (
+                      <p>
+                        <MailOutlined /> &nbsp; {userData.email}
                       </p>
-                    ))}
+                    )}
+                    {!userData.email && (
+                      <p>
+                        <MailOutlined /> &nbsp; Private
+                      </p>
+                    )}
+
+                    {onlineResume?.phone && (
+                      <p>
+                        <PhoneOutlined /> &nbsp; {onlineResume.phone}
+                      </p>
+                    )}
+                    {!onlineResume?.phone && (
+                      <p>
+                        <PhoneOutlined /> &nbsp; Private
+                      </p>
+                    )}
+                    {userData.address && (
+                      <p>
+                        <HomeOutlined /> &nbsp; {userData.address}
+                      </p>
+                    )}
+                    {!userData.address && (
+                      <p>
+                        <HomeOutlined /> &nbsp; Private
+                      </p>
+                    )}
                   </div>
-                </div>
-              </Card.Body>
-              <Button
-                onClick={() =>
-                  navigate("/chat/detail", {
-                    state: { receiver: userData ?? {} },
-                  })
-                }
-                color="light"
-                className="mt-3 w-100"
-              >
-                Nhắn tin
-              </Button>
-            </Card>
-          </Col>
+                  <hr />
+                  <div className="skills-info text-start">
+                    <h5 className="sidebar-heading">Skills</h5>
+                    <div>
+                      {onlineResume?.skills?.map((skill) => (
+                        <Tag color="blue" key={skill.id} className="skill-tag">
+                          {skill.name}
+                        </Tag>
+                      ))}
+                    </div>
+                  </div>
+                  <hr />
+                  <div className="skills-info text-start">
+                    <h5 className="sidebar-heading">Languages</h5>
+                    <div className="language-text">
+                      {onlineResume?.languages?.split("\n").map((lang, i) => (
+                        <p key={i} className="mb-1">
+                          {lang}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </Card.Body>
+                <Button
+                  onClick={() =>
+                    navigate("/chat/detail", {
+                      state: { receiver: userData ?? {} },
+                    })
+                  }
+                  color="light"
+                  className="mt-3 w-100"
+                >
+                  Nhắn tin
+                </Button>
+              </Card>
+            </Col>
 
-          {/* Cột phải - Nội dung chính */}
-          <Col md={8} className="main-content-col">
-            <Card className="content-card mb-4">
-              <Card.Body>
-                <Card.Title as="h4" className="card-title-icon">
-                  Summary
-                </Card.Title>
-                <Card.Text as="div" className="summary-text">
-                  {onlineResume?.summary}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-
-            {workExperiences && workExperiences.length > 0 && (
+            {/* Cột phải - Nội dung chính */}
+            <Col md={8} className="main-content-col">
               <Card className="content-card mb-4">
                 <Card.Body>
                   <Card.Title as="h4" className="card-title-icon">
-                    Work Experience
+                    Summary
                   </Card.Title>
-                  <div className="timeline">
-                    {workExperiences.map((exp) => (
-                      <div className="timeline-item" key={exp.id}>
-                        <div className="timeline-dot"></div>
-                        <div className="timeline-content">
-                          <h5 className="experience-company">
-                            {exp.companyName}
-                          </h5>
-                          <p className="experience-duration text-muted">
-                            {moment(exp.startDate).format("MMM YYYY")} -{" "}
-                            {exp.endDate
-                              ? moment(exp.endDate).format("MMM YYYY")
-                              : "Present"}{" "}
-                            | {exp.location}
-                          </p>
-                          <div className="experience-description">
-                            {exp.description.split("\n").map((line, i) => (
-                              <p key={i} className="mb-1">
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Card.Text as="div" className="summary-text">
+                    {onlineResume?.summary}
+                  </Card.Text>
                 </Card.Body>
               </Card>
-            )}
-            <Row>
-              <Col md={6}>
+
+              {workExperiences && workExperiences.length > 0 && (
                 <Card className="content-card mb-4">
                   <Card.Body>
                     <Card.Title as="h4" className="card-title-icon">
-                      Education
+                      Work Experience
                     </Card.Title>
-                    <div className="simple-text">
-                      {onlineResume?.educations?.split("\n").map((edu, i) => (
-                        <p key={i} className="mb-1">
-                          {edu}
-                        </p>
+                    <div className="timeline">
+                      {workExperiences.map((exp) => (
+                        <div className="timeline-item" key={exp.id}>
+                          <div className="timeline-dot"></div>
+                          <div className="timeline-content">
+                            <h5 className="experience-company">
+                              {exp.companyName}
+                            </h5>
+                            <p className="experience-duration text-muted">
+                              {moment(exp.startDate).format("MMM YYYY")} -{" "}
+                              {exp.endDate
+                                ? moment(exp.endDate).format("MMM YYYY")
+                                : "Present"}{" "}
+                              | {exp.location}
+                            </p>
+                            <div className="experience-description">
+                              {exp.description.split("\n").map((line, i) => (
+                                <p key={i} className="mb-1">
+                                  {line}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </Card.Body>
                 </Card>
-              </Col>
-              <Col md={6}>
-                <Card className="content-card mb-4">
-                  <Card.Body>
-                    <Card.Title as="h4" className="card-title-icon">
-                      Certifications
-                    </Card.Title>
-                    <div className="simple-text">
-                      {onlineResume?.certifications
-                        ?.split("\n")
-                        .map((cert, i) => (
+              )}
+              <Row>
+                <Col md={6}>
+                  <Card className="content-card mb-4">
+                    <Card.Body>
+                      <Card.Title as="h4" className="card-title-icon">
+                        Education
+                      </Card.Title>
+                      <div className="simple-text">
+                        {onlineResume?.educations?.split("\n").map((edu, i) => (
                           <p key={i} className="mb-1">
-                            {cert}
+                            {edu}
                           </p>
                         ))}
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </Container>
-
-      {/* Modal for Template Selection */}
-      <Modal
-        show={showTemplateModal}
-        onHide={() => setShowTemplateModal(false)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Choose a CV Template</Modal.Title>
-        </Modal.Header>
-        <Modal.Body
-          style={{ maxHeight: "calc(100vh - 210px)", overflowY: "auto" }}
-        >
-          <Container>
-            <Row>
-              {templates.map((template) => (
-                <Col md={6} key={template.name} className="mb-3">
-                  <Card className="text-center">
-                    <Card.Img
-                      variant="top"
-                      src={template.preview}
-                      style={{
-                        height: "400px",
-                        objectFit: "contain",
-                        background: "#f8f9fa",
-                        padding: "10px",
-                        borderBottom: "1px solid #dee2e6",
-                      }}
-                    />
-                    <Card.Body>
-                      <Card.Title>{template.name}</Card.Title>
-                      <Button
-                        variant="primary"
-                        onClick={() => handleDownloadPdf(template.name)}
-                      >
-                        Choose {template.name}
-                      </Button>
+                      </div>
                     </Card.Body>
                   </Card>
                 </Col>
-              ))}
-            </Row>
-          </Container>
-        </Modal.Body>
-      </Modal>
-    </div>
+                <Col md={6}>
+                  <Card className="content-card mb-4">
+                    <Card.Body>
+                      <Card.Title as="h4" className="card-title-icon">
+                        Certifications
+                      </Card.Title>
+                      <div className="simple-text">
+                        {onlineResume?.certifications
+                          ?.split("\n")
+                          .map((cert, i) => (
+                            <p key={i} className="mb-1">
+                              {cert}
+                            </p>
+                          ))}
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </Container>
+
+        {/* Modal for Template Selection */}
+        <Modal
+          show={showTemplateModal}
+          onHide={() => setShowTemplateModal(false)}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Choose a CV Template</Modal.Title>
+          </Modal.Header>
+          <Modal.Body
+            style={{ maxHeight: "calc(100vh - 210px)", overflowY: "auto" }}
+          >
+            <Container>
+              <Row>
+                {templates.map((template) => (
+                  <Col md={6} key={template.name} className="mb-3">
+                    <Card className="text-center">
+                      <Card.Img
+                        variant="top"
+                        src={template.preview}
+                        style={{
+                          height: "400px",
+                          objectFit: "contain",
+                          background: "#f8f9fa",
+                          padding: "10px",
+                          borderBottom: "1px solid #dee2e6",
+                        }}
+                      />
+                      <Card.Body>
+                        <Card.Title>{template.name}</Card.Title>
+                        <Button
+                          variant="primary"
+                          onClick={() => handleDownloadPdf(template.name)}
+                        >
+                          Choose {template.name}
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Container>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </>
   );
 };
 

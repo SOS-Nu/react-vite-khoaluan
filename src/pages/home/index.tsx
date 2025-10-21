@@ -16,6 +16,7 @@ import { Container } from "react-bootstrap";
 import Skill from "../skill";
 import { IUser } from "@/types/backend";
 import { useTranslation } from "react-i18next";
+import bg from "assets/top-bg.svg";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -57,35 +58,48 @@ const HomePage = () => {
   }
 
   return (
-    <div className={`${styles["container"]} ${styles["home-section"]}`}>
-      <div className="search-content" style={{ marginTop: 20 }}>
-        <SearchClient
-          searchType={currentSearchType}
-          onSearchTypeChange={setCurrentSearchType}
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div className={`${styles["container"]} ${styles["home-section"]}`}>
+        <div className="search-content" style={{ marginTop: 20 }}>
+          <SearchClient
+            searchType={currentSearchType}
+            onSearchTypeChange={setCurrentSearchType}
+          />
+        </div>
+        <ManageCV />
+        <JobCard
+          jobs={jobsResult}
+          isLoading={isJobFetching}
+          title={t("job.newjob")}
         />
+        <Divider />
+        <CompanyCard
+          companies={companiesResult}
+          isLoading={isCompanyFetching}
+          title={t("company.newcompany")}
+        />
+        <Divider />
+        <Introduction />
+        <Banner />
+        {/* <Partners /> */}
+        <section>
+          <Container>
+            <Skill />
+          </Container>
+        </section>
       </div>
-      <ManageCV />
-      <JobCard
-        jobs={jobsResult}
-        isLoading={isJobFetching}
-        title={t("job.newjob")}
-      />
-      <Divider />
-      <CompanyCard
-        companies={companiesResult}
-        isLoading={isCompanyFetching}
-        title={t("company.newcompany")}
-      />
-      <Divider />
-      <Introduction />
-      <Banner />
-      {/* <Partners /> */}
-      <section>
-        <Container>
-          <Skill />
-        </Container>
-      </section>
-    </div>
+    </>
   );
 };
 

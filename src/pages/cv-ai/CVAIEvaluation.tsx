@@ -32,6 +32,7 @@ import "./CVAIEvaluation.scss";
 import { useCurrentApp } from "@/components/context/app.context";
 // THÊM MỚI: Import useNavigate để điều hướng
 import { useNavigate } from "react-router-dom";
+import bg from "assets/top-bg.svg";
 
 const CVAIEvaluationPage = () => {
   const isAuthenticated = useAppSelector(
@@ -279,106 +280,119 @@ const CVAIEvaluationPage = () => {
 
   // RETURN GỐC: Chỉ hiển thị khi đã đăng nhập
   return (
-    <Container className="cv-evaluation-container my-5">
-      <Row className="justify-content-center">
-        <Col md={10}>
-          <Card className="evaluation-card">
-            <Card.Body>
-              <div className="text-center mb-4">
-                <h1 className="evaluation-title">AI-Powered CV Analysis</h1>
-                <p className="evaluation-subtitle">
-                  Get instant feedback on your CV and a personalized career
-                  roadmap.
-                </p>
-              </div>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Choose your CV source:</Form.Label>
-                <div className="d-flex gap-3">
-                  <Button
-                    variant={
-                      evaluationType === "online"
-                        ? "primary"
-                        : "outline-secondary"
-                    }
-                    onClick={() => setEvaluationType("online")}
-                    disabled={!hasOnlineResume}
-                  >
-                    Use My Online Profile
-                  </Button>
-                  <Button
-                    variant={
-                      evaluationType === "upload"
-                        ? "primary"
-                        : "outline-secondary"
-                    }
-                    onClick={() => setEvaluationType("upload")}
-                  >
-                    Upload a New CV
-                  </Button>
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <Container className="cv-evaluation-container my-5">
+        <Row className="justify-content-center">
+          <Col md={10}>
+            <Card className="evaluation-card">
+              <Card.Body>
+                <div className="text-center mb-4">
+                  <h1 className="evaluation-title">AI-Powered CV Analysis</h1>
+                  <p className="evaluation-subtitle">
+                    Get instant feedback on your CV and a personalized career
+                    roadmap.
+                  </p>
                 </div>
-                {!hasOnlineResume && (
-                  <Alert variant="info" className="mt-2">
-                    You don't have an Online Profile yet. Please{" "}
-                    <a href="/resume/create">create one</a> or upload a file.
-                  </Alert>
-                )}
-              </Form.Group>
 
-              {evaluationType === "online" && (
-                <div className="online-profile-display">
-                  Using online profile:{" "}
-                  <strong>
-                    {fullUserData?.mainResume || "Default Profile"}
-                  </strong>
-                </div>
-              )}
-
-              {evaluationType === "upload" && (
-                <Form.Group controlId="formFile" className="mb-3">
-                  <Form.Label>Upload your CV (PDF, DOC, DOCX)</Form.Label>
-                  <Form.Control
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".pdf,.doc,.docx"
-                  />
-                </Form.Group>
-              )}
-
-              {error && <Alert variant="danger">{error}</Alert>}
-
-              <div className="d-grid mt-4">
-                <Button
-                  variant="success"
-                  size="lg"
-                  onClick={handleEvaluate}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                      />{" "}
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <ThunderboltOutlined /> Start AI Evaluation
-                    </>
+                <Form.Group className="mb-3">
+                  <Form.Label>Choose your CV source:</Form.Label>
+                  <div className="d-flex gap-3">
+                    <Button
+                      variant={
+                        evaluationType === "online"
+                          ? "primary"
+                          : "outline-secondary"
+                      }
+                      onClick={() => setEvaluationType("online")}
+                      disabled={!hasOnlineResume}
+                    >
+                      Use My Online Profile
+                    </Button>
+                    <Button
+                      variant={
+                        evaluationType === "upload"
+                          ? "primary"
+                          : "outline-secondary"
+                      }
+                      onClick={() => setEvaluationType("upload")}
+                    >
+                      Upload a New CV
+                    </Button>
+                  </div>
+                  {!hasOnlineResume && (
+                    <Alert variant="info" className="mt-2">
+                      You don't have an Online Profile yet. Please{" "}
+                      <a href="/resume/create">create one</a> or upload a file.
+                    </Alert>
                   )}
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
+                </Form.Group>
 
-          {renderResults()}
-        </Col>
-      </Row>
-    </Container>
+                {evaluationType === "online" && (
+                  <div className="online-profile-display">
+                    Using online profile:{" "}
+                    <strong>
+                      {fullUserData?.mainResume || "Default Profile"}
+                    </strong>
+                  </div>
+                )}
+
+                {evaluationType === "upload" && (
+                  <Form.Group controlId="formFile" className="mb-3">
+                    <Form.Label>Upload your CV (PDF, DOC, DOCX)</Form.Label>
+                    <Form.Control
+                      type="file"
+                      onChange={handleFileChange}
+                      accept=".pdf,.doc,.docx"
+                    />
+                  </Form.Group>
+                )}
+
+                {error && <Alert variant="danger">{error}</Alert>}
+
+                <div className="d-grid mt-4">
+                  <Button
+                    variant="success"
+                    size="lg"
+                    onClick={handleEvaluate}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                        />{" "}
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <ThunderboltOutlined /> Start AI Evaluation
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+
+            {renderResults()}
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 };
 

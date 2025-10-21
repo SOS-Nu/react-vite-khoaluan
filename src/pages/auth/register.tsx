@@ -8,6 +8,7 @@ import { IUser } from "@/types/backend";
 import { callRegister, callSendOtp } from "@/config/api";
 import styles from "styles/auth.module.scss";
 import { FaArrowLeft } from "react-icons/fa";
+import bg from "assets/top-bg.svg";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -152,147 +153,161 @@ const RegisterPage = () => {
   // ================================================================
 
   return (
-    <div
-      className={`${styles["login-page-bootstrap"]} vh-100 d-flex align-items-center justify-content-center`}
-    >
-      <Card className={styles["login-card"]}>
-        <Card.Body>
-          {step === 2 && (
-            <Form onSubmit={handleCompleteRegistration}>
-              <div
-                onClick={() => setStep(1)}
-                className="d-flex align-items-center gap-2 mb-4"
-                style={{ cursor: "pointer" }}
-              >
-                <FaArrowLeft /> <span>Quay lại</span>
-              </div>
-              <h3 className="text-center fw-bold mb-2">Xác thực OTP</h3>
-              <p className="text-center text-muted mb-4">
-                Một mã xác thực đã được gửi đến email <br />
-                <strong style={{ color: "#333" }}>{formData?.email}</strong>
-              </p>
-              <Form.Group className="mb-3" controlId="otp">
-                <Form.Label>Mã OTP</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nhập 6 chữ số"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
-                />
-              </Form.Group>
-
-              {/* ====> HIỂN THỊ ĐỒNG HỒ ĐẾM NGƯỢC <==== */}
-              <div className="text-center text-muted mb-3">
-                {countdown > 0 ? (
-                  <span>
-                    Mã OTP sẽ hết hạn trong{" "}
-                    <strong style={{ color: "red" }}>{countdown}</strong> giây.
-                  </span>
-                ) : (
-                  <span style={{ color: "red" }}>Mã OTP đã hết hạn!</span>
-                )}
-              </div>
-
-              <Button
-                variant="primary"
-                type="submit"
-                className="w-100 fw-semibold"
-                disabled={isSubmit || countdown <= 0}
-              >
-                {isSubmit ? (
-                  <Spinner as="span" animation="border" size="sm" />
-                ) : (
-                  "Hoàn tất đăng ký"
-                )}
-              </Button>
-            </Form>
-          )}
-
-          {step === 1 && (
-            <>
-              <h2 className="text-center fw-bold mb-4">Đăng Ký Tài Khoản</h2>
-              <Form onSubmit={handleSendOtp}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Họ tên</Form.Label>
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 0,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div
+        className={`${styles["login-page-bootstrap"]} vh-100 d-flex align-items-center justify-content-center`}
+      >
+        <Card className={styles["login-card"]}>
+          <Card.Body>
+            {step === 2 && (
+              <Form onSubmit={handleCompleteRegistration}>
+                <div
+                  onClick={() => setStep(1)}
+                  className="d-flex align-items-center gap-2 mb-4"
+                  style={{ cursor: "pointer" }}
+                >
+                  <FaArrowLeft /> <span>Quay lại</span>
+                </div>
+                <h3 className="text-center fw-bold mb-2">Xác thực OTP</h3>
+                <p className="text-center text-muted mb-4">
+                  Một mã xác thực đã được gửi đến email <br />
+                  <strong style={{ color: "#333" }}>{formData?.email}</strong>
+                </p>
+                <Form.Group className="mb-3" controlId="otp">
+                  <Form.Label>Mã OTP</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Nhập họ tên"
-                    name="name"
+                    placeholder="Nhập 6 chữ số"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
                     required
                   />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Nhập email"
-                    name="email"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Mật khẩu</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Nhập mật khẩu"
-                    name="password"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Tuổi</Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="Nhập tuổi"
-                    name="age"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Giới tính</Form.Label>
-                  <Form.Select name="gender" required defaultValue="">
-                    <option value="" disabled>
-                      Chọn giới tính
-                    </option>
-                    <option value="MALE">Nam</option>
-                    <option value="FEMALE">Nữ</option>
-                    <option value="OTHER">Khác</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Địa chỉ</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Nhập địa chỉ"
-                    name="address"
-                    required
-                  />
-                </Form.Group>
+
+                {/* ====> HIỂN THỊ ĐỒNG HỒ ĐẾM NGƯỢC <==== */}
+                <div className="text-center text-muted mb-3">
+                  {countdown > 0 ? (
+                    <span>
+                      Mã OTP sẽ hết hạn trong{" "}
+                      <strong style={{ color: "red" }}>{countdown}</strong>{" "}
+                      giây.
+                    </span>
+                  ) : (
+                    <span style={{ color: "red" }}>Mã OTP đã hết hạn!</span>
+                  )}
+                </div>
+
                 <Button
                   variant="primary"
                   type="submit"
                   className="w-100 fw-semibold"
-                  disabled={isSubmit}
+                  disabled={isSubmit || countdown <= 0}
                 >
                   {isSubmit ? (
                     <Spinner as="span" animation="border" size="sm" />
                   ) : (
-                    "Lấy mã OTP"
+                    "Hoàn tất đăng ký"
                   )}
                 </Button>
-                <div className="text-center mt-4">
-                  Đã có tài khoản?{" "}
-                  <Link to="/login" className={styles["register-link"]}>
-                    Đăng Nhập
-                  </Link>
-                </div>
               </Form>
-            </>
-          )}
-        </Card.Body>
-      </Card>
-    </div>
+            )}
+
+            {step === 1 && (
+              <>
+                <h2 className="text-center fw-bold mb-4">Đăng Ký Tài Khoản</h2>
+                <Form onSubmit={handleSendOtp}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Họ tên</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập họ tên"
+                      name="name"
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      type="email"
+                      placeholder="Nhập email"
+                      name="email"
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Mật khẩu</Form.Label>
+                    <Form.Control
+                      type="password"
+                      placeholder="Nhập mật khẩu"
+                      name="password"
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Tuổi</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="Nhập tuổi"
+                      name="age"
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Giới tính</Form.Label>
+                    <Form.Select name="gender" required defaultValue="">
+                      <option value="" disabled>
+                        Chọn giới tính
+                      </option>
+                      <option value="MALE">Nam</option>
+                      <option value="FEMALE">Nữ</option>
+                      <option value="OTHER">Khác</option>
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Địa chỉ</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập địa chỉ"
+                      name="address"
+                      required
+                    />
+                  </Form.Group>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="w-100 fw-semibold"
+                    disabled={isSubmit}
+                  >
+                    {isSubmit ? (
+                      <Spinner as="span" animation="border" size="sm" />
+                    ) : (
+                      "Lấy mã OTP"
+                    )}
+                  </Button>
+                  <div className="text-center mt-4">
+                    Đã có tài khoản?{" "}
+                    <Link to="/login" className={styles["register-link"]}>
+                      Đăng Nhập
+                    </Link>
+                  </div>
+                </Form>
+              </>
+            )}
+          </Card.Body>
+        </Card>
+      </div>
+    </>
   );
 };
 

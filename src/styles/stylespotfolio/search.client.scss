@@ -19,7 +19,7 @@
 
 // 2. Container chính (giữ nguyên)
 .search-form-container {
-  background-image: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop");
+  // background-image: url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop");
   background-size: cover;
   background-position: center;
   padding: 3rem 1rem;
@@ -31,11 +31,6 @@
     border-radius: 12px;
   }
 }
-
-// 3. Wrapper cho hiệu ứng viền (sửa đổi và bổ sung)
-//* SearchClient.scss */
-
-// ... (giữ nguyên các style từ :root đến trước .search-input-wrapper)
 
 // 3. Wrapper cho hiệu ứng viền (PHIÊN BẢN SỬA LỖI HOÀN CHỈNH)
 .search-input-wrapper {

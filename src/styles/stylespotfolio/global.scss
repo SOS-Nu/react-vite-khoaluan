@@ -314,13 +314,13 @@ body {
   height: 55px;
   background-color: #222831;
   position: fixed;
-  z-index: 100;
+  z-index: 9999;
 
   .brand {
     display: flex;
     align-items: center;
     justify-content: center;
-
+    padding: 0px !important;
     .react-icon {
       width: 35px;
       height: 35px;
@@ -329,9 +329,44 @@ body {
 
       animation: spin 10s linear infinite;
     }
+    svg {
+      cursor: pointer;
+      color: #1677ff;
+      font-size: 30px;
+      margin-top: 7px;
+      animation: spin 20s linear infinite;
+    }
+  }
+
+  .top-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .extra {
+      a,
+      span {
+        cursor: pointer;
+        display: block;
+        color: #a7a7a7;
+        text-decoration: none;
+
+        &:hover {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .header-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 55px;
+    color: white;
   }
 }
-
 /* Style cho container (nếu cần) */
 .container {
   padding-right: 0px;

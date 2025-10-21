@@ -17,6 +17,7 @@ import SearchClient from "@/components/client/search.client";
 import JobDetailPanel from "./JobDetailPanel";
 import JobFilter from "./JobFilter";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import bg from "assets/top-bg.svg";
 
 dayjs.extend(relativeTime);
 
@@ -205,57 +206,70 @@ const ClientJobPage = () => {
     !isLoadingList && finalJobList.length > 0 && meta.total > 0;
 
   return (
-    <div className="container job-detail-page-container">
-      <SearchClient
-        searchType={currentSearchType}
-        onSearchTypeChange={setCurrentSearchType}
-      />
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div className="container job-detail-page-container">
+        <SearchClient
+          searchType={currentSearchType}
+          onSearchTypeChange={setCurrentSearchType}
+        />
 
-      {/* Điều kiện này đã được sửa lại cho đúng ở các bước trước */}
-      {(currentSearchType === "job" || currentSearchType === "company") &&
-        searchParams.has("filter") && <JobFilter onFilter={handleFilter} />}
+        {/* Điều kiện này đã được sửa lại cho đúng ở các bước trước */}
+        {(currentSearchType === "job" || currentSearchType === "company") &&
+          searchParams.has("filter") && <JobFilter onFilter={handleFilter} />}
 
-      <div className="row g-3" ref={jobListRef}>
-        <div className={isMobile ? "col-12" : "col-12 col-lg-4"}>
-          <div className="left-panel-container">
-            <div className="left-panel-body">
-              <JobCard
-                jobs={finalJobList}
-                isLoading={isLoadingList}
-                isListPage={true}
-                showButtonAllJob={true}
-                openInNewTab={isMobile}
-              />
+        <div className="row g-3" ref={jobListRef}>
+          <div className={isMobile ? "col-12" : "col-12 col-lg-4"}>
+            <div className="left-panel-container">
+              <div className="left-panel-body">
+                <JobCard
+                  jobs={finalJobList}
+                  isLoading={isLoadingList}
+                  isListPage={true}
+                  showButtonAllJob={true}
+                  openInNewTab={isMobile}
+                />
+              </div>
             </div>
           </div>
+          {!isMobile && (
+            <div className="col-12 col-lg-8">
+              <JobDetailPanel />
+            </div>
+          )}
         </div>
-        {!isMobile && (
-          <div className="col-12 col-lg-8">
-            <JobDetailPanel />
+
+        {shouldShowPagination && (
+          <div className="bottom-pagination-container">
+            <Pagination
+              size="default"
+              current={meta.page}
+              total={paginationTotal()}
+              pageSize={meta.pageSize}
+              onChange={handleOnchangePage}
+              responsive
+              showSizeChanger
+            />
           </div>
         )}
+
+        <ApplyModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          jobDetail={jobDetail}
+        />
       </div>
-
-      {shouldShowPagination && (
-        <div className="bottom-pagination-container">
-          <Pagination
-            size="default"
-            current={meta.page}
-            total={paginationTotal()}
-            pageSize={meta.pageSize}
-            onChange={handleOnchangePage}
-            responsive
-            showSizeChanger
-          />
-        </div>
-      )}
-
-      <ApplyModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        jobDetail={jobDetail}
-      />
-    </div>
+    </>
   );
 };
 

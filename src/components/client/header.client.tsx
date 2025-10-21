@@ -188,6 +188,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
           data-bs-theme={theme}
           expand="lg"
           className="bg-body-tertiary"
+          style={{ padding: 4 }}
         >
           <Container>
             <Link className="navbar-brand brand" to="/">

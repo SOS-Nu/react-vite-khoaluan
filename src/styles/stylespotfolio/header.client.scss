@@ -162,12 +162,6 @@
   position: relative;
 }
 
-/* --- SỬA LỖI LỆCH HÀNG CHO NÚT THEME VÀ NGÔN NGỮ --- */
-// Trong file SCSS của bạn (ví dụ: scss.header.client.scss)
-// Xóa các style cũ cho .nav-item-icon và .nav-item-dropdown rồi thêm đoạn này vào
-
-/* --- CĂN CHỈNH NÚT THEME & NGÔN NGỮ --- */
-
 // 1. Áp dụng padding chung để đưa chúng về cùng một "hệ quy chiếu"
 .nav-item-icon,
 .nav-item-dropdown .dropdown-toggle {
