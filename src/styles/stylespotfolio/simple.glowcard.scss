@@ -1,9 +1,14 @@
+//simple.glowcard.scss
 .simple-glow-container {
   width: 100%;
+  height: 100%; /* <<< THÊM DÒNG NÀY */
 }
 
 .simple-glow-card {
-  height: fit-content;
+  // height: fit-content;
+  height: 100%; /* <<< THÊM DÒNG NÀY */
+  display: flex;
+  flex-direction: column;
   cursor: pointer;
   border: 1px solid var(--border-hero-right);
   position: relative;
@@ -11,13 +16,13 @@
   color: var(--text-white-1);
   border-radius: 0.75rem;
   width: 100%;
-  transition: background-color 0.2s ease; /* Hiệu ứng hover mượt mà, nhẹ nhàng */
+  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: var(
       --glow-card-hover-background,
       rgba(255, 255, 255, 0.05)
-    ); /* Màu nền nhạt hơn khi hover */
+    );
     border: 2px 2px;
   }
 }

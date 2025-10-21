@@ -18,6 +18,7 @@
   --capra-ramp-5: #b25aff; /* Màu mới */
 }
 $light-theme: (
+  glow-card-hover-background: rgba(146, 146, 146, 0.521),
   linear-gradient-blue-purple: linear-gradient(90deg, #1b74ff, #a880ff 96.79%),
   linear-gradient-failure: linear-gradient(to right, #dc3545, #6c757d),
   text-tilte-newjob: black,
@@ -69,6 +70,7 @@ $light-theme: (
 );
 
 $dark-theme: (
+  glow-card-hover-background: rgba(255, 255, 255, 0.144),
   form-check-label: "#404058",
   background-chatbotAI: #3d3f3f,
 

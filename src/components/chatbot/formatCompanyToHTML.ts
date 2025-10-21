@@ -2,6 +2,8 @@
 export function formatCompanyToHTML(companies: any[]) {
   if (!Array.isArray(companies)) return "";
 
+  const hoverBackgroundColor = `var(--glow-card-hover-background, rgba(255, 255, 255, 0.05))`;
+
   const companyItemsHTML = companies
     .map((company, index) => {
       // Sử dụng route từ App.tsx của bạn: /company/:id
@@ -17,7 +19,7 @@ export function formatCompanyToHTML(companies: any[]) {
     /* THÊM BORDER ĐỂ ĐỒNG BỘ */
     border: 1px solid var(--border-hero-right); 
 " 
-onmouseover="this.style.backgroundColor='var(--background-input-search)'" 
+onmouseover="this.style.backgroundColor='${hoverBackgroundColor}'" 
 onmouseout="this.style.backgroundColor='transparent'"
 >
     <a href="${href}" target="_blank" style="font-weight:bold; text-decoration:none; color: var(--brand-social);">

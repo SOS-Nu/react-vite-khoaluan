@@ -111,10 +111,16 @@ const JobCard = (props: IProps) => {
 
               return (
                 <div className={columnClass} key={item.id}>
-                  <div className={isSelected ? "selected-job-card" : ""}>
+                  <div
+                    className={`${isSelected ? "selected-job-card" : ""} h-100`}
+                  >
                     <Link
                       to={linkTo}
-                      style={{ textDecoration: "none" }}
+                      style={{
+                        textDecoration: "none",
+                        height: "100%",
+                        display: "block",
+                      }}
                       target={linkTarget}
                       rel={linkRel}
                     >
@@ -122,7 +128,7 @@ const JobCard = (props: IProps) => {
                         identifier={`job-${item.id}`}
                         className={isSelected ? "selected-job-card" : ""}
                       >
-                        <div className="p-0 pt-2 p-md-2 position-relative">
+                        <div className="p-0 pt-2 p-md-2 position-relative h-100 d-flex flex-colum">
                           {theme === "dark" && (
                             <img
                               style={{
@@ -175,7 +181,7 @@ const JobCard = (props: IProps) => {
                             </div>
                             <div
                               className="details"
-                              style={{ padding: "0.5rem" }}
+                              style={{ padding: "0.5rem", flexGrow: 1 }}
                             >
                               <div className="icon">
                                 <img
