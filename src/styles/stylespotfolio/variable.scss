@@ -58,6 +58,7 @@ $light-theme: (
   line-blue-500: #1a1443,
   resize-button: "linear-gradient(to right, #ec4899, #8b5cf6)",
   glow-card-background: #e6e8ec,
+  background-chatbotAI: #737475,
   skill-card-background: #f5f6f7,
   border-top-skill-card:
     "linear-gradient(to right, transparent, #fff, #fff, transparent)",
@@ -69,6 +70,8 @@ $light-theme: (
 
 $dark-theme: (
   form-check-label: "#404058",
+  background-chatbotAI: #3d3f3f,
+
   form-check-control: "#212130",
 
   selected-job-card: "rgb(255, 0, 0)",
@@ -98,7 +101,6 @@ $dark-theme: (
       var(--capra-ramp-4) 100%
     ),
   background-body: #0d1224,
-  // background-body-tertiary : transparent,
   background-body-tertiary: #11152c,
   scroll-track-background: "#0d1224",
   scroll-thumb-background: "#606060",

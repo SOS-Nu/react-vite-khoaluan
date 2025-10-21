@@ -50,6 +50,9 @@ import ClientJobStandaloneDetailPage from "./pages/job/detail";
 import CVAIEvaluationPage from "./pages/cv-ai/CVAIEvaluation";
 import "dayjs/locale/vi";
 import "dayjs/locale/en";
+import { FaRegMessage } from "react-icons/fa6";
+import { AnimatePresence } from "framer-motion";
+import ModalChatBot from "./components/chatbot/ModalChatBot";
 
 const formatDate = (timestamp: any) => {
   const date = new Date(timestamp);
@@ -90,6 +93,9 @@ const LayoutClient = () => {
   const stompClientRef = useRef<any>(null);
   // Ref để theo dõi trạng thái đã ngắt kết nối hay chưa
   const hasDisconnectedRef = useRef(false);
+  //model chatbot ai
+  const [showChatbot, setShowChatbot] = useState(false);
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.account.user);
@@ -282,6 +288,24 @@ const LayoutClient = () => {
         <Outlet context={{ stompClient: stompClientRef.current }} />
       </div>
       {!isChatPage && <Footer />}
+      {/* === BẮT ĐẦU TÍCH HỢP CHATBOT === */}
+      {/* Chỉ hiển thị khi không ở trang admin */}
+      {!isAdminPage && (
+        <>
+          <button
+            onClick={() => setShowChatbot(true)}
+            className="chatbot-trigger-btn" // Class từ ModalChatBot.scss
+          >
+            <FaRegMessage size={18} />
+          </button>
+
+          {/* Modal chatbot */}
+          <AnimatePresence>
+            {showChatbot && <ModalChatBot setShowChatbot={setShowChatbot} />}
+          </AnimatePresence>
+        </>
+      )}
+      {/* === KẾT THÚC TÍCH HỢP CHATBOT === */}
     </div>
   );
 };
