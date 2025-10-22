@@ -1,4 +1,3 @@
-//scss.header.client
 /* Style cho nav-link với hiệu ứng thanh chạy bên dưới */
 .nav-link {
   position: relative;
@@ -136,77 +135,55 @@
 /* --- Style cho nhãn "NEW" --- */
 .new-badge {
   position: absolute;
-  top: -2px; // Đẩy lên trên (tương đương -top-1 của Tailwind)
-  right: -2px; // Đẩy sang phải một chút (tương đương -right-2 của Tailwind)
+  top: -2px;
+  right: -2px;
 
-  background: linear-gradient(
-    to right,
-    #ec4899,
-    #8b5cf6
-  ); // Màu đỏ (tương đương bg-red-600)
+  background: linear-gradient(to right, #ec4899, #8b5cf6);
   color: white;
 
   font-size: 10px;
   font-weight: bold;
 
-  padding: 1px 6px; // (tương đương py-[1px] px-1.5)
-  border-radius: 9999px; // Làm cho nó tròn (tương đương rounded-full)
+  padding: 1px 6px;
+  border-radius: 9999px;
 
-  // Áp dụng animation đã định nghĩa
   animation: bounce-new 1s infinite;
 }
 
-// Đảm bảo rằng NavLink cha có position: relative
-// (chúng ta đã làm điều này bằng cách thêm class 'position-relative' trong JSX)
 .nav-link.position-relative {
   position: relative;
 }
 
-// 1. Áp dụng padding chung để đưa chúng về cùng một "hệ quy chiếu"
 .nav-item-icon,
 .nav-item-dropdown .dropdown-toggle {
   display: flex;
   align-items: center;
   height: 100%;
-  padding-bottom: 8px; // Đồng bộ padding với nav-link chính
+  padding-bottom: 8px;
 }
 
-// 2. Tinh chỉnh riêng cho Dropdown ngôn ngữ
 .nav-item-dropdown .dropdown-toggle {
-  position: relative; // Bật chế độ định vị tương đối
-  top: 1.5px; // Đẩy nhẹ xuống dưới. Điều chỉnh giá trị này nếu cần!
+  position: relative;
+  top: 1.5px;
 }
 
-// Đảm bảo nút icon không có gạch chân (giữ lại từ lần sửa trước)
 .nav-item-icon::after {
   display: none !important;
 }
 
-//avatar
-
-// Thêm vào file SCSS của bạn
-
 .avatar {
-  // Kích thước và hình dạng
-  width: 40px; // Kích thước avatar
+  width: 40px;
   height: 40px;
-  border-radius: 50%; // Bo tròn để thành hình tròn
-  margin-left: 8px; // Khoảng cách bên trái
+  border-radius: 50%;
+  margin-left: 8px;
 
-  // Styling cho hình ảnh
-  object-fit: cover; // Đảm bảo ảnh không bị méo, sẽ tự cắt cho vừa
-  border: 1px solid var(--brand-name-300); // Thêm viền trắng nhỏ cho đẹp (tùy chọn)
+  object-fit: cover;
+  border: 1px solid var(--brand-name-300);
 
-  // Styling cho chữ (khi không có ảnh)
-  display: inline-flex; // Dùng flexbox để căn giữa chữ
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: linear-gradient(
-    to right,
-    #ec4899,
-    #8b5cf6
-  ); // Màu nền mặc định khi không có ảnh
+  background-color: linear-gradient(to right, #ec4899, #8b5cf6);
   font-weight: bold;
-  font-size: 14px; // Cỡ chữ cho hai chữ cái đầu
+  font-size: 14px;
 }
-// SCSS for Animated Gradient Border on Dropdowns

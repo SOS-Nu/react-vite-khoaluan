@@ -1,5 +1,3 @@
-// AppContext.tsx
-
 import { createContext, useContext, useEffect, useState } from "react";
 // 1. Import các thành phần cần thiết từ antd
 import { ConfigProvider, theme as antdTheme } from "antd";
@@ -19,31 +17,29 @@ export const AppContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [theme, setThemeState] = useState<ThemeContextType>(() => {
-    // Logic khởi tạo theme của bạn vẫn giữ nguyên
+    // Logic khởi tạo theme của bạn đã ĐÚNG, giữ nguyên "dark"
     const initialTheme =
-      (localStorage.getItem("theme") as ThemeContextType) || "light";
+      (localStorage.getItem("theme") as ThemeContextType) || "dark";
     return initialTheme;
   });
 
-  // Tạo một hàm setTheme mới để vừa cập nhật state, vừa lưu vào localStorage
+  // Hàm setTheme giờ chỉ cần cập nhật state và localStorage
   const setTheme = (newTheme: ThemeContextType) => {
     setThemeState(newTheme);
     localStorage.setItem("theme", newTheme);
-    // Bạn vẫn có thể giữ dòng này nếu dùng chung với Bootstrap
-    document.documentElement.setAttribute("data-bs-theme", newTheme);
   };
 
+  // ----- BẮT ĐẦU THAY ĐỔI -----
+  // Sửa lại useEffect để đồng bộ state 'theme' với thuộc tính data-bs-theme
   useEffect(() => {
-    // Logic này chỉ cần chạy một lần lúc khởi tạo để set thuộc tính cho <html>
-    const initialTheme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-bs-theme", initialTheme);
-  }, []);
+    // Effect này sẽ chạy lần đầu khi tải trang (với theme "dark")
+    // và chạy mỗi khi 'theme' state thay đổi
+    document.documentElement.setAttribute("data-bs-theme", theme);
+  }, [theme]); // Thêm 'theme' làm dependency
+  // ----- KẾT THÚC THAY ĐỔI -----
 
-  // 2. Định nghĩa cấu hình theme cho Ant Design
+  // 2. Định nghĩa cấu hình theme cho Ant Design (giữ nguyên)
   const themeConfig = {
-    // Sử dụng thuật toán theme tương ứng từ Ant Design
-    // theme.darkAlgorithm cho theme tối
-    // theme.defaultAlgorithm cho theme sáng
     algorithm:
       theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
   };
@@ -55,7 +51,7 @@ export const AppContextProvider = ({
         setTheme,
       }}
     >
-      {/* 3. Bọc children bằng ConfigProvider và truyền theme vào */}
+      {/* 3. Bọc children bằng ConfigProvider (giữ nguyên) */}
       <ConfigProvider theme={themeConfig}>{children}</ConfigProvider>
     </AppContext.Provider>
   );

@@ -163,7 +163,8 @@ const animateDiagram = () => {
     timeline.set(pinkIndicator, { value: false }, "<");
 
     // Pause briefly at the end of the animation
-    timeline.set({}, {}, "+=0.2");
+    //origin 0.2
+    timeline.set({}, {}, "+=0");
   }
 };
 
@@ -216,7 +217,7 @@ const animateSingleOutputDesktop = (
   timeline.to(
     outputLine.value,
     {
-      position: (0.7 / 3) * (index + 1) + 0.05,
+      position: (0.6 / 3) * (index + 1) + 0.05,
       duration: 1.5,
       ease: "expo.out",
     },

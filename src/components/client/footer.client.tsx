@@ -1,5 +1,6 @@
+//file footer.client.tsx
 import React from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Accordion } from "react-bootstrap";
 import { useInView } from "react-intersection-observer";
 import { useTranslation } from "react-i18next"; // Import hook
 import {
@@ -11,9 +12,11 @@ import {
   FaGooglePlay,
 } from "react-icons/fa";
 import { FaApple } from "react-icons/fa6";
-import bg from "assets/section.svg";
+import bg from "assets/section-optimus.svg";
+import { useMediaQuery } from "react-responsive"; // Cần cài: npm install react-responsive
 
 const Footer = () => {
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" }); // 767px là breakpoint 'md' của Bootstrap
   const { t } = useTranslation(); // Sử dụng hook useTranslation
 
   // Xây dựng cấu trúc links từ file ngôn ngữ
@@ -53,98 +56,178 @@ const Footer = () => {
   });
 
   return (
-    <footer ref={ref} className={`site-footer ${inView ? "is-visible" : ""}`}>
-      <div
-        style={{
-          backgroundImage: `url(${bg})`,
-          width: "100%",
-          height: "100%",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      ></div>
+    <footer
+      ref={ref}
+      className={`site-footer animate-on-scroll ${inView ? "is-visible" : ""}`}
+    >
       <Container>
         <div className="footer-top py-4 py-lg-4 pt-lg-5">
           <Row className="g-4 g-lg-5">
             <Col lg={7} xl={8}>
-              <Row className="g-4">
-                <Col
-                  xs={6}
-                  md={3}
-                  className="footer-links animate-on-scroll"
-                  style={{ animationDelay: "100ms" }}
-                >
-                  <h6 className="footer-title">{footerLinks.about.title}</h6>
-                  <ul>
-                    {footerLinks.about.items.map((item, index) => (
-                      <li key={index}>
-                        <a href="#">{item}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </Col>
+              {isMobile ? (
+                // Giao diện Accordion trên Mobile
+                <Accordion flush>
+                  {/* --- Giới thiệu --- */}
+                  <Accordion.Item
+                    eventKey="0"
+                    className="footer-accordion-item"
+                  >
+                    <Accordion.Header>
+                      {footerLinks.about.title}
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ul>
+                        {footerLinks.about.items.map((item, index) => (
+                          <li key={index}>
+                            <a href="#">{item}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </Accordion.Body>
+                  </Accordion.Item>
 
-                <Col
-                  xs={6}
-                  md={3}
-                  className="footer-links animate-on-scroll"
-                  style={{ animationDelay: "200ms" }}
-                >
-                  <h6 className="footer-title">{footerLinks.services.title}</h6>
-                  <ul>
-                    {footerLinks.services.items.map((item, index) => (
-                      <li key={index}>
-                        <a href="#">{item}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </Col>
+                  {/* --- Dịch vụ --- */}
+                  <Accordion.Item
+                    eventKey="1"
+                    className="footer-accordion-item"
+                  >
+                    <Accordion.Header>
+                      {footerLinks.services.title}
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ul>
+                        {footerLinks.services.items.map((item, index) => (
+                          <li key={index}>
+                            <a href="#">{item}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </Accordion.Body>
+                  </Accordion.Item>
 
-                <Col
-                  xs={6}
-                  md={3}
-                  className="footer-links animate-on-scroll"
-                  style={{ animationDelay: "300ms" }}
-                >
-                  <h6 className="footer-title">{footerLinks.career.title}</h6>
-                  <ul>
-                    {footerLinks.career.items.map((item, index) => (
-                      <li key={index}>
-                        <a href="#">{item}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </Col>
+                  {/* --- Nghề nghiệp --- */}
+                  <Accordion.Item
+                    eventKey="2"
+                    className="footer-accordion-item"
+                  >
+                    <Accordion.Header>
+                      {footerLinks.career.title}
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <ul>
+                        {footerLinks.career.items.map((item, index) => (
+                          <li key={index}>
+                            <a href="#">{item}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </Accordion.Body>
+                  </Accordion.Item>
 
-                <Col
-                  xs={6}
-                  md={3}
-                  className="footer-links animate-on-scroll"
-                  style={{ animationDelay: "400ms" }}
-                >
-                  <h6 className="footer-title">{footerLinks.contact.title}</h6>
-                  <ul>
-                    {footerLinks.contact.items.map((item, index) => (
-                      <li key={index} className="contact-item">
-                        <span>{item.label}</span>
-                        <span className="contact-value">{item.value}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Col>
-              </Row>
+                  {/* --- Liên hệ --- */}
+                  <Accordion.Item
+                    eventKey="3"
+                    className="footer-accordion-item"
+                  >
+                    <Accordion.Header>
+                      {footerLinks.contact.title}
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      {/* Cấu trúc của 'contact' khác, nên ta render khác đi */}
+                      <ul>
+                        {footerLinks.contact.items.map((item, index) => (
+                          <li key={index} className="contact-item">
+                            <span>{item.label}</span>
+                            <span className="contact-value">{item.value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              ) : (
+                // Giao diện Cột như cũ trên Desktop
+                <Row className="g-4">
+                  {/* --- Cột Giới thiệu --- */}
+                  <Col
+                    xs={6}
+                    md={3}
+                    className="footer-links"
+                    style={{ animationDelay: "100ms" }}
+                  >
+                    <h6 className="footer-title">{footerLinks.about.title}</h6>
+                    <ul>
+                      {footerLinks.about.items.map((item, index) => (
+                        <li key={index}>
+                          <a href="#">{item}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </Col>
+
+                  {/* --- Cột Dịch vụ --- */}
+                  <Col
+                    xs={6}
+                    md={3}
+                    className="footer-links"
+                    style={{ animationDelay: "200ms" }}
+                  >
+                    <h6 className="footer-title">
+                      {footerLinks.services.title}
+                    </h6>
+                    <ul>
+                      {footerLinks.services.items.map((item, index) => (
+                        <li key={index}>
+                          <a href="#">{item}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </Col>
+
+                  {/* --- Cột Nghề nghiệp --- */}
+                  <Col
+                    xs={6}
+                    md={3}
+                    className="footer-links"
+                    style={{ animationDelay: "300ms" }}
+                  >
+                    <h6 className="footer-title">{footerLinks.career.title}</h6>
+                    <ul>
+                      {footerLinks.career.items.map((item, index) => (
+                        <li key={index}>
+                          <a href="#">{item}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </Col>
+
+                  {/* --- Cột Liên hệ --- */}
+                  <Col
+                    xs={6}
+                    md={3}
+                    className="footer-links"
+                    style={{ animationDelay: "400ms" }}
+                  >
+                    <h6 className="footer-title">
+                      {footerLinks.contact.title}
+                    </h6>
+                    <ul>
+                      {footerLinks.contact.items.map((item, index) => (
+                        <li key={index} className="contact-item">
+                          <span>{item.label}</span>
+                          <span className="contact-value">{item.value}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Col>
+                </Row>
+              )}
             </Col>
 
             <Col
               lg={5}
               xl={4}
-              className="mt-0 mt-lg-0 animate-on-scroll"
+              className="mt-0 mt-lg-0"
               style={{ animationDelay: "500ms", paddingTop: "30px" }}
             >
               <div className="newsletter-box">
@@ -168,8 +251,8 @@ const Footer = () => {
                 <hr className="divider my-4" />
                 <div>
                   <p className="fw-semibold mb-3">{t("footer.app.title")}</p>
-                  <div className="d-sm-flex gap-3">
-                    <a href="#" className="app-download-btn mb-2 mb-sm-0">
+                  <div className="d-flex gap-3">
+                    <a href="#" className="app-download-btn">
                       <FaGooglePlay className="app-icon" />
                       <div>
                         <div className="text-xs">

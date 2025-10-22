@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { FaReact, FaStar, FaChevronDown } from "react-icons/fa"; // Thêm FaStar cho icon động
+import { useState, useEffect, useRef } from "react"; // Thêm useRef
+import { FaReact, FaStar, FaChevronDown } from "react-icons/fa";
 import { MdOutlineLightMode, MdNightlight } from "react-icons/md";
 import { useLocation, useNavigate, Link, NavLink } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -34,10 +34,10 @@ type ThemeContextType = "light" | "dark";
 interface NavItem {
   label: string | React.ReactNode;
   key: string;
-  to?: string; // to có thể undefined nếu là dropdown
-  isFeatured?: boolean; // Thêm thuộc tính để đánh dấu nút nổi bật
-  dropdownItems?: DropdownItem[]; // Thêm dropdownItems cho mục có dropdown
-  isNew?: boolean; // <-- THÊM DÒNG NÀY
+  to?: string;
+  isFeatured?: boolean;
+  dropdownItems?: DropdownItem[];
+  isNew?: boolean;
 }
 
 interface DropdownItem {
@@ -61,6 +61,27 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   const [current, setCurrent] = useState<string>("home");
   const location = useLocation();
 
+  // START: CÁC THAY ĐỔI ĐỂ QUẢN LÝ MENU MOBILE
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setExpanded(false); // Đóng menu khi click bên ngoài
+      }
+    };
+
+    if (expanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [expanded]);
+  // END: CÁC THAY ĐỔI
+
   useEffect(() => {
     setCurrent(location.pathname);
   }, [location]);
@@ -70,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     document.documentElement.setAttribute("data-bs-theme", mode);
     setTheme(mode);
   };
-  // Hàm cuộn về đầu trang
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -86,7 +107,6 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Điều hướng đến trang job với searchTerm
     navigate(`/job?search=${encodeURIComponent(searchTerm)}`);
   };
 
@@ -100,14 +120,11 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
 
   let navItems: NavItem[];
 
-  // Kiểm tra nếu user là nhà tuyển dụng (có company)
   if (user && user.company) {
-    // Menu dành cho nhà tuyển dụng
     navItems = [
       { label: t("appHeader.recruiter"), key: "/recruiter", to: "/recruiter" },
     ];
   } else {
-    // Menu mặc định dành cho người tìm việc
     navItems = [
       { label: t("appHeader.home"), key: "/", to: "/" },
       { label: t("appHeader.findjobs"), key: "/job", to: "/job", isNew: true },
@@ -151,13 +168,19 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
       label: (
         <label
           style={{ cursor: "pointer" }}
-          onClick={() => setOpenManageAccount(true)}
+          onClick={() => {
+            setOpenManageAccount(true);
+            setExpanded(false); // Đóng menu
+          }}
         >
           {t("appHeader.manageAccount")}
         </label>
       ),
       key: "manage-account",
-      onClick: () => setOpenManageAccount(true),
+      onClick: () => {
+        setOpenManageAccount(true);
+        setExpanded(false); // Đóng menu
+      },
     },
     ...(user?.role?.permissions?.length
       ? [{ label: t("appHeader.adminPage"), key: "admin", to: "/admin" }]
@@ -171,24 +194,37 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
     },
     {
       label: (
-        <label style={{ cursor: "pointer" }} onClick={handleLogout}>
+        <label
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            handleLogout();
+            setExpanded(false); // Đóng menu
+          }}
+        >
           {t("appHeader.logout")}
         </label>
       ),
       key: "logout",
-      onClick: handleLogout,
+      onClick: () => {
+        handleLogout();
+        setExpanded(false); // Đóng menu
+      },
     },
   ];
 
   return (
     <>
-      <div className="header-section">
+      <div className="header-section" ref={navRef}>
+        {" "}
+        {/* Gán ref vào đây */}
         <Navbar
           fixed="top"
           data-bs-theme={theme}
           expand="lg"
           className="bg-body-tertiary"
           style={{ padding: 4 }}
+          expanded={expanded} // Kiểm soát trạng thái expand
+          onToggle={(isExpanded) => setExpanded(isExpanded)} // Cập nhật state khi toggle
         >
           <Container>
             <Link className="navbar-brand brand" to="/">
@@ -225,13 +261,17 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                             key={dropdownItem.key}
                             as={Link}
                             to={dropdownItem.to}
+                            onClick={() => setExpanded(false)} // Đóng menu khi click
                           >
                             {dropdownItem.label}
                           </NavDropdown.Item>
                         ) : (
                           <NavDropdown.Item
                             key={dropdownItem.key}
-                            onClick={dropdownItem.onClick}
+                            onClick={() => {
+                              dropdownItem.onClick?.();
+                              setExpanded(false); // Đóng menu khi click
+                            }}
                           >
                             {dropdownItem.label}
                           </NavDropdown.Item>
@@ -250,6 +290,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       onClick={() => {
                         setCurrent(item.key);
                         scrollToTop();
+                        setExpanded(false); // Đóng menu khi click
                       }}
                     >
                       {item.label}
@@ -282,11 +323,22 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   >
                     {dropdownItems.map((item) =>
                       item.to ? (
-                        <NavDropdown.Item key={item.key} as={Link} to={item.to}>
+                        <NavDropdown.Item
+                          key={item.key}
+                          as={Link}
+                          to={item.to}
+                          onClick={() => setExpanded(false)} // Đóng menu
+                        >
                           {item.label}
                         </NavDropdown.Item>
                       ) : (
-                        <NavDropdown.Item key={item.key} onClick={item.onClick}>
+                        <NavDropdown.Item
+                          key={item.key}
+                          onClick={() => {
+                            item.onClick?.();
+                            setExpanded(false); // Đóng menu
+                          }}
+                        >
                           {item.label}
                         </NavDropdown.Item>
                       )
@@ -294,10 +346,18 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                   </NavDropdown>
                 ) : (
                   <>
-                    <Nav.Link as={Link} to="/login?callback=/recruiter">
+                    <Nav.Link
+                      as={Link}
+                      to="/login?callback=/recruiter"
+                      onClick={() => setExpanded(false)}
+                    >
                       {t("appHeader.recruiter")}
                     </Nav.Link>
-                    <Nav.Link as={Link} to="/login">
+                    <Nav.Link
+                      as={Link}
+                      to="/login"
+                      onClick={() => setExpanded(false)}
+                    >
                       {t("appHeader.login")}
                     </Nav.Link>
                   </>
@@ -346,7 +406,8 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
           </Container>
         </Navbar>
       </div>
-
+      {/* Offcanvas cho menu di động đã bị loại bỏ */}
+      {/* 
       <Offcanvas
         show={showOffcanvas}
         onHide={() => setShowOffcanvas(false)}
@@ -432,9 +493,9 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                 </Nav.Link>
               </>
             )}
-          </Nav>
+          </Nav>{" "}
         </Offcanvas.Body>
-      </Offcanvas>
+      </Offcanvas> */}
 
       <ManageAccount
         open={openManageAccount}
