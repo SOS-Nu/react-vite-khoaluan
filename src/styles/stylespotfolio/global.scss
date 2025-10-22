@@ -405,3 +405,29 @@ body {
 //     }
 //   }
 // }
+
+.input-group {
+  .form-control {
+    font-size: 0.875rem;
+    background-color: var(--background-body);
+    color: var(--text-white);
+    border-color: var(--border-hero-right);
+    &:focus {
+      border-color: var(--brand-social); // Dùng màu accent khi focus
+      box-shadow: 0 0 0 0.25rem rgba(var(--brand-social-rgb), 0.25);
+    }
+  }
+
+  .btn-upload {
+    border: 1px solid var(--border-hero-right);
+    input[type="file"] {
+      display: none;
+    }
+  }
+
+  .btn-voice {
+    &.listening {
+      animation: pulse 1.5s infinite;
+    }
+  }
+}

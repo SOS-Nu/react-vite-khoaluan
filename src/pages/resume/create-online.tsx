@@ -24,6 +24,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import "@/styles/stylespotfolio/create-online-resume.scss";
+import bg from "assets/top-bg.svg";
 
 const CreateOnlineResumePage = () => {
   const user = useAppSelector((state) => state.account.user);
@@ -261,384 +262,398 @@ const CreateOnlineResumePage = () => {
   };
 
   return (
-    <div key={user?.id || "logged-out"}>
-      <Spin spinning={isLoadingPage} fullscreen />
-      {!isLoadingPage && (
-        <Container className="create-resume-container my-5">
-          <Row>
-            <Col>
-              <h1 className="resume-title">
-                {resumeData.id ? "Edit Your" : "Create Your"} Profile
-              </h1>
-              <p className="resume-subtitle">
-                Manage your online resume and main CV file.
-              </p>
-            </Col>
-          </Row>
+    <>
+      <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
+      ></div>
+      <div key={user?.id || "logged-out"}>
+        <Spin spinning={isLoadingPage} fullscreen />
+        {!isLoadingPage && (
+          <Container className="create-resume-container my-5">
+            <Row>
+              <Col>
+                <h1 className="resume-title">
+                  {resumeData.id ? "Edit Your" : "Create Your"} Profile
+                </h1>
+                <p className="resume-subtitle">
+                  Manage your online resume and main CV file.
+                </p>
+              </Col>
+            </Row>
 
-          {/* ====== SECTION MỚI CHO MAIN CV ====== */}
-          <Row>
-            <Col md={12} className="mb-4">
-              <Card className="resume-card">
-                <Card.Header as="h5">Main CV File</Card.Header>
-                <Card.Body>
-                  {mainResumeName ? (
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>
-                        Your current main CV: <strong>{mainResumeName}</strong>
-                      </span>
-                      <a
-                        href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${mainResumeName}&folder=resumes`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="primary">
+            {/* ====== SECTION MỚI CHO MAIN CV ====== */}
+            <Row>
+              <Col md={12} className="mb-4">
+                <Card className="resume-card">
+                  <Card.Header as="h5">Main CV File</Card.Header>
+                  <Card.Body>
+                    {mainResumeName ? (
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>
+                          Your current main CV:{" "}
+                          <strong>{mainResumeName}</strong>
+                        </span>
+                        <a
+                          href={`${import.meta.env.VITE_BACKEND_URL}/api/v1/files?fileName=${mainResumeName}&folder=resumes`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="primary">
+                            <DownloadOutlined />
+                            Download
+                          </Button>
+                        </a>
+                      </div>
+                    ) : (
+                      <div>
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            Upload your main CV (PDF, DOC, DOCX)
+                          </Form.Label>
+                          <Form.Control
+                            type="file"
+                            onChange={handleFileChange}
+                            accept=".pdf,.doc,.docx"
+                          />
+                        </Form.Group>
+                        <Button
+                          variant="primary"
+                          onClick={handleUploadMainResume}
+                          disabled={!selectedFile || isUploading}
+                        >
                           <DownloadOutlined />
-                          Download
+                          {isUploading ? "Uploading..." : "Upload"}
                         </Button>
-                      </a>
-                    </div>
-                  ) : (
-                    <div>
-                      <Form.Group className="mb-3">
-                        <Form.Label>
-                          Upload your main CV (PDF, DOC, DOCX)
-                        </Form.Label>
-                        <Form.Control
-                          type="file"
-                          onChange={handleFileChange}
-                          accept=".pdf,.doc,.docx"
-                        />
-                      </Form.Group>
-                      <Button
-                        variant="primary"
-                        onClick={handleUploadMainResume}
-                        disabled={!selectedFile || isUploading}
-                      >
-                        <DownloadOutlined />
-                        {isUploading ? "Uploading..." : "Upload"}
-                      </Button>
-                      {selectedFile && (
-                        <div className="mt-2">
-                          Selected file: {selectedFile.name}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {mainResumeName && (
-                    <div className="mt-3">
-                      <hr />
-                      <Form.Group>
-                        <Form.Label>Or replace it with a new one:</Form.Label>
-                        <Form.Control
-                          type="file"
-                          onChange={handleFileChange}
-                          accept=".pdf,.doc,.docx"
-                        />
-                      </Form.Group>
-                      <Button
-                        className="mt-2"
-                        variant="primary"
-                        onClick={handleUploadMainResume}
-                        disabled={!selectedFile || isUploading}
-                      >
-                        <DownloadOutlined />
-                        {isUploading ? "Uploading..." : "Upload New Version"}
-                      </Button>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          {/* ====== KẾT THÚC SECTION MAIN CV ====== */}
+                        {selectedFile && (
+                          <div className="mt-2">
+                            Selected file: {selectedFile.name}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {mainResumeName && (
+                      <div className="mt-3">
+                        <hr />
+                        <Form.Group>
+                          <Form.Label>Or replace it with a new one:</Form.Label>
+                          <Form.Control
+                            type="file"
+                            onChange={handleFileChange}
+                            accept=".pdf,.doc,.docx"
+                          />
+                        </Form.Group>
+                        <Button
+                          className="mt-2"
+                          variant="primary"
+                          onClick={handleUploadMainResume}
+                          disabled={!selectedFile || isUploading}
+                        >
+                          <DownloadOutlined />
+                          {isUploading ? "Uploading..." : "Upload New Version"}
+                        </Button>
+                      </div>
+                    )}
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+            {/* ====== KẾT THÚC SECTION MAIN CV ====== */}
 
-          <Row>
-            <Col md={12} className="mb-4">
-              <Card className="resume-card">
-                <Card.Header as="h5">
-                  Online Resume - Personal Information
-                </Card.Header>
-                <Card.Body>
-                  <Form>
-                    <Row>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Resume Title</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="e.g., Senior Java Developer"
-                            name="title"
-                            value={resumeData.title || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Full Name</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="fullName"
-                            value={resumeData.fullName || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Email</Form.Label>
-                          <Form.Control
-                            type="email"
-                            name="email"
-                            value={resumeData.email || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Phone</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="phone"
-                            value={resumeData.phone || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Date of Birth</Form.Label>
-                          <Form.Control
-                            type="date"
-                            name="dateOfBirth"
-                            value={resumeData.dateOfBirth || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Address</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="address"
-                            value={resumeData.address || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Summary</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={4}
-                            name="summary"
-                            placeholder="Briefly describe your professional background..."
-                            value={resumeData.summary || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Skills</Form.Label>
-                          <Select
-                            mode="multiple"
-                            allowClear
-                            style={{ width: "100%" }}
-                            placeholder="Select skills"
-                            onChange={handleSkillChange}
-                            value={resumeData.skills?.map((s) => s.id) || []}
-                            options={allSkills.map((skill) => ({
-                              label: skill.name,
-                              value: skill.id,
-                            }))}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Certifications</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
-                            name="certifications"
-                            placeholder="e.g., AWS Certified"
-                            value={resumeData.certifications || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Educations</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
-                            name="educations"
-                            placeholder="e.g., BSc in Computer Science"
-                            value={resumeData.educations || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Languages</Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={3}
-                            name="languages"
-                            placeholder="e.g., English (Fluent)"
-                            value={resumeData.languages || ""}
-                            onChange={handleResumeChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </Form>
-                  <hr />
-                  <div className="d-flex justify-content-end">
+            <Row>
+              <Col md={12} className="mb-4">
+                <Card className="resume-card">
+                  <Card.Header as="h5">
+                    Online Resume - Personal Information
+                  </Card.Header>
+                  <Card.Body>
+                    <Form>
+                      <Row>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Resume Title</Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="e.g., Senior Java Developer"
+                              name="title"
+                              value={resumeData.title || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Full Name</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="fullName"
+                              value={resumeData.fullName || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                              type="email"
+                              name="email"
+                              value={resumeData.email || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Phone</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="phone"
+                              value={resumeData.phone || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Date of Birth</Form.Label>
+                            <Form.Control
+                              type="date"
+                              name="dateOfBirth"
+                              value={resumeData.dateOfBirth || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Address</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="address"
+                              value={resumeData.address || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={12}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Summary</Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={4}
+                              name="summary"
+                              placeholder="Briefly describe your professional background..."
+                              value={resumeData.summary || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={12}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Skills</Form.Label>
+                            <Select
+                              mode="multiple"
+                              allowClear
+                              style={{ width: "100%" }}
+                              placeholder="Select skills"
+                              onChange={handleSkillChange}
+                              value={resumeData.skills?.map((s) => s.id) || []}
+                              options={allSkills.map((skill) => ({
+                                label: skill.name,
+                                value: skill.id,
+                              }))}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Certifications</Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              name="certifications"
+                              placeholder="e.g., AWS Certified"
+                              value={resumeData.certifications || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Educations</Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              name="educations"
+                              placeholder="e.g., BSc in Computer Science"
+                              value={resumeData.educations || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={12}>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Languages</Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              name="languages"
+                              placeholder="e.g., English (Fluent)"
+                              value={resumeData.languages || ""}
+                              onChange={handleResumeChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Form>
+                    <hr />
+                    <div className="d-flex justify-content-end">
+                      <Button
+                        variant="primary"
+                        onClick={handleSubmitResume}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting
+                          ? "Saving..."
+                          : resumeData.id
+                            ? "Update Information"
+                            : "Save Information"}
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              <Col md={12}>
+                <Card className="resume-card">
+                  <Card.Header as="h5">
+                    Online Resume - Work Experience
+                  </Card.Header>
+                  <Card.Body>
+                    {workExperiences.map((exp, index) => (
+                      <Card key={index} className="mb-3 experience-item">
+                        <Card.Body>
+                          <Form>
+                            <Row>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Company Name</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    name="companyName"
+                                    value={exp.companyName || ""}
+                                    onChange={(e) =>
+                                      handleWorkExperienceChange(index, e)
+                                    }
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Location</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    name="location"
+                                    value={exp.location || ""}
+                                    onChange={(e) =>
+                                      handleWorkExperienceChange(index, e)
+                                    }
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Start Date</Form.Label>
+                                  <Form.Control
+                                    type="date"
+                                    name="startDate"
+                                    value={exp.startDate?.split("T")[0] || ""}
+                                    onChange={(e) =>
+                                      handleWorkExperienceChange(index, e)
+                                    }
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>End Date</Form.Label>
+                                  <Form.Control
+                                    type="date"
+                                    name="endDate"
+                                    value={exp.endDate?.split("T")[0] || ""}
+                                    onChange={(e) =>
+                                      handleWorkExperienceChange(index, e)
+                                    }
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={12}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label>Description</Form.Label>
+                                  <Form.Control
+                                    as="textarea"
+                                    rows={5}
+                                    name="description"
+                                    value={exp.description || ""}
+                                    onChange={(e) =>
+                                      handleWorkExperienceChange(index, e)
+                                    }
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                            <Space>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => handleSaveWorkExperience(index)}
+                                disabled={isSubmitting}
+                              >
+                                {isSubmitting
+                                  ? "Saving..."
+                                  : exp.id
+                                    ? "Update"
+                                    : "Save"}
+                              </Button>
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                onClick={() =>
+                                  removeWorkExperience(index, exp.id)
+                                }
+                                disabled={isSubmitting}
+                              >
+                                <DeleteOutlined /> Remove
+                              </Button>
+                            </Space>
+                          </Form>
+                        </Card.Body>
+                      </Card>
+                    ))}
                     <Button
-                      variant="primary"
-                      onClick={handleSubmitResume}
+                      variant="outline-primary"
+                      className="mt-2"
+                      onClick={addWorkExperience}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting
-                        ? "Saving..."
-                        : resumeData.id
-                          ? "Update Information"
-                          : "Save Information"}
+                      <PlusOutlined /> Add Another Experience
                     </Button>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col md={12}>
-              <Card className="resume-card">
-                <Card.Header as="h5">
-                  Online Resume - Work Experience
-                </Card.Header>
-                <Card.Body>
-                  {workExperiences.map((exp, index) => (
-                    <Card key={index} className="mb-3 experience-item">
-                      <Card.Body>
-                        <Form>
-                          <Row>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label>Company Name</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  name="companyName"
-                                  value={exp.companyName || ""}
-                                  onChange={(e) =>
-                                    handleWorkExperienceChange(index, e)
-                                  }
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label>Location</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  name="location"
-                                  value={exp.location || ""}
-                                  onChange={(e) =>
-                                    handleWorkExperienceChange(index, e)
-                                  }
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label>Start Date</Form.Label>
-                                <Form.Control
-                                  type="date"
-                                  name="startDate"
-                                  value={exp.startDate?.split("T")[0] || ""}
-                                  onChange={(e) =>
-                                    handleWorkExperienceChange(index, e)
-                                  }
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label>End Date</Form.Label>
-                                <Form.Control
-                                  type="date"
-                                  name="endDate"
-                                  value={exp.endDate?.split("T")[0] || ""}
-                                  onChange={(e) =>
-                                    handleWorkExperienceChange(index, e)
-                                  }
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={12}>
-                              <Form.Group className="mb-3">
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control
-                                  as="textarea"
-                                  rows={5}
-                                  name="description"
-                                  value={exp.description || ""}
-                                  onChange={(e) =>
-                                    handleWorkExperienceChange(index, e)
-                                  }
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                          <Space>
-                            <Button
-                              variant="primary"
-                              size="sm"
-                              onClick={() => handleSaveWorkExperience(index)}
-                              disabled={isSubmitting}
-                            >
-                              {isSubmitting
-                                ? "Saving..."
-                                : exp.id
-                                  ? "Update"
-                                  : "Save"}
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() =>
-                                removeWorkExperience(index, exp.id)
-                              }
-                              disabled={isSubmitting}
-                            >
-                              <DeleteOutlined /> Remove
-                            </Button>
-                          </Space>
-                        </Form>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                  <Button
-                    variant="outline-primary"
-                    className="mt-2"
-                    onClick={addWorkExperience}
-                    disabled={isSubmitting}
-                  >
-                    <PlusOutlined /> Add Another Experience
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      )}
-    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        )}
+      </div>
+    </>
   );
 };
 

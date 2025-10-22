@@ -16,13 +16,15 @@ import { Container } from "react-bootstrap";
 import Skill from "../skill";
 import { IUser } from "@/types/backend";
 import { useTranslation } from "react-i18next";
-import bg from "assets/top-bg.svg";
 import { VueHeroWrapper } from "@/components/HeroAnimation/VueHeroWrapper";
 import { isMobile } from "react-device-detect";
+import { useCurrentApp } from "@/components/context/app.context";
+import bg from "assets/top-bg.svg";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const theme = useCurrentApp().theme;
 
   const { t } = useTranslation(); // Lấy hàm t từ hook
 
@@ -62,19 +64,22 @@ const HomePage = () => {
   return (
     <>
       <div style={{ width: "100%", overflow: "hidden", position: "relative" }}>
-        <VueHeroWrapper />
+        {theme === "dark" ? (
+          <VueHeroWrapper />
+        ) : (
+          <div
+            style={{
+              backgroundImage: `url(${bg})`,
+              width: "100%",
+              height: 500,
+              position: "absolute",
+              top: 5,
+              backgroundRepeat: "repeat",
+              zIndex: 0,
+            }}
+          ></div>
+        )}
 
-        {/* <div
-        style={{
-          backgroundImage: `url(${bg})`,
-          width: "100%",
-          height: 500,
-          position: "absolute",
-          top: 50,
-          backgroundRepeat: "repeat",
-          zIndex: 0,
-        }}
-      ></div> */}
         <div
           className={`${styles["container"]} ${styles["home-section"]}`}
           style={{ position: "relative", zIndex: 1 }}
@@ -86,11 +91,13 @@ const HomePage = () => {
             />
           </div>
           <div></div>
-          {!isMobile ? (
+          {!isMobile && theme === "dark" && (
             <div style={{ height: "30rem" }}></div>
-          ) : (
-            <div style={{ height: "13rem" }}></div>
           )}
+          {isMobile && theme === "dark" && (
+            <div style={{ height: "15rem" }}></div>
+          )}
+
           <ManageCV />
           <JobCard
             jobs={jobsResult}

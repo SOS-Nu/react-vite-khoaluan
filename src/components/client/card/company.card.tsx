@@ -115,17 +115,20 @@ const CompanyCard = (props: IProps) => {
                             >
                               {item.name}
                             </p>
-                            <span
-                              className="wave"
-                              role="img"
-                              aria-labelledby="wave"
-                            >
-                              <img
-                                src={upload3}
-                                alt="Wave icon"
-                                style={{ width: "30px", height: "30px" }}
-                              />
-                            </span>
+
+                            {item?.totalJobs! >= 3 && (
+                              <span
+                                className="wave"
+                                role="img"
+                                aria-labelledby="wave"
+                              >
+                                <img
+                                  src={upload3}
+                                  alt="Wave icon"
+                                  style={{ width: "30px", height: "30px" }}
+                                />
+                              </span>
+                            )}
                           </div>
                           <div
                             className="details"

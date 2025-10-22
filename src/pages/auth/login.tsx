@@ -189,12 +189,15 @@ const LoginPage = () => {
       <Form onSubmit={handleLogin}>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="Nhập email của bạn"
-            name="username"
-            required
-          />
+
+          <InputGroup>
+            <Form.Control
+              type="email"
+              placeholder="Nhập email của bạn"
+              name="username"
+              required
+            />
+          </InputGroup>
         </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Mật khẩu</Form.Label>

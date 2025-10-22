@@ -210,7 +210,7 @@ const SearchClient = (props: IProps) => {
                       color: "transparent",
                       fontWeight: 500,
                     }
-                  : { color: "white" }),
+                  : { color: "black" }),
                 fontWeight: 600,
                 marginBottom: "0.25rem",
               }}

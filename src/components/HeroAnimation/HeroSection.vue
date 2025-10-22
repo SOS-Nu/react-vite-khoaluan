@@ -18,7 +18,6 @@ import HeroDiagram from "./HeroDiagram.vue";
 .hero {
   /* --- PHẦN STYLE MỚI ĐỂ LÀM BACKGROUND --- */
   position: absolute;
-  top: 150px; /* Khoảng cách top 240px của bạn */
   left: 0;
   width: 100%; /* Chiếm 100% chiều ngang */
   z-index: 0; /* Nằm dưới cùng (background) */
@@ -28,16 +27,16 @@ import HeroDiagram from "./HeroDiagram.vue";
   /* background-color: #101010; */
 
   /* 1. Màn Mobile (mặc định): 0px */
-  top: 200px;
+  top: 180px;
 
   /* 2. Màn Medium (768px) trở lên */
   @media (min-width: 768px) {
-    top: 20px;
-    margin-bottom: 60px;
+    top: 180px;
+    /* margin-bottom: 60px; */
   }
 
   /* 3. Màn Lớn (ví dụ: 1024px) trở lên */
-  @media (min-width: 1024px) {
+  @media (min-width: 1642px) {
     top: 200px;
   }
 }

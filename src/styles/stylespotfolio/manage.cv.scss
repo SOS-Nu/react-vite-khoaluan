@@ -23,6 +23,11 @@
       background-size: contain; // Điều chỉnh cho màn hình nhỏ
     }
   }
+  /* 2. Màn Medium (768px) trở lên */
+  @media (max-width: 1642px) {
+    // top: 10px;
+    // margin-bottom: 60px;
+  }
 }
 
 .wave {
