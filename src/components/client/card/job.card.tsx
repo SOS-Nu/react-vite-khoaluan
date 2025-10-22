@@ -1,3 +1,4 @@
+// @/components/client/card/job.card.tsx (Đã cập nhật)
 import { convertSlug, getLocationName } from "@/config/utils";
 import { IJob } from "@/types/backend";
 import { Link, useSearchParams } from "react-router-dom";
@@ -11,7 +12,7 @@ import { BsGeoAlt, BsCurrencyDollar, BsClock } from "react-icons/bs";
 import { Button, Col, Row } from "react-bootstrap";
 import { isMobile } from "react-device-detect";
 import styles from "@/styles/client.module.scss";
-import React from "react";
+import React from "react"; // Đảm bảo React được import
 import i18next, { t, i18n } from "i18next";
 
 dayjs.extend(relativeTime);
@@ -26,11 +27,12 @@ interface IProps {
   openInNewTab?: boolean;
 }
 
+// Bọc component trong React.memo (bạn đã làm đúng)
 const JobCard = (props: IProps) => {
   const {
     jobs,
     isLoading,
-    title = t("job.listTitle"), // Sửa giá trị mặc định
+    title = t("job.listTitle"),
     showPagination,
     isListPage = false,
     showButtonAllJob,
@@ -40,6 +42,45 @@ const JobCard = (props: IProps) => {
 
   const [searchParams] = useSearchParams();
   const selectedJobId = searchParams.get("id");
+
+  // === BẮT ĐẦU TỐI ƯU USEMEMO ===
+  // Tính toán trước tất cả các giá trị động cho mỗi job
+  const memoizedJobs = React.useMemo(() => {
+    return jobs?.map((item) => {
+      const relevantDate = item.updatedAt || item.createdAt;
+      const isNew = dayjs().diff(dayjs(relevantDate), "day") < 3;
+      const isSelected = !openInNewTab && String(item.id) === selectedJobId;
+
+      let linkTo = "";
+      let linkTarget: React.HTMLAttributeAnchorTarget = "_self";
+      let linkRel: string | undefined = undefined;
+
+      if (openInNewTab) {
+        linkTo = `/job/detail/${item.id}`;
+        linkTarget = "_blank";
+        linkRel = "noopener noreferrer";
+      } else {
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        newSearchParams.set("id", item.id!);
+        linkTo = `/job?${newSearchParams.toString()}`;
+      }
+
+      // Trả về một object mới chứa các giá trị đã tính toán
+      // để sử dụng trong vòng lặp JSX
+      return {
+        ...item,
+        preCalculated: {
+          relevantDate,
+          isNew,
+          isSelected,
+          linkTo,
+          linkTarget,
+          linkRel,
+        },
+      };
+    });
+  }, [jobs, searchParams, openInNewTab, selectedJobId, i18next.language]); // Phụ thuộc
+  // === KẾT THÚC TỐI ƯU USEMEMO ===
 
   return (
     <div className="card-job-section">
@@ -82,32 +123,21 @@ const JobCard = (props: IProps) => {
               </div>
             </Col>
 
-            {jobs?.map((item) => {
+            {/* Sử dụng mảng đã được memoized */}
+            {memoizedJobs?.map((item) => {
+              // Lấy các giá trị đã tính toán
+              const {
+                relevantDate,
+                isNew,
+                isSelected,
+                linkTo,
+                linkTarget,
+                linkRel,
+              } = item.preCalculated;
+
               const columnClass = isListPage
                 ? "col-12"
                 : "col-12 col-sm-6 col-md-4";
-
-              const isSelected =
-                !openInNewTab && String(item.id) === selectedJobId;
-
-              let linkTo = "";
-              let linkTarget: React.HTMLAttributeAnchorTarget = "_self";
-              let linkRel: string | undefined = undefined;
-
-              if (openInNewTab) {
-                linkTo = `/job/detail/${item.id}`;
-                linkTarget = "_blank";
-                linkRel = "noopener noreferrer";
-              } else {
-                const newSearchParams = new URLSearchParams(
-                  searchParams.toString()
-                );
-                newSearchParams.set("id", item.id!);
-                linkTo = `/job?${newSearchParams.toString()}`;
-              }
-
-              const relevantDate = item.updatedAt || item.createdAt;
-              const isNew = dayjs().diff(dayjs(relevantDate), "day") < 3;
 
               return (
                 <div className={columnClass} key={item.id}>
@@ -115,14 +145,14 @@ const JobCard = (props: IProps) => {
                     className={`${isSelected ? "selected-job-card" : ""} h-100`}
                   >
                     <Link
-                      to={linkTo}
+                      to={linkTo} // Dùng giá trị đã tính
                       style={{
                         textDecoration: "none",
                         height: "100%",
                         display: "block",
                       }}
-                      target={linkTarget}
-                      rel={linkRel}
+                      target={linkTarget} // Dùng giáGtrị đã tính
+                      rel={linkRel} // Dùng giá trị đã tính
                     >
                       <SimpleGlowCard
                         identifier={`job-${item.id}`}
@@ -160,7 +190,7 @@ const JobCard = (props: IProps) => {
                                 }}
                               >
                                 {item.name}
-                                {isNew && (
+                                {isNew && ( // Dùng giá trị đã tính
                                   <span
                                     className="wave"
                                     role="img"
@@ -195,6 +225,7 @@ const JobCard = (props: IProps) => {
                                     objectFit: "cover",
                                     borderRadius: "20px",
                                   }}
+                                  loading="lazy" // <-- Thêm tối ưu: lazy load ảnh
                                 />
                               </div>
                               <div className="info">
@@ -285,8 +316,8 @@ const JobCard = (props: IProps) => {
                                       fontSize: "0.875rem",
                                     }}
                                   />
-                                  {dayjs(relevantDate)
-                                    .locale(i18next.language) // Sử dụng ngôn ngữ hiện tại của i18next
+                                  {dayjs(relevantDate) // Dùng giá trị đã tính
+                                    .locale(i18next.language)
                                     .fromNow()}
                                 </p>
                               </div>
@@ -345,4 +376,4 @@ const JobCard = (props: IProps) => {
   );
 };
 
-export default React.memo(JobCard);
+export default React.memo(JobCard); // Giữ nguyên React.memo

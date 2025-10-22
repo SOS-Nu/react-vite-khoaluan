@@ -1,3 +1,4 @@
+// @/components/client/introduction/introduction.tsx (Đã tối ưu)
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { useCurrentApp } from "components/context/app.context";
 import { isMobile } from "react-device-detect";
@@ -13,10 +14,11 @@ import {
   Legend,
 } from "chart.js";
 import CountUp from "react-countup";
-import { useState, useEffect, useRef } from "react";
+// Sửa import: Thêm useMemo
+import { useState, useEffect, useRef, useMemo } from "react";
 import { IDashboardData } from "@/types/backend";
 import { callGetDashboard } from "@/config/api";
-import { t } from "i18next";
+import { t } from "i18next"; // Đảm bảo t được import (nếu dùng i18n)
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -69,76 +71,91 @@ const Introduction = () => {
     }
   }, [isLoading]);
 
-  const stats = {
-    jobs: dashboardData?.totalJobs ?? 0,
-    companies: dashboardData?.totalCompanies ?? 0,
-    users: dashboardData?.totalUsers ?? 0,
-    successfulUsers: dashboardData?.totalResumesApproved ?? 0,
-  };
+  const stats = useMemo(() => {
+    return {
+      jobs: dashboardData?.totalJobs ?? 0,
+      companies: dashboardData?.totalCompanies ?? 0,
+      users: dashboardData?.totalUsers ?? 0,
+      successfulUsers: dashboardData?.totalResumesApproved ?? 0,
+    };
+  }, [dashboardData]); // Tính 'stats' chỉ khi 'dashboardData' thay đổi
 
-  const chartData = {
-    labels: [
-      t("job.job"),
-      t("company.company"),
-      t("user.user"),
-      t("resumes.resumesApproved"),
-    ],
-    datasets: [
-      {
-        label: "Thống kê",
-        data: [stats.jobs, stats.companies, stats.users, stats.successfulUsers],
-        backgroundColor: ["#28a745", "#ec4899", "#58aaab", "#ff9100"],
-        borderColor: theme === "dark" ? "#1f1f1f" : "#fff",
-        borderWidth: 1,
-      },
-    ],
-  };
+  // === BẮT ĐẦU TỐI ƯU USEMEMO ===
+  const chartData = useMemo(() => {
+    return {
+      labels: [
+        t("job.job"),
+        t("company.company"),
+        t("user.user"),
+        t("resumes.resumesApproved"),
+      ],
+      datasets: [
+        {
+          label: "Thống kê",
+          data: [
+            stats.jobs,
+            stats.companies,
+            stats.users,
+            stats.successfulUsers,
+          ],
+          backgroundColor: ["#28a745", "#ec4899", "#58aaab", "#ff9100"],
+          borderColor: theme === "dark" ? "#1f1f1f" : "#fff",
+          borderWidth: 1,
+        },
+      ],
+    };
+    // Phụ thuộc vào 'stats' (đã được memoized), 'theme' và ngôn ngữ 't'
+  }, [stats, theme, t]);
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          color: theme === "dark" ? "#ccc" : "#666",
-          font: { size: isMobile ? 10 : 12 },
+  const chartOptions = useMemo(() => {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: theme === "dark" ? "#ccc" : "#666",
+            font: { size: isMobile ? 10 : 12 },
+          },
+          grid: { color: theme === "dark" ? "#3e3e3e" : "#e0e0e0" },
         },
-        grid: { color: theme === "dark" ? "#3e3e3e" : "#e0e0e0" },
-      },
-      x: {
-        ticks: {
-          color: theme === "dark" ? "#ccc" : "#666",
-          font: { size: isMobile ? 10 : 12 },
-        },
-        grid: { display: false },
-      },
-    },
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          color: theme === "dark" ? "#ccc" : "#666",
-          font: { size: isMobile ? 12 : 14 },
+        x: {
+          ticks: {
+            color: theme === "dark" ? "#ccc" : "#666",
+            font: { size: isMobile ? 10 : 12 },
+          },
+          grid: { display: false },
         },
       },
-      tooltip: {
-        backgroundColor: theme === "dark" ? "#1f1f1f" : "#fff",
-        titleColor: theme === "dark" ? "#fff" : "#000",
-        bodyColor: theme === "dark" ? "#ccc" : "#666",
-        borderColor: theme === "dark" ? "#3e3e3e" : "#ccc",
-        borderWidth: 1,
-        callbacks: {
-          label: (context: any) => {
-            const label = context.dataset.label || "";
-            const value = context.parsed.y.toLocaleString("en-US");
-            return `${label}: ${value}`;
+      plugins: {
+        legend: {
+          position: "bottom" as const,
+          labels: {
+            color: theme === "dark" ? "#ccc" : "#666",
+            font: { size: isMobile ? 12 : 14 },
+          },
+        },
+        tooltip: {
+          backgroundColor: theme === "dark" ? "#1f1f1f" : "#fff",
+          titleColor: theme === "dark" ? "#fff" : "#000",
+          bodyColor: theme === "dark" ? "#ccc" : "#666",
+          borderColor: theme === "dark" ? "#3e3e3e" : "#ccc",
+          borderWidth: 1,
+          callbacks: {
+            label: (context: any) => {
+              const label = context.dataset.label || "";
+              const value = context.parsed.y.toLocaleString("en-US");
+              return `${label}: ${value}`;
+            },
           },
         },
       },
-    },
-    animation: { duration: 2000, easing: "easeOutQuad" },
-  } as const;
+      animation: { duration: 2000, easing: "easeOutQuad" },
+    } as const;
+    // Phụ thuộc vào 'theme' và 'isMobile'
+  }, [theme, isMobile]);
+  // === KẾT THÚC TỐI ƯU USEMEMO ===
 
   if (isLoading) {
     return (
@@ -248,7 +265,7 @@ const Introduction = () => {
                   >
                     <p
                       style={{
-                        fontSize: isMobile ? "1.25rem" : "1.5rem",
+                        fontSize: isMobile ? "1.Srem" : "1.5rem",
                         fontWeight: 600,
                         color: "#ec4899",
                         marginBottom: "0.25rem",
@@ -377,7 +394,11 @@ const Introduction = () => {
               }}
             >
               {isVisible && (
-                <Bar key="chart" data={chartData} options={chartOptions} />
+                <Bar
+                  key="chart"
+                  data={chartData} // Dùng data đã memoized
+                  options={chartOptions} // Dùng options đã memoized
+                />
               )}
             </div>
           </Col>
@@ -387,4 +408,4 @@ const Introduction = () => {
   );
 };
 
-export default Introduction;
+export default Introduction; // Component này không cần memo vì nó tự quản lý state và call API

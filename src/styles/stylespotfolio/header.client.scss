@@ -11,26 +11,30 @@
     content: "";
     position: absolute;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
+    left: 10%; /* Căn giữa (100% - 80% = 20% / 2 = 10%) */
+    width: 80%; /* Luôn có width 80% */
     height: 2px;
     background: linear-gradient(
       to right,
       #ec4899,
       #8b5cf6
     ); // Gradient giống resize-button
-    transition: width 0.4s ease;
+
+    /* === THAY ĐỔI TỐI ƯU === */
+    transform: scaleX(0); /* Bắt đầu với tỷ lệ 0 */
+    transform-origin: center; /* Scale từ vị trí giữa */
+    transition: transform 0.4s ease; /* Animate thuộc tính transform */
   }
+
   &:hover {
     &::after {
-      width: 80%;
+      transform: scaleX(1); /* Phóng to ra 100% (của 80% width) */
     }
-    color: var(--brand-social); // Thêm dòng này để đổi màu chữ khi hover
+    color: var(--brand-social);
   }
 
   &.active::after {
-    width: 80%;
+    transform: scaleX(1); /* Phóng to ra 100% (của 80% width) */
   }
 
   &.active {

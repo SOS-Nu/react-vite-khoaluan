@@ -215,7 +215,7 @@ const ClientJobPage = () => {
           position: "absolute",
           top: 50,
           backgroundRepeat: "repeat",
-          zIndex: 0,
+          zIndex: -100,
         }}
       ></div>
       <div className="container job-detail-page-container">

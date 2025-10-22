@@ -18,6 +18,7 @@ import CompanyReviews from "./CompanyReviews";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppSelector } from "@/redux/hooks";
+import upload3 from "assets/top-rated.png";
 
 interface IProps {
   companyId: string;
@@ -67,7 +68,19 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
             {/* Cột Phải: Toàn bộ thông tin */}
             <div className="company-details-wrapper">
               <div className="company-title">
-                <h1 className="name">{companyDetail.name}</h1>
+                <h1 className="name">
+                  {companyDetail.name}{" "}
+                  {companyDetail?.totalJobs! >= 3 && (
+                    <span className="wave" role="img" aria-labelledby="wave">
+                      <img
+                        src={upload3}
+                        alt="Wave icon"
+                        style={{ width: "30px", height: "30px" }}
+                      />
+                    </span>
+                  )}
+                </h1>
+
                 <div className="location">
                   <HomeOutlined />
                   &nbsp; {companyDetail.address}

@@ -1,3 +1,4 @@
+// @/components/client/card/company.card.tsx (Đã tối ưu)
 import { convertSlug, getLocationName } from "@/config/utils";
 import { ICompany } from "@/types/backend";
 import { isMobile } from "react-device-detect";
@@ -12,6 +13,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
 import { t } from "i18next";
+import React from "react"; // Thêm import React
 
 dayjs.extend(relativeTime);
 
@@ -32,6 +34,203 @@ const CompanyCard = (props: IProps) => {
     companyListRef,
   } = props;
   const { theme } = useCurrentApp();
+
+  // === BẮT ĐẦU TỐI ƯU USEMEMO ===
+  // Tính toán trước mảng company để render
+  const memoizedCompanies = React.useMemo(() => {
+    return companies?.map((item) => {
+      // Tính toán các giá trị 1 lần
+      const linkTo = `/company/${convertSlug(item.name ?? "")}?id=${item.id}`;
+      const relevantDate = item.updatedAt || item.createdAt;
+      const displayDate = dayjs(relevantDate).locale("en").fromNow();
+
+      return (
+        <Col xs={12} sm={6} md={4} key={item.id}>
+          <Link
+            to={linkTo} // Dùng link đã tính
+            style={{ textDecoration: "none" }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <SimpleGlowCard identifier={`company-${item.id}`}>
+              <div className="p-0 pt-2 p-md-2 pb-2 position-relative">
+                {theme === "dark" && (
+                  <img
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      opacity: 0.8,
+                      width: "100%",
+                      height: 200,
+                    }}
+                    src={blurImg}
+                    alt="Blur background"
+                  />
+                )}
+                <div className="experience-container">
+                  <div className="duration-text">
+                    <p
+                      style={{
+                        ...(theme === "dark"
+                          ? {
+                              background:
+                                "linear-gradient(90deg, #1b74ff, #a880ff 96.79%)",
+                              WebkitBackgroundClip: "text",
+                              backgroundClip: "text",
+                              color: "transparent",
+                            }
+                          : { color: "#000" }),
+                        fontWeight: 600,
+                      }}
+                    >
+                      {item.name}
+                    </p>
+
+                    {item?.totalJobs! >= 3 && (
+                      <span className="wave" role="img" aria-labelledby="wave">
+                        <img
+                          src={upload3}
+                          alt="Wave icon"
+                          style={{ width: "30px", height: "30px" }}
+                        />
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className="details"
+                    style={{
+                      top: "-10px",
+                      position: "relative",
+                      minHeight: "190px",
+                    }}
+                  >
+                    <div className="icon">
+                      <img
+                        alt="company logo"
+                        src={`${
+                          import.meta.env.VITE_BACKEND_URL
+                        }/storage/company/${item?.logo}`}
+                        style={{
+                          width: "140px",
+                          height: "140px",
+                          objectFit: "cover",
+                          borderRadius: "20px",
+                        }}
+                        loading="lazy" // <-- THÊM TỐI ƯU TẢI LƯỜI
+                      />
+                    </div>
+                    <div className="info">
+                      <p
+                        className="company"
+                        style={{
+                          color: theme === "dark" ? "#ccc" : "#666",
+                          fontSize: "0.875rem",
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        <BsBriefcase
+                          style={{
+                            color: theme === "dark" ? "#58aaab" : "#000",
+                            marginRight: "6px",
+                          }}
+                        />
+                        Lĩnh vực: {item.field || "N/A"}
+                      </p>
+                      <p
+                        className="company"
+                        style={{
+                          color: theme === "dark" ? "#ccc" : "#666",
+                          fontSize: "0.875rem",
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        <BsPeople
+                          style={{
+                            color: theme === "dark" ? "#58aaab" : "#000",
+                            marginRight: "6px",
+                          }}
+                        />
+                        Quy mô: {item.scale || "N/A"}
+                      </p>
+                      <p
+                        className="time"
+                        style={{
+                          color: theme === "dark" ? "#ccc" : "#666",
+                          fontSize: "0.875rem",
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        {displayDate} {/* Dùng ngày đã tính */}
+                      </p>
+                    </div>
+                    <p
+                      className="location"
+                      style={{
+                        position: "absolute",
+                        bottom: "-5px",
+                        left: "10px",
+                        color: theme === "dark" ? "#ccc" : "#666",
+                        fontSize: "0.9375rem",
+                        marginBottom: "0",
+                      }}
+                    >
+                      <BsGeoAlt
+                        style={{
+                          color: theme === "dark" ? "#58aaab" : "#000",
+                          marginRight: "6px",
+                        }}
+                      />
+                      {getLocationName(item?.location!)}
+                    </p>
+                    <div
+                      className="total-job"
+                      style={{
+                        position: "absolute",
+                        bottom: "0px",
+                        right: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.25rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          backgroundColor: "#28a745",
+                          color: "#fff",
+                          fontSize: "0.75rem",
+                          fontWeight: 500,
+                          borderRadius: "50%",
+                          width: "32px",
+                          height: "32px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          lineHeight: "1.2",
+                        }}
+                      >
+                        {item.totalJobs || 0}
+                      </div>
+                      <span
+                        style={{
+                          color: theme === "dark" ? "#ccc" : "#666",
+                          fontSize: "1rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Jobs
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SimpleGlowCard>
+          </Link>
+        </Col>
+      );
+    });
+  }, [companies, theme]); // Chỉ tính toán lại khi 'companies' hoặc 'theme' thay đổi
+  // === KẾT THÚC TỐI ƯU USEMEMO ===
 
   return (
     <div className={`${styles["company-section"]}`} ref={companyListRef}>
@@ -74,197 +273,8 @@ const CompanyCard = (props: IProps) => {
                 </div>
               </Col>
 
-              {companies?.map((item) => (
-                <Col xs={12} sm={6} md={4} key={item.id}>
-                  <Link
-                    to={`/company/${convertSlug(item.name ?? "")}?id=${item.id}`}
-                    style={{ textDecoration: "none" }}
-                    target="_blank" // Thêm dòng này
-                    rel="noopener noreferrer" // Và thêm dòng này để bảo mật
-                  >
-                    <SimpleGlowCard identifier={`company-${item.id}`}>
-                      <div className="p-0 pt-2 p-md-2 pb-2 position-relative">
-                        {theme === "dark" && (
-                          <img
-                            style={{
-                              position: "absolute",
-                              bottom: 0,
-                              opacity: 0.8,
-                              width: "100%",
-                              height: 200,
-                            }}
-                            src={blurImg}
-                            alt="Blur background"
-                          />
-                        )}
-                        <div className="experience-container">
-                          <div className="duration-text">
-                            <p
-                              style={{
-                                ...(theme === "dark"
-                                  ? {
-                                      background:
-                                        "linear-gradient(90deg, #1b74ff, #a880ff 96.79%)",
-                                      WebkitBackgroundClip: "text",
-                                      backgroundClip: "text",
-                                      color: "transparent",
-                                    }
-                                  : { color: "#000" }),
-                                fontWeight: 600,
-                              }}
-                            >
-                              {item.name}
-                            </p>
-
-                            {item?.totalJobs! >= 3 && (
-                              <span
-                                className="wave"
-                                role="img"
-                                aria-labelledby="wave"
-                              >
-                                <img
-                                  src={upload3}
-                                  alt="Wave icon"
-                                  style={{ width: "30px", height: "30px" }}
-                                />
-                              </span>
-                            )}
-                          </div>
-                          <div
-                            className="details"
-                            style={{
-                              top: "-10px",
-                              position: "relative",
-                              minHeight: "190px",
-                            }}
-                          >
-                            <div className="icon">
-                              <img
-                                alt="company logo"
-                                src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.logo}`}
-                                style={{
-                                  width: "140px",
-                                  height: "140px",
-                                  objectFit: "cover",
-                                  borderRadius: "20px",
-                                }}
-                              />
-                            </div>
-                            <div className="info">
-                              <p
-                                className="company"
-                                style={{
-                                  color: theme === "dark" ? "#ccc" : "#666",
-                                  fontSize: "0.875rem",
-                                  marginBottom: "0.25rem",
-                                }}
-                              >
-                                <BsBriefcase
-                                  style={{
-                                    color:
-                                      theme === "dark" ? "#58aaab" : "#000",
-                                    marginRight: "6px",
-                                  }}
-                                />
-                                Lĩnh vực: {item.field || "N/A"}
-                              </p>
-                              <p
-                                className="company"
-                                style={{
-                                  color: theme === "dark" ? "#ccc" : "#666",
-                                  fontSize: "0.875rem",
-                                  marginBottom: "0.25rem",
-                                }}
-                              >
-                                <BsPeople
-                                  style={{
-                                    color:
-                                      theme === "dark" ? "#58aaab" : "#000",
-                                    marginRight: "6px",
-                                  }}
-                                />
-                                Quy mô: {item.scale || "N/A"}
-                              </p>
-                              <p
-                                className="time"
-                                style={{
-                                  color: theme === "dark" ? "#ccc" : "#666",
-                                  fontSize: "0.875rem",
-                                  marginBottom: "0.25rem",
-                                }}
-                              >
-                                {item.updatedAt
-                                  ? dayjs(item.updatedAt).locale("en").fromNow()
-                                  : dayjs(item.createdAt)
-                                      .locale("en")
-                                      .fromNow()}
-                              </p>
-                            </div>
-                            <p
-                              className="location"
-                              style={{
-                                position: "absolute",
-                                bottom: "-5px",
-                                left: "10px",
-                                color: theme === "dark" ? "#ccc" : "#666",
-                                fontSize: "0.9375rem",
-                                marginBottom: "0",
-                              }}
-                            >
-                              <BsGeoAlt
-                                style={{
-                                  color: theme === "dark" ? "#58aaab" : "#000",
-                                  marginRight: "6px",
-                                }}
-                              />
-                              {getLocationName(item?.location!)}
-                            </p>
-                            <div
-                              className="total-job"
-                              style={{
-                                position: "absolute",
-                                bottom: "0px",
-                                right: "10px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.25rem",
-                              }}
-                            >
-                              <div
-                                style={{
-                                  backgroundColor: "#28a745",
-                                  color: "#fff",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 500,
-                                  borderRadius: "50%",
-                                  width: "32px",
-                                  height: "32px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  textAlign: "center",
-                                  lineHeight: "1.2",
-                                }}
-                              >
-                                {item.totalJobs || 0}
-                              </div>
-                              <span
-                                style={{
-                                  color: theme === "dark" ? "#ccc" : "#666",
-                                  fontSize: "1rem",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                Jobs
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </SimpleGlowCard>
-                  </Link>
-                </Col>
-              ))}
+              {/* Render mảng đã được memoized */}
+              {memoizedCompanies}
 
               {(!companies || companies.length === 0) && (
                 <Col
@@ -283,4 +293,5 @@ const CompanyCard = (props: IProps) => {
   );
 };
 
-export default CompanyCard;
+// Bọc component bằng React.memo
+export default React.memo(CompanyCard);

@@ -39,14 +39,26 @@
 
   position: relative;
 
-  // Lớp viền gradient
+  // Lớp viền INACTIVE (nền)
+  &::before {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    inset: calc(-1 * var(--border-thickness));
+    border-radius: calc(var(--border-radius) + var(--border-thickness));
+    z-index: 0; // Lớp viền dưới
+    background: var(--border-inactive); // Chỉ là màu viền tĩnh
+    transition: opacity 0.5s ease-in-out; // Thêm transition
+  }
+
+  // Lớp viền ACTIVE (gradient)
   &::after {
     content: "";
     position: absolute;
     pointer-events: none;
     inset: calc(-1 * var(--border-thickness));
     border-radius: calc(var(--border-radius) + var(--border-thickness));
-    z-index: 0; // Viền nằm ở lớp dưới cùng
+    z-index: 0;
     background: linear-gradient(
       -45deg,
       var(--capra-ramp-1) 0%,
@@ -54,17 +66,21 @@
       var(--capra-ramp-3) 35%,
       var(--capra-ramp-4) 45%,
       var(--capra-ramp-5) 50%,
-      var(--border-inactive) 70%,
-      var(--border-inactive) 100%
+      var(--capra-ramp-5) 100%
     );
-    background-size: 350% 350%;
-    background-position: 0% 0%;
-    transition: background-position 0.5s ease-in-out;
+
+    opacity: 0; // Bắt đầu ẩn
+    transition: opacity 0.5s ease-in-out; // Animate opacity
   }
 
-  // Kích hoạt animation khi focus vào bất kỳ đâu bên trong
-  &:focus-within::after {
-    background-position: 100% 100%;
+  // Kích hoạt animation khi focus
+  &:focus-within {
+    &::before {
+      opacity: 0; // Ẩn viền tĩnh
+    }
+    &::after {
+      opacity: 1; // Hiện viền gradient
+    }
   }
 
   /* --- PHẦN SỬA LỖI CHÍNH --- */
@@ -143,6 +159,72 @@
     }
   }
 }
+//fix mượt nhưng lỗi
+// .search-input-wrapper {
+//   --border-radius: 16px;
+//   --border-thickness: 2.5px;
+//
+//   position: relative;
+//
+//   /* === THAY ĐỔI TỐI ƯU === */
+//
+//   // Lớp viền INACTIVE (nền)
+//   &::before {
+//     content: "";
+//     position: absolute;
+//     pointer-events: none;
+//     inset: calc(-1 * var(--border-thickness));
+//     border-radius: calc(var(--border-radius) + var(--border-thickness));
+//     z-index: 0; // Lớp viền dưới
+//     background: var(--border-inactive); // Chỉ là màu viền tĩnh
+//     transition: opacity 0.5s ease-in-out; // Thêm transition
+//   }
+//
+//   // Lớp viền ACTIVE (gradient)
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     pointer-events: none;
+//     inset: calc(-1 * var(--border-thickness));
+//     border-radius: calc(var(--border-radius) + var(--border-thickness));
+//     z-index: 1; // Nằm trên lớp ::before
+//     background: linear-gradient(
+//       -45deg,
+//       var(--capra-ramp-1) 0%,
+//       var(--capra-ramp-2) 15%,
+//       var(--capra-ramp-3) 35%,
+//       var(--capra-ramp-4) 45%,
+//       var(--capra-ramp-5) 50%,
+//       var(--capra-ramp-5) 100%
+//     );
+//
+//     opacity: 0; // Bắt đầu ẩn
+//     transition: opacity 0.5s ease-in-out; // Animate opacity
+//   }
+//
+//   // Kích hoạt animation khi focus
+//   &:focus-within {
+//     &::before {
+//       opacity: 0; // Ẩn viền tĩnh
+//     }
+//     &::after {
+//       opacity: 1; // Hiện viền gradient
+//     }
+//   }
+//
+//   /* --- PHẦN MẶT NẠ (giữ nguyên) --- */
+//   & .custom-input-group,
+//   & .ant-form-item {
+//     position: relative;
+//     z-index: 2; // Nằm trên cả 2 lớp viền
+//     background-color: var(--input-background);
+//     border-radius: var(--border-radius);
+//     overflow: hidden;
+//     margin: 0 !important;
+//   }
+//
+//   /* ... (giữ nguyên các style con bên trong .search-input-wrapper) ... */
+// }
 
 /* --- CUSTOM STYLE CHO KHU VỰC UPLOAD CV --- */
 
@@ -219,15 +301,41 @@
   font-weight: bold;
   font-size: 16px;
   color: var(--text-white) !important;
-  transition: all 0.3s ease-in-out;
 
   background: linear-gradient(to right, #ec4899, #8b5cf6) !important;
 
-  &:hover {
+  /* === THAY ĐỔI TỐI ƯU === */
+  position: relative; /* Cần thiết để định vị pseudo-element */
+  z-index: 1; /* Đảm bảo nội dung button nằm trên */
+  transition: transform 0.3s ease-in-out; /* Chỉ animate transform */
+
+  /* Lớp giả để chứa box-shadow */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px; /* Giống hệt button */
+    z-index: -1; /* Nằm dưới button */
+
+    /* Box shadow được áp dụng ở đây */
     box-shadow:
       0 0 10px rgba(236, 72, 153, 0.6),
       0 0 20px rgba(139, 92, 246, 0.4);
+
+    opacity: 0; /* Ban đầu ẩn */
+    transition: opacity 0.3s ease-in-out; /* Animate opacity */
+  }
+  /* === KẾT THÚC THAY ĐỔI === */
+
+  &:hover {
     transform: scale(1.02);
+
+    &::after {
+      opacity: 1; /* Hiện shadow khi hover */
+    }
   }
 
   &:active {

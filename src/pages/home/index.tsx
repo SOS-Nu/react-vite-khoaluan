@@ -1,11 +1,9 @@
+//home/index.tsx
+import { lazy, Suspense } from "react";
 import { Divider } from "antd";
 import styles from "styles/client.module.scss";
 import SearchClient from "@/components/client/search.client";
-import JobCard from "@/components/client/card/job.card";
-import CompanyCard from "@/components/client/card/company.card";
 import ManageCV from "@/components/client/card/management.card";
-import Banner from "@/components/client/introduction/banner";
-import Introduction from "@/components/client/introduction/introduction";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useNavigate } from "react-router-dom";
 // >> THÊM MỚI: import useState
@@ -13,13 +11,20 @@ import { useEffect, useState } from "react";
 import { fetchJob } from "@/redux/slice/jobSlide";
 import { fetchCompany } from "@/redux/slice/companySlide";
 import { Container } from "react-bootstrap";
-import Skill from "../skill";
 import { IUser } from "@/types/backend";
 import { useTranslation } from "react-i18next";
 import { VueHeroWrapper } from "@/components/HeroAnimation/VueHeroWrapper";
 import { isMobile } from "react-device-detect";
 import { useCurrentApp } from "@/components/context/app.context";
 import bg from "assets/top-bg.svg";
+
+const JobCard = lazy(() => import("@/components/client/card/job.card"));
+const CompanyCard = lazy(() => import("@/components/client/card/company.card"));
+const Introduction = lazy(
+  () => import("@/components/client/introduction/introduction")
+);
+const Skill = lazy(() => import("../skill"));
+const Banner = lazy(() => import("@/components/client/introduction/banner"));
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
@@ -71,7 +76,7 @@ const HomePage = () => {
             style={{
               backgroundImage: `url(${bg})`,
               width: "100%",
-              height: 500,
+              height: 520,
               position: "absolute",
               top: 5,
               backgroundRepeat: "repeat",
@@ -97,28 +102,30 @@ const HomePage = () => {
           {isMobile && theme === "dark" && (
             <div style={{ height: "15rem" }}></div>
           )}
-
           <ManageCV />
-          <JobCard
-            jobs={jobsResult}
-            isLoading={isJobFetching}
-            title={t("job.newjob")}
-          />
-          <Divider />
-          <CompanyCard
-            companies={companiesResult}
-            isLoading={isCompanyFetching}
-            title={t("company.newcompany")}
-          />
-          <Divider />
-          <Introduction />
-          <Banner />
-          {/* <Partners /> */}
-          <section>
-            <Container>
-              <Skill />
-            </Container>
-          </section>
+
+          <Suspense fallback={<div>Loading...</div>}>
+            <JobCard
+              jobs={jobsResult}
+              isLoading={isJobFetching}
+              title={t("job.newjob")}
+            />
+            <Divider />
+            <CompanyCard
+              companies={companiesResult}
+              isLoading={isCompanyFetching}
+              title={t("company.newcompany")}
+            />
+            <Divider />
+            <Introduction />
+            <Banner />
+            {/* <Partners /> */}
+            <section>
+              <Container>
+                <Skill />
+              </Container>
+            </section>
+          </Suspense>
         </div>
       </div>
     </>
