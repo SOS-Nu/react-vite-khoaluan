@@ -44,16 +44,6 @@ export const VueHeroWrapper: React.FC = () => {
 
   return (
     // Tạo một div để Vue "bám" vào
-    <div
-      ref={vueAppRef}
-      style={{
-        position: "absolute", // Hoặc "fixed" nếu muốn nó không cuộn
-        top: 240,
-        left: 0,
-        width: "100%",
-        height: "100%", // Điều chỉnh chiều cao theo mong muốn của bạn
-        zIndex: 0, // Đặt zIndex thấp để nó nằm dưới nội dung khác
-      }}
-    />
+    <div ref={vueAppRef} />
   );
 };

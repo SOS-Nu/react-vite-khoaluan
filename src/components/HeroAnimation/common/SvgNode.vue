@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, type Ref, ref, watch, type ComputedRef } from 'vue'
-import { gsap } from 'gsap'
+import { computed, type Ref, ref, watch, type ComputedRef } from "vue";
+import { gsap } from "gsap";
 
 /**
  * A single glowing "node" (dot) on an SVG path.
@@ -9,79 +9,79 @@ export interface SvgNodeProps {
   /**
    * The SVG path to draw the node on.
    */
-  path: string
+  path: string;
 
   /**
    * The position of the node along the path, represented as a percentage from 0-1.
    */
-  position?: number
+  position?: number;
 
   /**
    * Whether the node is visible or not.
    */
-  visible?: boolean
+  visible?: boolean;
 
   /**
    * Whether the node label is visible or not.
    */
-  labelVisible?: boolean
+  labelVisible?: boolean;
 
   /**
    * The label to display next to the node.
    */
-  label?: string
+  label?: string;
 
   /**
    * The color of the glow effect.
    */
-  glowColor?: string | undefined
+  glowColor?: string | undefined;
 
   /**
    * The color of the dot.
    */
-  dotColor?: string | undefined
+  dotColor?: string | undefined;
 }
 
 const props = withDefaults(defineProps<SvgNodeProps>(), {
   position: 0,
   visible: false,
   labelVisible: false,
-  glowColor: '#41D1FF',
-  dotColor: '#9fe6fd',
-})
+  glowColor: "#41D1FF",
+  dotColor: "#9fe6fd",
+});
 
 /**
  * A unique id for the path, to avoid collisions in a single SVG output.
  */
-const pathId: Ref<string> = ref(Math.random().toString(36))
+const pathId: Ref<string> = ref(Math.random().toString(36));
 
 /**
  * A ref for the path element in the SVG DOM.
  */
-const pathElement: Ref<SVGPathElement | null> = ref(null)
+const pathElement: Ref<SVGPathElement | null> = ref(null);
 
 /**
  * The radius on each side of the dot, represented as a glow on the SVG path.
  */
-const gradientWidth: Ref<number> = ref(30)
+const gradientWidth: Ref<number> = ref(30);
 
 /**
  * A scale factor for animating the gradient width.
  */
-const gradientWidthScaleFactor: Ref<number> = ref(props.visible ? 1 : 0)
+const gradientWidthScaleFactor: Ref<number> = ref(props.visible ? 1 : 0);
 
 /**
  * The length of the SVG path.
  */
 const pathLength: ComputedRef<number> = computed(() => {
-  if (!pathElement.value) return 0
-  return pathElement.value.getTotalLength()
-})
+  if (!pathElement.value) return 0;
+  return pathElement.value.getTotalLength();
+});
 
 /**
  * The position of the dot on the SVG path.
  */
-const dotPosition: Ref<{ x: number; y: number }> = ref({ x: 0, y: 0 })
+const dotPosition: Ref<{ x: number; y: number }> = ref({ x: 0, y: 0 });
 
 /**
  * Watch for changes to the position of the dot.
@@ -89,17 +89,17 @@ const dotPosition: Ref<{ x: number; y: number }> = ref({ x: 0, y: 0 })
 watch(
   () => props.position,
   () => {
-    if (!pathElement.value) return { x: 0, y: 0 }
-    const position = (1 - props.position) * pathLength.value
-    const { x, y } = pathElement.value.getPointAtLength(position)
-    dotPosition.value = { x, y }
-  },
-)
+    if (!pathElement.value) return { x: 0, y: 0 };
+    const position = (1 - props.position) * pathLength.value;
+    const { x, y } = pathElement.value.getPointAtLength(position);
+    dotPosition.value = { x, y };
+  }
+);
 
 /**
  * The radius of the dot.
  */
-const dotRadius: Ref<number> = ref(props.visible ? 3 : 0)
+const dotRadius: Ref<number> = ref(props.visible ? 3 : 0);
 
 /**
  * Watch for changes to the visible prop and animate the glow and dot radius.
@@ -109,16 +109,16 @@ watch(
   (visible) => {
     gsap.to(gradientWidthScaleFactor, {
       duration: 0.5,
-      ease: 'power2.inOut',
+      ease: "power2.inOut",
       value: visible ? 1 : 0,
-    })
+    });
     gsap.to(dotRadius, {
       duration: 0.6,
-      ease: 'power2.inOut',
+      ease: "power2.inOut",
       value: visible ? 3 : 0,
-    })
-  },
-)
+    });
+  }
+);
 </script>
 
 <template>
@@ -147,7 +147,7 @@ watch(
       :y="dotPosition.y + 15"
       fill="#a3a3a3"
       font-family="Inter, sans-serif"
-      font-size="11px"
+      font-size="14px"
       font-style="normal"
       font-weight="400"
       text-anchor="middle"

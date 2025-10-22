@@ -9,7 +9,7 @@ import SvgOutputs from "./svg-elements/SvgOutputs.vue";
 import SvgBlueIndicator from "./svg-elements/SvgBlueIndicator.vue";
 import SvgPinkIndicator from "./svg-elements/SvgPinkIndicator.vue";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import type { SvgNodeProps } from "../common/SvgNode.vue";
+import { SvgNodeProps } from "./common/SvgNode.vue";
 
 gsap.registerPlugin(MotionPathPlugin);
 
@@ -39,19 +39,30 @@ const inputLines: Ref<SvgNodeProps>[] = inputPaths.map((path) =>
 
 // Define the file set "combinations" that can be shown on the input side
 const inputFileSets = ref([
+  // Combo 1: Hồ sơ và nhu cầu cơ bản
   [
-    { label: ".jsx" },
-    { label: ".sass" },
-    { label: ".svelte", color: "#ff8d67" },
+    { label: "Hồ sơ CV", color: "#61DBFB" }, // Màu xanh Cyan (tương tự React)
+    { label: "Mô tả Job" }, // Không màu (màu mặc định/trắng)
+    { label: "Lọc theo Lương", color: "#FF66AA" }, // Màu Hồng Vivid
   ],
-  [{ label: ".tsx" }, { label: ".scss" }, { label: ".vue", color: "#40b782" }],
+  // Combo 2: Năng lực và nhu cầu cao cấp
   [
-    { label: ".js" },
-    { label: ".styl" },
-    { label: ".svelte", color: "#ff8d67" },
+    { label: "Kinh nghiệm", color: "#FFA500" }, // Màu Cam Sáng
+    { label: "Kỹ năng", color: "#45B880" }, // Màu Xanh Lục Bảo
+    { label: "Phúc lợi", color: "#E0E0E0" }, // Màu Trắng sáng
   ],
-  [{ label: ".ts" }, { label: ".less" }, { label: ".vue", color: "#40b782" }],
-  [{ label: ".mts" }, { label: ".html" }, { label: ".json" }],
+  // Combo 3: Các loại giấy tờ và yêu cầu
+  [
+    { label: "Bằng cấp" }, // Màu Tím Lavender
+    { label: "Thư giới thiệu", color: "#FFD700" }, // Màu Vàng Kim
+    { label: "Review Công ty", color: "#00CED1" }, // Màu Xanh Thổ Nhĩ Kỳ
+  ],
+  // Thêm một combo mới để đa dạng hóa
+  [
+    { label: "Làm việc từ xa", color: "#FF4500" }, // Màu Đỏ Cam
+    { label: "Thời gian linh hoạt" },
+    { label: "Khởi nghiệp", color: "#00FF7F" }, // Màu Xanh Lục Neon
+  ],
 ]);
 
 // Setup objects representing each output line's animation state
@@ -60,19 +71,19 @@ const outputLines: Ref[] = [
     position: 0,
     visible: false,
     labelVisible: false,
-    label: ".html",
+    label: "Nhận được Offer",
   }),
   ref({
     position: 0,
     visible: false,
     labelVisible: false,
-    label: ".css",
+    label: "Lương hấp dẫn",
   }),
   ref({
     position: 0,
     visible: false,
     labelVisible: false,
-    label: ".js",
+    label: "Phù hợp văn hóa", // Hoặc "Tuyển dụng nhanh"
   }),
 ];
 
@@ -101,7 +112,7 @@ onMounted(() => {
 
 // Clean up the scroll trigger and timeline when unmounted
 onUnmounted(() => {
-  scrollTriggerInstance?.kill();
+  // scrollTriggerInstance?.kill();
   timeline?.kill();
 });
 
@@ -474,7 +485,7 @@ onMounted(() => {
       </div>
       <div class="vite-chip__filter" />
       <img
-        :src="isUwu ? '/logo-uwu.webp' : '/logo.svg'"
+        :src="isUwu ? '/logo-uwu.webp' : '/logojobhunter.png'"
         :alt="isUwu ? 'Vite Kawaii Logo by @icarusgkx' : 'Vite Logo'"
         class="vite-chip__logo"
         :class="{ uwu: isUwu }"
@@ -492,6 +503,33 @@ onMounted(() => {
   position: relative;
   width: 1630px;
   overflow: hidden;
+
+  /* SỬA ĐỔI:
+    - Thêm "transform: scale(1.2)" để phóng to 120%.
+    - Điều chỉnh "margin-top" (từ -100px thành -120px)
+      để bù lại phần bị scale.
+  */
+  margin: -120px auto 0;
+  transform: scale(1.5);
+
+  @media (max-width: 1630px) {
+    left: 50%;
+    /* SỬA ĐỔI: Thêm scale(1.2) vào đây */
+    transform: translate3d(-50%, 0, 0) scale(1.2);
+  }
+
+  @media (max-width: 768px) {
+    left: 50%;
+    /* SỬA ĐỔI: Tăng scale cho mobile (ví dụ từ 0.9 lên 1.1) */
+    transform: translate3d(-50%, 0, 0) scale(0.8);
+  }
+}
+/* originnal */
+/* .hero__diagram {
+  pointer-events: none;
+  position: relative;
+  width: 1630px;
+  overflow: hidden;
   margin: -100px auto 0;
 
   @media (max-width: 1630px) {
@@ -503,7 +541,7 @@ onMounted(() => {
     left: 50%;
     transform: translate3d(-50%, 0, 0) scale(0.9);
   }
-}
+} */
 
 .vite-chip {
   width: 134px;
@@ -693,6 +731,7 @@ onMounted(() => {
       opacity: 1;
       filter: grayscale(0);
       transform: translate(-50%, -50%) scale(1);
+      animation: spin 3s linear infinite;
     }
   }
 }
@@ -840,6 +879,14 @@ onMounted(() => {
       rgba(255, 255, 255, 0.15) 65%,
       rgba(0, 0, 0, 0) 90%
     );
+  }
+}
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1) rotate(360deg);
   }
 }
 </style>

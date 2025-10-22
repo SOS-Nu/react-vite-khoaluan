@@ -61,49 +61,58 @@ const HomePage = () => {
 
   return (
     <>
-      <VueHeroWrapper />
+      <div style={{ width: "100%", overflow: "hidden", position: "relative" }}>
+        <VueHeroWrapper />
 
-      {/* <div
-      // style={{
-      //   backgroundImage: `url(${bg})`,
-      //   width: "100%",
-      //   height: 500,
-      //   position: "absolute",
-      //   top: 50,
-      //   backgroundRepeat: "repeat",
-      //   zIndex: 0,
-      // }}
+        {/* <div
+        style={{
+          backgroundImage: `url(${bg})`,
+          width: "100%",
+          height: 500,
+          position: "absolute",
+          top: 50,
+          backgroundRepeat: "repeat",
+          zIndex: 0,
+        }}
       ></div> */}
-      <div className={`${styles["container"]} ${styles["home-section"]}`}>
-        <div className="search-content">
-          <SearchClient
-            searchType={currentSearchType}
-            onSearchTypeChange={setCurrentSearchType}
+        <div
+          className={`${styles["container"]} ${styles["home-section"]}`}
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          <div className="search-content">
+            <SearchClient
+              searchType={currentSearchType}
+              onSearchTypeChange={setCurrentSearchType}
+            />
+          </div>
+          <div></div>
+          {!isMobile ? (
+            <div style={{ height: "30rem" }}></div>
+          ) : (
+            <div style={{ height: "13rem" }}></div>
+          )}
+          <ManageCV />
+          <JobCard
+            jobs={jobsResult}
+            isLoading={isJobFetching}
+            title={t("job.newjob")}
           />
+          <Divider />
+          <CompanyCard
+            companies={companiesResult}
+            isLoading={isCompanyFetching}
+            title={t("company.newcompany")}
+          />
+          <Divider />
+          <Introduction />
+          <Banner />
+          {/* <Partners /> */}
+          <section>
+            <Container>
+              <Skill />
+            </Container>
+          </section>
         </div>
-        <div></div>
-        {!isMobile ? <div style={{ height: "30rem" }}></div> : <Divider />}
-        <ManageCV />
-        <JobCard
-          jobs={jobsResult}
-          isLoading={isJobFetching}
-          title={t("job.newjob")}
-        />
-        <Divider />
-        <CompanyCard
-          companies={companiesResult}
-          isLoading={isCompanyFetching}
-          title={t("company.newcompany")}
-        />
-        <Divider />
-        <Introduction />
-        <Banner />
-        {/* <Partners /> */}
-        <section>
-          <Container>
-            <Skill />
-          </Container>
-        </section>
       </div>
     </>
   );
