@@ -1,10 +1,23 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   callFetchAccount,
+  callLogout,
   callUpdateOwnInfo,
   callUpdatePublicStatus,
 } from "@/config/api";
 import { ICompany, IUser } from "@/types/backend";
+
+export const logoutThunk = createAsyncThunk("account/logoutThunk", async () => {
+  try {
+    // Gọi API logout để backend xóa HttpOnly cookie
+    await callLogout();
+  } catch (error) {
+    // Bỏ qua lỗi ở đây.
+    // Dù API logout có lỗi (ví dụ 401)
+    // thì chúng ta VẪN PHẢI đăng xuất ở frontend.
+  }
+  // Dữ liệu trả về (không cần) sẽ được dùng ở extraReducer
+});
 
 // First, create the thunk
 export const fetchAccount = createAsyncThunk(
@@ -160,10 +173,8 @@ export const accountSlide = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchAccount.pending, (state, action) => {
-      if (action.payload) {
-        state.isAuthenticated = false;
-        state.isLoading = true;
-      }
+      state.isAuthenticated = false;
+      state.isLoading = true;
     });
 
     builder.addCase(fetchAccount.fulfilled, (state, action) => {
@@ -190,11 +201,10 @@ export const accountSlide = createSlice({
       }
     });
 
-    builder.addCase(fetchAccount.rejected, (state, action) => {
-      if (action.payload) {
-        state.isAuthenticated = false;
-        state.isLoading = false;
-      }
+    builder.addCase(fetchAccount.rejected, (state) => {
+      state.isAuthenticated = false;
+      state.isLoading = false;
+      state.user = initialState.user;
     });
 
     builder.addCase(updateOwnInfo.pending, (state, action) => {
@@ -233,6 +243,26 @@ export const accountSlide = createSlice({
         state.user.public = action.payload;
       }
     });
+    // === BẮT ĐẦU VÙNG CODE MỚI ===
+    // Thêm 2 case cho logoutThunk
+    builder.addCase(logoutThunk.pending, (state) => {
+      // Có thể set loading nếu muốn, nhưng thường không cần
+    });
+
+    builder.addCase(logoutThunk.fulfilled, (state) => {
+      // Khi logoutThunk hoàn thành, nó chạy logic y hệt setLogoutAction
+      localStorage.removeItem("access_token");
+      state.isAuthenticated = false;
+      state.user = initialState.user;
+    });
+
+    builder.addCase(logoutThunk.rejected, (state) => {
+      // Dù thunk có bị reject, chúng ta CŨNG NÊN logout
+      localStorage.removeItem("access_token");
+      state.isAuthenticated = false;
+      state.user = initialState.user;
+    });
+    // === KẾT THÚC VÙNG CODE MỚI ===
   },
 });
 

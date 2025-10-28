@@ -14,9 +14,6 @@ import {
   RobotOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import { useAppSelector } from "@/redux/hooks";
-import { callEvaluateCVWithAI, callFetchUserDetailById } from "@/config/api";
-import { IEvaluationResult, IUser } from "@/types/backend";
 import {
   message,
   Tag,
@@ -28,20 +25,23 @@ import {
   theme,
   ConfigProvider,
 } from "antd";
+// Đảm bảo bạn đã cài đặt và cấu hình react-i18next
+import { useTranslation } from "react-i18next";
+import { useAppSelector } from "@/redux/hooks";
+import { callEvaluateCVWithAI, callFetchUserDetailById } from "@/config/api";
+import { IEvaluationResult, IUser } from "@/types/backend";
 import "./CVAIEvaluation.scss";
 import { useCurrentApp } from "@/components/context/app.context";
-// THÊM MỚI: Import useNavigate để điều hướng
 import { useNavigate } from "react-router-dom";
 import bg from "assets/top-bg.svg";
 
 const CVAIEvaluationPage = () => {
+  const { t, i18n } = useTranslation();
+
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated
   );
-
-  // THÊM MỚI: Khởi tạo hook navigate
   const navigate = useNavigate();
-
   const user = useAppSelector((state) => state.account.user);
   const [evaluationType, setEvaluationType] = useState<"online" | "upload">(
     "online"
@@ -58,7 +58,6 @@ const CVAIEvaluationPage = () => {
     fullUserData?.onlineResume && fullUserData.onlineResume.id;
 
   useEffect(() => {
-    // Chỉ fetch dữ liệu nếu đã đăng nhập
     if (isAuthenticated) {
       const fetchUserDetail = async () => {
         if (user?.id) {
@@ -72,7 +71,8 @@ const CVAIEvaluationPage = () => {
               }
             }
           } catch (e) {
-            message.error("Could not fetch your profile data.");
+            // Vẫn dùng 't' ở đây bình thường
+            message.error(t("cv.message.couldNotFetchProfile"));
           } finally {
             setIsFetchingProfile(false);
           }
@@ -84,12 +84,14 @@ const CVAIEvaluationPage = () => {
 
       fetchUserDetail();
     } else {
-      // Nếu không đăng nhập, không cần fetch profile
       setIsFetchingProfile(false);
     }
-  }, [user.id, isAuthenticated]); // Thêm isAuthenticated vào dependency array
 
-  // ... (Các hàm handleFileChange, handleEvaluate, renderResults không thay đổi)
+    // Chúng ta cố tình loại bỏ 't' và 'i18n' khỏi mảng dependency
+    // vì không muốn fetch lại dữ liệu khi đổi ngôn ngữ.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id, isAuthenticated]); // <-- ĐÃ XÓA 't'
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
@@ -98,8 +100,9 @@ const CVAIEvaluationPage = () => {
   };
 
   const handleEvaluate = async () => {
+    // Đã chỉnh sửa: t("cv.error.selectCVFile")
     if (evaluationType === "upload" && !selectedFile) {
-      setError("Please select a CV file to evaluate.");
+      setError(t("cv.error.selectCVFile"));
       return;
     }
 
@@ -113,20 +116,23 @@ const CVAIEvaluationPage = () => {
         formData.append("cvFile", selectedFile);
       }
 
-      const language = localStorage.getItem("i18nextLng") || "vi";
+      const language = i18n.language || "vi";
       formData.append("language", language);
 
       const res = await callEvaluateCVWithAI(formData);
 
       if (res && res.data) {
         setResult(res.data);
-        message.success("AI evaluation completed successfully!");
+        // Đã chỉnh sửa: t("cv.message.aiEvaluationCompleted")
+        message.success(t("cv.message.aiEvaluationCompleted"));
       } else {
-        setError(res.message ?? "An unknown error occurred.");
+        // Đã chỉnh sửa: t("cv.error.unknownError")
+        setError(res.message ?? t("cv.error.unknownError"));
       }
     } catch (e: any) {
-      setError(e.message || "Failed to get evaluation from AI.");
-      message.error("An error occurred during evaluation.");
+      // Đã chỉnh sửa: t("cv.error.failedToGetEvaluation") và t("cv.message.errorDuringEvaluation")
+      setError(e.message || t("cv.error.failedToGetEvaluation"));
+      message.error(t("cv.message.errorDuringEvaluation"));
     } finally {
       setIsLoading(false);
     }
@@ -151,72 +157,63 @@ const CVAIEvaluationPage = () => {
           },
         }}
       >
-               {" "}
         <Card className="result-card mt-5">
-                   {" "}
           <Card.Header as="h4">
-                        <RobotOutlined /> AI Evaluation Result          {" "}
+            <RobotOutlined /> {t("cv.result.aiEvaluationResult")}
           </Card.Header>
-                   {" "}
+
           <Card.Body>
-                       {" "}
             <Descriptions bordered column={1}>
-                           {" "}
-              <Descriptions.Item label="Overall Score">
-                               {" "}
+              <Descriptions.Item label={t("cv.result.overallScore")}>
                 <Tag color={result.overallScore > 75 ? "green" : "orange"}>
-                                    {result.overallScore} / 100              
-                   {" "}
+                  {result.overallScore} / 100
                 </Tag>
-                             {" "}
               </Descriptions.Item>
-                           {" "}
-              <Descriptions.Item label="Summary">
-                                {result.summary}             {" "}
+
+              <Descriptions.Item label={t("cv.result.summary")}>
+                {result.summary}
               </Descriptions.Item>
-                         {" "}
-              <Descriptions.Item label="Estimated Salary">
-                            {result.estimatedSalaryRange}           {" "}
+
+              <Descriptions.Item label={t("cv.result.estimatedSalary")}>
+                {result.estimatedSalaryRange}
               </Descriptions.Item>
-                         {" "}
             </Descriptions>
-                        <Divider>Strengths</Divider>           {" "}
+
+            <Divider>{t("cv.result.strengths")}</Divider>
             <List
               bordered
               dataSource={result.strengths}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
-                        <Divider>Areas for Improvement</Divider>           {" "}
+
+            <Divider>{t("cv.result.improvements")}</Divider>
             <List
               bordered
               dataSource={result.improvements}
               renderItem={(item) => (
                 <List.Item>
-                                    <strong>{item.area}:</strong>{" "}
-                  {item.suggestion}               {" "}
+                  <strong>{item.area}:</strong> {item.suggestion}
                 </List.Item>
               )}
             />
-                        <Divider>Suggested Improvement Roadmap</Divider>       
-               {" "}
+
+            <Divider>{t("cv.result.suggestedRoadmap")}</Divider>
             <List
               bordered
               dataSource={result.suggestedRoadmap}
               renderItem={(item) => (
                 <List.Item>
-                             {" "}
                   <Typography.Text>
-                               {" "}
                     <strong>
-                      Step {item.step}: {item.action}
+                      {t("cv.result.step", { step: item.step })}: {item.action}
                     </strong>{" "}
-                    - {item.reason}           {" "}
+                    - {item.reason}
                   </Typography.Text>
-                             {" "}
                 </List.Item>
               )}
             />
-                        <Divider>Relevant Jobs For You</Divider>           {" "}
+
+            <Divider>{t("cv.result.relevantJobs")}</Divider>
             <List
               bordered
               dataSource={result.relevantJobs}
@@ -228,29 +225,27 @@ const CVAIEvaluationPage = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      View
+                      {t("cv.action.view")}
                     </a>,
                   ]}
                 >
-                           {" "}
                   <List.Item.Meta
-                    title={`${item.jobTitle} at ${item.companyName}`}
+                    title={t("cv.result.jobTitleAtCompany", {
+                      title: item.jobTitle,
+                      company: item.companyName,
+                    })}
                     description={item.matchReason}
                   />
-                         {" "}
                 </List.Item>
               )}
             />
-               {" "}
           </Card.Body>
-             {" "}
         </Card>
-         {" "}
       </ConfigProvider>
     );
   };
 
-  // THÊM MỚI: Kiểm tra trạng thái đăng nhập
+  // Hiển thị khi chưa đăng nhập
   if (!isAuthenticated) {
     return (
       <Container className="my-5" style={{ minHeight: "60vh" }}>
@@ -259,13 +254,11 @@ const CVAIEvaluationPage = () => {
             <Alert variant="danger" className="text-center p-4">
               <Alert.Heading>
                 <RobotOutlined style={{ marginRight: "8px" }} />
-                Yêu Cầu Đăng Nhập
+                {t("cv.auth.loginRequiredTitle")}
               </Alert.Heading>
-              <p className="mb-3">
-                Vui lòng đăng nhập để sử dụng tính năng Phân tích CV bằng AI.
-              </p>
+              <p className="mb-3">{t("cv.auth.loginRequiredMessage")}</p>
               <Button onClick={() => navigate("/login")} variant="primary">
-                Đi đến trang Đăng nhập
+                {t("cv.auth.goToLoginPage")}
               </Button>
             </Alert>
           </Col>
@@ -275,10 +268,12 @@ const CVAIEvaluationPage = () => {
   }
 
   if (isFetchingProfile) {
-    return <Spin spinning={true} fullscreen tip="Loading your profile..." />;
+    return (
+      <Spin spinning={true} fullscreen tip={t("cv.loading.loadingProfile")} />
+    );
   }
 
-  // RETURN GỐC: Chỉ hiển thị khi đã đăng nhập
+  // Giao diện chính sau khi đăng nhập
   return (
     <>
       <div
@@ -298,15 +293,16 @@ const CVAIEvaluationPage = () => {
             <Card className="evaluation-card">
               <Card.Body>
                 <div className="text-center mb-4">
-                  <h1 className="evaluation-title">AI-Powered CV Analysis</h1>
+                  <h1 className="evaluation-title">
+                    {t("cv.title.aiCvAnalysis")}
+                  </h1>
                   <p className="evaluation-subtitle">
-                    Get instant feedback on your CV and a personalized career
-                    roadmap.
+                    {t("cv.subtitle.getInstantFeedback")}
                   </p>
                 </div>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Choose your CV source:</Form.Label>
+                  <Form.Label>{t("cv.form.chooseCvSource")}</Form.Label>
                   <div className="d-flex gap-3">
                     <Button
                       variant={
@@ -317,7 +313,7 @@ const CVAIEvaluationPage = () => {
                       onClick={() => setEvaluationType("online")}
                       disabled={!hasOnlineResume}
                     >
-                      Use My Online Profile
+                      {t("cv.form.useOnlineProfile")}
                     </Button>
                     <Button
                       variant={
@@ -327,29 +323,30 @@ const CVAIEvaluationPage = () => {
                       }
                       onClick={() => setEvaluationType("upload")}
                     >
-                      Upload a New CV
+                      {t("cv.form.uploadNewCv")}
                     </Button>
                   </div>
                   {!hasOnlineResume && (
                     <Alert variant="info" className="mt-2">
-                      You don't have an Online Profile yet. Please{" "}
-                      <a href="/resume/create">create one</a> or upload a file.
+                      {t("cv.alert.noOnlineProfilePart1")}{" "}
+                      <a href="/resume/create">{t("cv.alert.createOne")}</a>{" "}
+                      {t("cv.alert.noOnlineProfilePart2")}
                     </Alert>
                   )}
                 </Form.Group>
 
                 {evaluationType === "online" && (
                   <div className="online-profile-display">
-                    Using online profile:{" "}
+                    {t("cv.form.usingOnlineProfile")}:{" "}
                     <strong>
-                      {fullUserData?.mainResume || "Default Profile"}
+                      {fullUserData?.mainResume || t("cv.form.defaultProfile")}
                     </strong>
                   </div>
                 )}
 
                 {evaluationType === "upload" && (
                   <Form.Group controlId="formFile" className="mb-3">
-                    <Form.Label>Upload your CV (PDF, DOC, DOCX)</Form.Label>
+                    <Form.Label>{t("cv.form.uploadCvLabel")}</Form.Label>
                     <Form.Control
                       type="file"
                       onChange={handleFileChange}
@@ -365,7 +362,10 @@ const CVAIEvaluationPage = () => {
                     variant="success"
                     size="lg"
                     onClick={handleEvaluate}
-                    disabled={isLoading}
+                    disabled={
+                      isLoading ||
+                      (evaluationType === "upload" && !selectedFile)
+                    }
                   >
                     {isLoading ? (
                       <>
@@ -376,11 +376,12 @@ const CVAIEvaluationPage = () => {
                           role="status"
                           aria-hidden="true"
                         />{" "}
-                        Analyzing...
+                        {t("cv.action.analyzing")}
                       </>
                     ) : (
                       <>
-                        <ThunderboltOutlined /> Start AI Evaluation
+                        <ThunderboltOutlined />{" "}
+                        {t("cv.action.startAiEvaluation")}
                       </>
                     )}
                   </Button>

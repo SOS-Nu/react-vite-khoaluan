@@ -129,5 +129,61 @@
   },
   "resumes": {
     "resumesApproved": "Resumes Approved"
+  },
+  "cv": {
+    "title": {
+      "aiCvAnalysis": "AI-Powered CV Analysis"
+    },
+    "subtitle": {
+      "getInstantFeedback": "Get instant feedback on your CV and a personalized career roadmap."
+    },
+    "form": {
+      "chooseCvSource": "Choose your CV source:",
+      "useOnlineProfile": "Use My Online Profile",
+      "uploadNewCv": "Upload a New CV",
+      "uploadCvLabel": "Upload your CV (PDF, DOC, DOCX)",
+      "usingOnlineProfile": "Using online profile",
+      "defaultProfile": "Default Profile"
+    },
+    "alert": {
+      "noOnlineProfilePart1": "You don't have an Online Profile yet. Please",
+      "createOne": "create one",
+      "noOnlineProfilePart2": "or upload a file."
+    },
+    "auth": {
+      "loginRequiredTitle": "Login Required",
+      "loginRequiredMessage": "Please log in to use the AI CV Analysis feature.",
+      "goToLoginPage": "Go to Login Page"
+    },
+    "loading": {
+      "loadingProfile": "Loading your profile..."
+    },
+    "action": {
+      "startAiEvaluation": "Start AI Evaluation",
+      "analyzing": "Analyzing...",
+      "view": "View"
+    },
+    "error": {
+      "selectCVFile": "Please select a CV file to evaluate.",
+      "unknownError": "An unknown error occurred.",
+      "failedToGetEvaluation": "Failed to get evaluation from AI."
+    },
+    "message": {
+      "couldNotFetchProfile": "Could not fetch your profile data.",
+      "aiEvaluationCompleted": "AI evaluation completed successfully!",
+      "errorDuringEvaluation": "An error occurred during evaluation."
+    },
+    "result": {
+      "aiEvaluationResult": "AI Evaluation Result",
+      "overallScore": "Overall Score",
+      "summary": "Summary",
+      "estimatedSalary": "Estimated Salary",
+      "strengths": "Strengths",
+      "improvements": "Areas for Improvement",
+      "suggestedRoadmap": "Suggested Improvement Roadmap",
+      "step": "Step {{step}}",
+      "relevantJobs": "Relevant Jobs For You",
+      "jobTitleAtCompany": "{{title}} at {{company}}"
+    }
   }
 }

@@ -124,5 +124,61 @@
   },
   "resumes": {
     "resumesApproved": "Hồ Sơ Được Duyệt"
+  },
+  "cv": {
+    "title": {
+      "aiCvAnalysis": "Phân Tích CV Bằng AI"
+    },
+    "subtitle": {
+      "getInstantFeedback": "Nhận phản hồi tức thì về CV của bạn và lộ trình nghề nghiệp cá nhân hóa."
+    },
+    "form": {
+      "chooseCvSource": "Chọn nguồn CV của bạn:",
+      "useOnlineProfile": "Sử Dụng Hồ Sơ Online Của Tôi",
+      "uploadNewCv": "Tải Lên CV Mới",
+      "uploadCvLabel": "Tải lên CV của bạn (PDF, DOC, DOCX)",
+      "usingOnlineProfile": "Sử dụng hồ sơ online",
+      "defaultProfile": "Hồ sơ Mặc định"
+    },
+    "alert": {
+      "noOnlineProfilePart1": "Bạn chưa có Hồ sơ Online. Vui lòng",
+      "createOne": "tạo một hồ sơ",
+      "noOnlineProfilePart2": "hoặc tải lên một tệp."
+    },
+    "auth": {
+      "loginRequiredTitle": "Yêu Cầu Đăng Nhập",
+      "loginRequiredMessage": "Vui lòng đăng nhập để sử dụng tính năng Phân tích CV bằng AI.",
+      "goToLoginPage": "Đi đến trang Đăng nhập"
+    },
+    "loading": {
+      "loadingProfile": "Đang tải hồ sơ của bạn..."
+    },
+    "action": {
+      "startAiEvaluation": "Bắt Đầu Đánh Giá Bằng AI",
+      "analyzing": "Đang phân tích...",
+      "view": "Xem"
+    },
+    "error": {
+      "selectCVFile": "Vui lòng chọn một tệp CV để đánh giá.",
+      "unknownError": "Đã xảy ra lỗi không xác định.",
+      "failedToGetEvaluation": "Không thể nhận kết quả đánh giá từ AI."
+    },
+    "message": {
+      "couldNotFetchProfile": "Không thể tải dữ liệu hồ sơ của bạn.",
+      "aiEvaluationCompleted": "Đánh giá bằng AI hoàn tất thành công!",
+      "errorDuringEvaluation": "Đã xảy ra lỗi trong quá trình đánh giá."
+    },
+    "result": {
+      "aiEvaluationResult": "Kết Quả Đánh Giá Bằng AI",
+      "overallScore": "Điểm Tổng Thể",
+      "summary": "Tóm Tắt",
+      "estimatedSalary": "Mức Lương Ước Tính",
+      "strengths": "Điểm Mạnh",
+      "improvements": "Lĩnh Vực Cần Cải Thiện",
+      "suggestedRoadmap": "Lộ Trình Cải Thiện Đề Xuất",
+      "step": "Bước {{step}}",
+      "relevantJobs": "Việc Làm Phù Hợp Với Bạn",
+      "jobTitleAtCompany": "{{title}} tại {{company}}"
+    }
   }
 }

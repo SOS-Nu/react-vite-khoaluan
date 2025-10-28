@@ -41,7 +41,7 @@ const CompanyForm = ({ initialData }: IProps) => {
   const [formData, setFormData] = useState<Partial<ICompany>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
-  const isEditMode = !!initialData;
+  const isEditMode = initialData;
 
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -91,9 +91,10 @@ const CompanyForm = ({ initialData }: IProps) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const { id, ...restOfFormData } = formData;
       const payload: Partial<ICompany> = {
-        ...formData,
-        logo: newLogoFileName || formData.logo,
+        ...restOfFormData,
+        logo: newLogoFileName || restOfFormData.logo,
       };
 
       if (isEditMode) {

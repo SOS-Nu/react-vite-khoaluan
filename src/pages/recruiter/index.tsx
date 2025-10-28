@@ -12,7 +12,9 @@ import FaqSection from "@/components/recruiter/FaqSection";
 const RecruiterPage = () => {
   const user = useAppSelector((state) => state.account.user);
   const isLoading = useAppSelector((state) => state.account.isLoading);
-
+  const isAuthenticated = useAppSelector(
+    (state) => state.account.isAuthenticated
+  );
   const renderContent = () => {
     // Trường hợp 1: Đang tải thông tin user
     if (isLoading) {
@@ -20,6 +22,15 @@ const RecruiterPage = () => {
         <div className="text-center my-5">
           <Spinner animation="border" variant="primary" />
           <p className="mt-2">Đang tải dữ liệu...</p>
+        </div>
+      );
+    }
+    if (!isAuthenticated) {
+      return (
+        <div className="text-center my-5">
+          <p className="text-danger h5">Phiên đăng nhập đã hết hạn.</p>
+          <p>Vui lòng đăng nhập lại để tiếp tục.</p>
+          {/* Bạn có thể thêm nút "Đăng nhập" ở đây */}
         </div>
       );
     }
@@ -43,14 +54,24 @@ const RecruiterPage = () => {
     return <BecomeVipRecruiter />;
   };
 
+  const NotAuthenticated = () => {
+    return (
+      <div className="text-center my-5">
+        <p className="text-danger h5">Phiên đăng nhập đã hết hạn.</p>
+        <p>Vui lòng đăng nhập lại để tiếp tục.</p>
+        {/* Bạn có thể thêm nút "Đăng nhập" ở đây */}
+      </div>
+    );
+  };
   return (
     <Container style={{ marginTop: "80px", minHeight: "calc(100vh - 160px)" }}>
       <h1 className="mb-4">Trang Dành Cho Nhà Tuyển Dụng</h1>
-      {renderContent()}
+      {isAuthenticated ? renderContent() : NotAuthenticated()}
+
       {/* --- PHẦN THÊM VÀO CHO ĐỠ TRỐNG --- */}
       <hr className="my-5" />
-      <BenefitsSection />
-      <FaqSection />
+      {/* <BenefitsSection /> */}
+      {/* <FaqSection /> */}
       {/* --- KẾT THÚC PHẦN THÊM VÀO --- */}
     </Container>
   );

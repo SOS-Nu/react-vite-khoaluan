@@ -229,21 +229,17 @@ const ClientJobPage = () => {
           searchParams.has("filter") && <JobFilter onFilter={handleFilter} />}
 
         <div className="row g-3" ref={jobListRef}>
-          <div className={isMobile ? "col-12" : "col-12 col-lg-4"}>
-            <div className="left-panel-container">
-              <div className="left-panel-body">
-                <JobCard
-                  jobs={finalJobList}
-                  isLoading={isLoadingList}
-                  isListPage={true}
-                  showButtonAllJob={true}
-                  openInNewTab={isMobile}
-                />
-              </div>
-            </div>
+          <div className={isMobile ? "col-12" : "col-4"}>
+            <JobCard
+              jobs={finalJobList}
+              isLoading={isLoadingList}
+              isListPage={true}
+              showButtonAllJob={true}
+              openInNewTab={isMobile}
+            />
           </div>
           {!isMobile && (
-            <div className="col-12 col-lg-8">
+            <div className="col-8 ">
               <JobDetailPanel />
             </div>
           )}
