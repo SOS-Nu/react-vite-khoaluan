@@ -19,8 +19,10 @@ import {
   ICandidate,
   IMeta,
   IJobWithScore,
+  IReqLoginOtp,
 } from "@/types/backend";
 import axios from "config/axios-customize";
+import { validate } from "uuid";
 
 /**
  * 
@@ -53,11 +55,44 @@ export const callSendOtp = (email: string) => {
   return axios.post("/api/v1/auth/register/send-otp", { email });
 };
 
+// Ví dụ: trong file .../config/api.ts
 export const callLogin = (username: string, password: string) => {
-  return axios.post<IBackendRes<IAccount>>("/api/v1/auth/login", {
-    username,
-    password,
-  });
+  return axios.post<IBackendRes<IAccount>>(
+    "/api/v1/auth/login",
+    {
+      username,
+      password,
+    },
+    {
+      // BẢO AXIOS KHÔNG NÉM LỖI VỚI STATUS 4xx
+      validateStatus: function (status) {
+        return status >= 200 && status < 500; // Chấp nhận 200 -> 499
+      },
+    }
+  );
+};
+export const callSendLoginOtp = (email: string) => {
+  return axios.post<IBackendRes<any>>(
+    "/api/v1/auth/login-otp/send",
+    {
+      email,
+    },
+    {
+      validateStatus: (status) => status >= 200 && status < 500,
+    }
+  );
+};
+
+// 2. API Xác thực OTP và Đăng nhập (đá session)
+export const callVerifyLoginOtp = (data: IReqLoginOtp) => {
+  // res.data sẽ là IAccount (giống hệt callLogin)
+  return axios.post<IBackendRes<IAccount>>(
+    "/api/v1/auth/login-otp/verify",
+    data,
+    {
+      validateStatus: (status) => status >= 200 && status < 500,
+    }
+  );
 };
 
 export const callFetchAccount = () => {

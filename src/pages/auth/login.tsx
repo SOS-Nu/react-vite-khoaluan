@@ -25,7 +25,9 @@ import styles from "styles/auth.module.scss";
 import {
   callLogin,
   callLoginWithGoogle,
+  callSendLoginOtp,
   callSendOtpChangePassword,
+  callVerifyLoginOtp,
   callVerifyOtpAndChangePassword,
 } from "@/config/api";
 import { setUserLoginInfo } from "@/redux/slice/accountSlide";
@@ -52,6 +54,18 @@ const LoginPage = () => {
 
   // State cho chế độ xem (đăng nhập hoặc quên mật khẩu)
   const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [isOtpKickMode, setIsOtpKickMode] = useState(false);
+
+  const [loginCredentials, setLoginCredentials] = useState({
+    username: "",
+    password: "",
+  });
+
+  const [otpLoginCode, setOtpLoginCode] = useState(""); // OTP code
+  const [isSendingLoginOtp, setIsSendingLoginOtp] = useState(false);
+  const [isVerifyingLoginOtp, setIsVerifyingLoginOtp] = useState(false);
+  const [loginOtpSent, setLoginOtpSent] = useState(false);
+  const [loginCountdown, setLoginCountdown] = useState(0);
 
   // === State cho form Đăng nhập ===
   const [isSubmit, setIsSubmit] = useState(false);
@@ -98,17 +112,107 @@ const LoginPage = () => {
     const password = (form.elements.namedItem("password") as HTMLInputElement)
       .value;
 
+    // Vì đã có validateStatus, 'res' sẽ luôn có giá trị
     const res = await callLogin(username, password);
-    setIsSubmit(false);
-    if (res?.data) {
+    setIsSubmit(false); // Tắt loading của nút "Đăng nhập"
+
+    // 1. Đăng nhập thành công
+    if (res?.data?.access_token) {
       localStorage.setItem("access_token", res.data.access_token);
       dispatch(setUserLoginInfo(res.data.user));
       message.success("Đăng nhập thành công");
-      // navigate đã được xử lý trong useEffect
+      return; // Kết thúc hàm
+    }
+
+    // 2. XỬ LÝ LỖI ĐẦY THIẾT BỊ (429)
+    if (res?.statusCode === 429) {
+      // Lưu lại thông tin đăng nhập
+      setLoginCredentials({ username, password });
+      // Chuyển sang giao diện nhập OTP
+      setIsOtpKickMode(true);
+      // Reset trạng thái form OTP
+      setLoginOtpSent(false);
+      setOtpLoginCode("");
+
+      // Gửi thông báo
+      notification.error({
+        message: "Đã đạt giới hạn thiết bị",
+        description:
+          "Vui lòng xác thực OTP để đăng nhập và đăng xuất thiết bị cũ nhất.",
+      });
+
+      // Tự động gọi API gửi OTP cho user
+      handleSendLoginOtp(username);
+      return; // Kết thúc hàm
+    }
+
+    // 3. Xử lý các lỗi đăng nhập khác (sai pass, v.v.)
+    notification.error({
+      message: `Lỗi ${res.statusCode}` || "Có lỗi xảy ra",
+      description: res.message,
+    });
+  };
+
+  useEffect(() => {
+    if (loginCountdown <= 0) return;
+    const timer = setTimeout(() => setLoginCountdown(loginCountdown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [loginCountdown]);
+
+  // === Hàm GỬI OTP cho LUỒNG LOGIN ===
+  // (email được truyền vào từ handleLogin, hoặc lấy từ state khi Gửi lại)
+  const handleSendLoginOtp = async (email?: string) => {
+    const targetEmail = email || loginCredentials.username;
+    if (!targetEmail) return;
+
+    setIsSendingLoginOtp(true);
+    const res = await callSendLoginOtp(targetEmail);
+    setIsSendingLoginOtp(false);
+
+    if (res?.statusCode === 200) {
+      notification.success({
+        message: "Thành công!",
+        description: `Mã OTP đã được gửi đến email ${targetEmail}`,
+      });
+      setLoginOtpSent(true); // Hiển thị ô nhập OTP
+      setLoginCountdown(60); // Bắt đầu đếm ngược
     } else {
       notification.error({
-        message: "Có lỗi xảy ra",
-        description: res.message,
+        message: "Có lỗi xảy ra!",
+        description: res?.data?.message ?? "Không thể gửi mã OTP.",
+      });
+    }
+  };
+
+  // === Hàm XÁC THỰC OTP và ĐĂNG NHẬP ===
+  const handleVerifyLoginOtp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsVerifyingLoginOtp(true);
+
+    const res = await callVerifyLoginOtp({
+      email: loginCredentials.username,
+      password: loginCredentials.password,
+      otpCode: otpLoginCode,
+    });
+
+    setIsVerifyingLoginOtp(false);
+
+    // 1. Đăng nhập thành công (đã đá session cũ)
+    if (res?.data?.access_token) {
+      localStorage.setItem("access_token", res.data.access_token);
+      dispatch(setUserLoginInfo(res.data.user));
+      message.success(
+        "Đăng nhập thành công! Thiết bị cũ nhất đã được đăng xuất."
+      );
+      // Tắt modal/giao diện OTP
+      setIsOtpKickMode(false);
+      // navigate sẽ tự động chạy (nhờ useEffect trên [isAuthenticated])
+    }
+    // 2. Lỗi (sai OTP, hết hạn, v.v.)
+    else {
+      notification.error({
+        message: `Lỗi ${res.statusCode}` || "Có lỗi xảy ra!",
+        description: res.message ?? "Xác thực OTP thất bại.",
       });
     }
   };
@@ -124,7 +228,6 @@ const LoginPage = () => {
     }
     setIsRequestingOtp(true);
     const res = await callSendOtpChangePassword(otpEmail);
-    setIsRequestingOtp(false);
 
     if (res?.statusCode === 200) {
       notification.success({
@@ -139,6 +242,7 @@ const LoginPage = () => {
         description: res?.message ?? "Không thể gửi mã OTP.",
       });
     }
+    setIsRequestingOtp(false);
   };
 
   const handleSubmitWithOtp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -436,6 +540,70 @@ const LoginPage = () => {
     </>
   );
 
+  const renderOtpKickForm = () => (
+    <>
+      <h2 className="text-center fw-bold mb-3">Xác thực Đăng nhập</h2>
+      <Form onSubmit={handleVerifyLoginOtp}>
+        <p className="text-center">
+          Mã OTP đã được gửi tới <strong>{loginCredentials.username}</strong>.
+          Vui lòng nhập mã để hoàn tất đăng nhập.
+        </p>
+
+        {/* Thông báo lỗi (nếu cần, tương tự form Quên mật khẩu) */}
+        {/* {alert.show && (...)} */}
+
+        <Form.Group className="mb-3">
+          <Form.Label>Mã OTP</Form.Label>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={otpLoginCode}
+              onChange={(e) => setOtpLoginCode(e.target.value)}
+              placeholder="Nhập mã OTP"
+              required
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={() => handleSendLoginOtp()} // Gửi lại
+              disabled={loginCountdown > 0 || isSendingLoginOtp}
+            >
+              {isSendingLoginOtp
+                ? "Đang gửi..."
+                : loginCountdown > 0
+                  ? `Gửi lại sau (${loginCountdown}s)`
+                  : "Gửi lại mã"}
+            </Button>
+          </InputGroup>
+        </Form.Group>
+
+        <Button
+          variant="primary"
+          type="submit"
+          className="w-100 fw-semibold"
+          disabled={isVerifyingLoginOtp}
+        >
+          {isVerifyingLoginOtp ? (
+            <Spinner as="span" animation="border" size="sm" />
+          ) : (
+            "Xác nhận & Đăng nhập"
+          )}
+        </Button>
+      </Form>
+      <div className="text-center mt-4">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setIsOtpKickMode(false); // Quay lại form đăng nhập
+          }}
+          className={styles["register-link"]}
+        >
+          &larr; Quay lại
+        </a>
+      </div>
+    </>
+  );
+
   return (
     <>
       <div
@@ -456,7 +624,9 @@ const LoginPage = () => {
           <Card.Body>
             {isForgotPasswordMode
               ? renderForgotPasswordForm()
-              : renderLoginForm()}
+              : isOtpKickMode
+                ? renderOtpKickForm()
+                : renderLoginForm()}
           </Card.Body>
         </Card>
       </div>

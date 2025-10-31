@@ -22,7 +22,17 @@ export const logoutThunk = createAsyncThunk("account/logoutThunk", async () => {
 // First, create the thunk
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
-  async () => {
+  async (_, { rejectWithValue }) => {
+    // Thêm { rejectWithValue }
+    // KIỂM TRA TOKEN TRƯỚC KHI GỌI API
+    const token = window.localStorage.getItem("access_token");
+    if (!token) {
+      // Nếu không có token, từ chối thunk này ngay lập tức
+      // Nó sẽ nhảy thẳng đến 'builder.addCase(fetchAccount.rejected, ...)'
+      return rejectWithValue("No access token found.");
+    }
+
+    // Chỉ khi có token, chúng ta mới gọi API
     const response = await callFetchAccount();
     return response.data;
   }

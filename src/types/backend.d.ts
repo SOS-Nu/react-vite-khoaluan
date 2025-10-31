@@ -363,3 +363,9 @@ interface IEvaluationResult {
   suggestedRoadmap: IRoadmapStep[];
   relevantJobs: ISuggestedJob[];
 }
+
+export interface IReqLoginOtp {
+  email: string;
+  otpCode: string;
+  password: string;
+}
