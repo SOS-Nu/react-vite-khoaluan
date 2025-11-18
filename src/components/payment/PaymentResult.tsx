@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Spinner, Alert, Button, Card, Stack } from "react-bootstrap";
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
-import axios from "@/config/axios-customize"; // Dùng axios đã cấu hình của bạn
+import axios from "@/config/axios-customize";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAccount } from "@/redux/slice/accountSlide";
 
@@ -18,29 +18,38 @@ const PaymentResult = () => {
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const user = useAppSelector((state) => state.account.user);
 
+  // SỬA ĐỔI 1: Tạo một ref để theo dõi
+  const hasVerified = useRef(false);
+
   useEffect(() => {
-    // Lấy tất cả các query params từ URL mà VNPay trả về
     const queryParams = location.search;
 
     const verifyPayment = async () => {
+      // SỬA ĐỔI 2: Nếu không có params hoặc ĐÃ GỌI RỒI, thì dừng lại
+      if (!queryParams || hasVerified.current) {
+        return;
+      }
+
+      // SỬA ĐỔI 3: Đánh dấu là đã gọi
+      hasVerified.current = true;
+      setLoading(true); // Đảm bảo luôn loading khi bắt đầu
+
       try {
-        // Gọi đến API callback của backend để xác thực
-        // Backend sẽ kiểm tra chữ ký và cập nhật DB
         const res = await axios.get(
           `/api/v1/payment/vnpay/callback${queryParams}`
         );
 
-        // Dựa vào response của backend để cập nhật giao diện
         if (res.data.status === "success") {
           setPaymentStatus("success");
           setMessage(res.data.message);
 
-          // QUAN TRỌNG: Lấy lại thông tin user để cập nhật trạng thái VIP trong Redux
-          dispatch(fetchAccount());
+          // SỬA ĐỔI 4: Thêm "await" để chờ Redux cập nhật xong
+          await dispatch(fetchAccount());
+
           const source = sessionStorage.getItem("payment_redirect_source");
           if (source) {
-            setRedirectPath(source); // Lưu lại đường dẫn để hiển thị nút
-            sessionStorage.removeItem("payment_redirect_source"); // 2. Xóa đi để không ảnh hưởng lần sau
+            setRedirectPath(source);
+            sessionStorage.removeItem("payment_redirect_source");
           }
         } else {
           setPaymentStatus("error");
@@ -58,7 +67,7 @@ const PaymentResult = () => {
     };
 
     verifyPayment();
-  }, [location, dispatch]);
+  }, []);
 
   if (loading) {
     return (

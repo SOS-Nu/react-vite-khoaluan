@@ -183,7 +183,7 @@ export const accountSlide = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchAccount.pending, (state, action) => {
-      state.isAuthenticated = false;
+      // state.isAuthenticated = false;
       state.isLoading = true;
     });
 

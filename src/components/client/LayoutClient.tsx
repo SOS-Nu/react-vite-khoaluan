@@ -47,7 +47,7 @@ export const LayoutClient = () => {
       </div>
       {!isChatPage && <Footer />}
 
-      {!isAdminPage && (
+      {!isAdminPage && !isChatPage && (
         <>
           <button
             onClick={() => setShowChatbot(true)}

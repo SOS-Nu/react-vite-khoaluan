@@ -51,7 +51,6 @@ const ApplyModal = (props: IProps) => {
       // Vấn đề ở đây: window.location.href trả về URL đầy đủ (http://...)
       // navigate(`/login?callback=${window.location.href}`);
 
-      // ✅ GIẢI PHÁP: Chỉ lấy path và search params
       // Điều này sẽ tạo ra một callback URL như: /job?id=100001
       const callbackUrl = window.location.pathname + window.location.search;
       navigate(`/login?callback=${encodeURIComponent(callbackUrl)}`);
@@ -64,7 +63,7 @@ const ApplyModal = (props: IProps) => {
           user?.email!,
           user.id
         );
-        if (res.data) {
+        if (res.message === "Create a resume") {
           message.success("Rải CV thành công!");
           setIsModalOpen(false);
           setIsLoading(false);

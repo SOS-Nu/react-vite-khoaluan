@@ -11,7 +11,7 @@ import Loading from "./components/share/loading";
 
 export default function App() {
   // Bạn vẫn có thể giữ isLoading ở đây để hiển thị Loading toàn trang
-  const isLoading = useAppSelector((state) => state.account.isLoading);
+  // const isLoading = useAppSelector((state) => state.account.isLoading);
 
   // Logic fetchAccount đã được chuyển qua LayoutApp.tsx
   // nên useEffect ở đây được XÓA BỎ.

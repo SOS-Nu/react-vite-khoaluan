@@ -429,17 +429,26 @@ export const callCreateResume = (
   email: string,
   userId: string | number
 ) => {
-  return axios.post<IBackendRes<IResume>>("/api/v1/resumes", {
-    email,
-    url,
-    status: "PENDING",
-    user: {
-      id: userId,
+  return axios.post<IBackendRes<IResume>>(
+    "/api/v1/resumes",
+    {
+      email,
+      url,
+      status: "PENDING",
+      user: {
+        id: userId,
+      },
+      job: {
+        id: jobId,
+      },
     },
-    job: {
-      id: jobId,
-    },
-  });
+    {
+      // BẢO AXIOS KHÔNG NÉM LỖI VỚI STATUS 4xx
+      validateStatus: function (status) {
+        return status >= 200 && status < 500; // Chấp nhận 200 -> 499
+      },
+    }
+  );
 };
 
 export const callUpdateResumeStatus = (id: any, status: string) => {
