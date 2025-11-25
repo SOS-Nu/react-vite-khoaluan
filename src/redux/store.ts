@@ -1,13 +1,14 @@
+import chatReducer from "@/redux/slice/chatSlice";
+import paymentReducer from "@/redux/slice/paymentSlice";
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import accountReducer from "./slice/accountSlide";
 import companyReducer from "./slice/companySlide";
-import userReducer from "./slice/userSlide";
 import jobReducer from "./slice/jobSlide";
-import resumeReducer from "./slice/resumeSlide";
 import permissionReducer from "./slice/permissionSlide";
+import resumeReducer from "./slice/resumeSlide";
 import roleReducer from "./slice/roleSlide";
 import skillReducer from "./slice/skillSlide";
-import chatReducer from "@/redux/slice/chatSlice"; // <-- IMPORT
+import userReducer from "./slice/userSlide";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     role: roleReducer,
     skill: skillReducer,
     chat: chatReducer,
+    payment: paymentReducer,
   },
 });
 

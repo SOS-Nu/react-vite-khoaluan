@@ -1,4 +1,16 @@
 import {
+  callCreateCompany,
+  callUpdateCompany,
+  callUploadSingleFile,
+} from "@/config/api";
+import {
+  COUNTRY_LIST,
+  FIELD_LIST,
+  LOCATION_LIST,
+  nonAccentVietnamese,
+} from "@/config/utils";
+import { ICompany } from "@/types/backend";
+import {
   CheckSquareOutlined,
   LoadingOutlined,
   PlusOutlined,
@@ -24,25 +36,13 @@ import {
   message,
   notification,
 } from "antd";
-import "styles/reset.scss";
+import enUS from "antd/lib/locale/en_US";
+import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useEffect, useState } from "react";
-import {
-  callCreateCompany,
-  callUpdateCompany,
-  callUploadSingleFile,
-} from "@/config/api";
-import { ICompany } from "@/types/backend";
+import "styles/reset.scss";
 import { v4 as uuidv4 } from "uuid";
-import enUS from "antd/lib/locale/en_US";
-import {
-  COUNTRY_LIST,
-  FIELD_LIST,
-  LOCATION_LIST,
-  nonAccentVietnamese,
-} from "@/config/utils";
 
 interface IProps {
   openModal: boolean;

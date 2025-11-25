@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from "react";
+import { ALL_PERMISSIONS } from "@/config/permissions";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setLogoutAction } from "@/redux/slice/accountSlide";
 import {
-  AppstoreOutlined,
-  ExceptionOutlined,
+  AliwangwangOutlined,
   ApiOutlined,
-  UserOutlined,
+  AppstoreOutlined,
   BankOutlined,
+  BugOutlined,
+  ExceptionOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  AliwangwangOutlined,
-  BugOutlined,
   ScheduleOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Dropdown, Space, message, Avatar, Button } from "antd";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { callLogout } from "config/api";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { isMobile } from "react-device-detect";
 import type { MenuProps } from "antd";
-import { setLogoutAction } from "@/redux/slice/accountSlide";
-import { ALL_PERMISSIONS } from "@/config/permissions";
+import { Avatar, Button, Dropdown, Layout, Menu, Space, message } from "antd";
+import { callLogout } from "config/api";
+import React, { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const { Content, Sider } = Layout;
 
@@ -33,6 +32,7 @@ const LayoutAdmin = () => {
   const permissions = useAppSelector(
     (state) => state.account.user.role?.permissions
   );
+  const payment = useAppSelector((state) => state.payment);
   const [menuItems, setMenuItems] = useState<MenuProps["items"]>([]);
 
   const navigate = useNavigate();
@@ -75,6 +75,11 @@ const LayoutAdmin = () => {
         (item) =>
           item.apiPath === ALL_PERMISSIONS.PERMISSIONS.GET_PAGINATE.apiPath &&
           item.method === ALL_PERMISSIONS.USERS.GET_PAGINATE.method
+      );
+      const viewPayment = permissions?.find(
+        (item) =>
+          item.apiPath === ALL_PERMISSIONS.PAYMENT.GET_PAGINATE.apiPath &&
+          item.method === ALL_PERMISSIONS.PAYMENT.GET_PAGINATE.method
       );
 
       const full = [
@@ -166,6 +171,19 @@ const LayoutAdmin = () => {
                   </Link>
                 ),
                 key: "/admin/role",
+                icon: <ExceptionOutlined />,
+              },
+            ]
+          : []),
+        ...(viewPayment || ACL_ENABLE === "false"
+          ? [
+              {
+                label: (
+                  <Link style={{ textDecoration: "none" }} to="/admin/payment">
+                    Payment
+                  </Link>
+                ),
+                key: "/admin/payment",
                 icon: <ExceptionOutlined />,
               },
             ]

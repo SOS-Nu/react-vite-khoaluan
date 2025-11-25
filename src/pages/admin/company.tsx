@@ -1,5 +1,14 @@
 import ModalCompany from "@/components/admin/company/modal.company";
 import DataTable from "@/components/client/data-table";
+import Access from "@/components/share/access";
+import { callDeleteCompany } from "@/config/api";
+import { ALL_PERMISSIONS } from "@/config/permissions";
+import {
+  FIELD_LIST,
+  LOCATION_LIST,
+  nonAccentVietnamese,
+  SCALE_LIST,
+} from "@/config/utils";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchCompany } from "@/redux/slice/companySlide";
 import { ICompany } from "@/types/backend";
@@ -8,24 +17,15 @@ import { ActionType, ProColumns } from "@ant-design/pro-components";
 import {
   AutoComplete,
   Button,
-  Popconfirm,
-  Space,
   message,
   notification,
+  Popconfirm,
+  Space,
 } from "antd";
-import { useState, useRef } from "react";
 import dayjs from "dayjs";
-import { callDeleteCompany } from "@/config/api";
 import queryString from "query-string";
-import Access from "@/components/share/access";
-import { ALL_PERMISSIONS } from "@/config/permissions";
+import { useRef, useState } from "react";
 import { sfLike } from "spring-filter-query-builder";
-import {
-  FIELD_LIST,
-  LOCATION_LIST,
-  nonAccentVietnamese,
-  SCALE_LIST,
-} from "@/config/utils";
 
 const CompanyPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);

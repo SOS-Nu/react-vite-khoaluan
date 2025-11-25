@@ -1,28 +1,28 @@
 import {
-  IBackendRes,
-  ICompany,
   IAccount,
-  IUser,
-  IModelPaginate,
+  IBackendRes,
+  ICandidate,
+  IComment,
+  ICompany,
+  IDashboardData,
   IGetAccount,
   IJob,
-  IResume,
+  IJobWithScore,
+  IMeta,
+  IModelPaginate,
+  IOnlineResume,
+  IPaymentHistory,
   IPermission,
+  IReqLoginOtp,
+  IResponseImport,
+  IResume,
   IRole,
   ISkill,
   ISubscribers,
-  IResponseImport,
-  IDashboardData,
-  IComment,
-  IOnlineResume,
+  IUser,
   IWorkExperience,
-  ICandidate,
-  IMeta,
-  IJobWithScore,
-  IReqLoginOtp,
 } from "@/types/backend";
 import axios from "config/axios-customize";
-import { validate } from "uuid";
 
 /**
  * 
@@ -753,4 +753,43 @@ export const callEvaluateCVWithAI = (formData: FormData) => {
 
 export const callNotifyUserAfterApproved = (resumeId: number) => {
   return axios.post(`/api/v1/resumes/notify-user/${resumeId}`);
+};
+
+// 1. Lấy danh sách Payment (Phân trang & Filter)
+export const callFetchPayment = (query: string) => {
+  return axios.get<IBackendRes<IModelPaginate<IPaymentHistory>>>(
+    `/api/v1/payment/allhistory?${query}`
+  );
+};
+
+// 2. Cập nhật trạng thái Payment
+export const callUpdatePaymentStatus = (id: number, status: string) => {
+  return axios.put<IBackendRes<IPaymentHistory>>(`/api/v1/payment/allhistory`, {
+    id,
+    status,
+  });
+};
+
+// 3. Export Excel
+export const callExportPaymentExcel = (query: string) => {
+  return axios.get(`/api/v1/payment/export/excel?${query}`, {
+    responseType: "blob", // Quan trọng để tải file
+  });
+};
+
+// 4. Export Báo cáo Tháng (Word)
+export const callExportPaymentMonthly = (month: number, year: number) => {
+  return axios.get(
+    `/api/v1/payment/export/monthly-report?month=${month}&year=${year}`,
+    {
+      responseType: "blob",
+    }
+  );
+};
+
+// 5. Export Báo cáo Năm (Word)
+export const callExportPaymentYearly = (year: number) => {
+  return axios.get(`/api/v1/payment/export/yearly-report?year=${year}`, {
+    responseType: "blob",
+  });
 };

@@ -1,42 +1,42 @@
 // src/router/index.tsx
 
-import { createBrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App as AntdApp } from "antd";
-import "dayjs/locale/vi";
 import "dayjs/locale/en";
+import "dayjs/locale/vi";
+import { createBrowserRouter } from "react-router-dom";
 
 // Import các components và pages cần thiết
-import NotFound from "components/share/not.found";
-import LoginPage from "pages/auth/login";
-import RegisterPage from "pages/auth/register";
+import ViewUpsertJob from "components/admin/job/upsert.job";
 import LayoutAdmin from "components/admin/layout.admin";
+import { AppContextProvider } from "components/context/app.context";
+import PaymentResult from "components/payment/PaymentResult";
+import LayoutApp from "components/share/layout.app";
+import NotFound from "components/share/not.found";
 import ProtectedRoute from "components/share/protected-route.ts";
-import HomePage from "pages/home";
-import DashboardPage from "pages/admin/dashboard";
 import CompanyPage from "pages/admin/company";
+import DashboardPage from "pages/admin/dashboard";
+import JobTabs from "pages/admin/job/job.tabs";
 import PermissionPage from "pages/admin/permission";
 import ResumePage from "pages/admin/resume";
 import RolePage from "pages/admin/role";
 import UserPage from "pages/admin/user";
-import LayoutApp from "components/share/layout.app";
-import ViewUpsertJob from "components/admin/job/upsert.job";
-import ClientJobPage from "pages/job";
+import LoginPage from "pages/auth/login";
+import RegisterPage from "pages/auth/register";
+import ChatPage from "pages/chat/ChatPage";
 import ClientCompanyPage from "pages/company";
 import ClientCompanyDetailPage from "pages/company/detail";
-import JobTabs from "pages/admin/job/job.tabs";
-import { AppContextProvider } from "components/context/app.context";
+import CVAIEvaluationPage from "pages/cv-ai/CVAIEvaluation";
+import HomePage from "pages/home";
+import ClientJobPage from "pages/job";
+import ClientJobStandaloneDetailPage from "pages/job/detail";
 import RecruiterPage from "pages/recruiter";
 import CreateOnlineResumePage from "pages/resume/create-online";
 import PublicCvPage from "pages/user/public-cv";
-import ChatPage from "pages/chat/ChatPage";
-import PaymentResult from "components/payment/PaymentResult";
-import ClientJobStandaloneDetailPage from "pages/job/detail";
-import CVAIEvaluationPage from "pages/cv-ai/CVAIEvaluation";
 
 // Import LayoutClient từ file mới
+import PaymentPage from "@/components/admin/payment/payment.page";
 import { LayoutClient } from "components/client/LayoutClient";
-import { VueHeroWrapper } from "@/components/HeroAnimation/VueHeroWrapper";
 
 const queryClient = new QueryClient();
 
@@ -179,6 +179,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <RolePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "payment",
+        element: (
+          <ProtectedRoute>
+            <PaymentPage />
           </ProtectedRoute>
         ),
       },
