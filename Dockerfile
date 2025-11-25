@@ -10,8 +10,7 @@ RUN npm install
 COPY . .
 
 # Chạy lệnh build-uat của bạn để tạo folder /dist
-RUN npm run build-uat
-
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build-uat
 # STAGE 2: Serve các file tĩnh đã build bằng Nginx
 FROM nginx:1.23-alpine
 
