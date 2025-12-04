@@ -3,15 +3,17 @@
 <script setup lang="ts">
 import { gsap } from "gsap";
 import { MotionPathPlugin } from "gsap/dist/MotionPathPlugin";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import { useTranslation } from "i18next-vue";
 import { onMounted, onUnmounted, type Ref, ref } from "vue";
+import { SvgNodeProps } from "./common/SvgNode.vue";
+import SvgBlueIndicator from "./svg-elements/SvgBlueIndicator.vue";
 import SvgInputs from "./svg-elements/SvgInputs.vue";
 import SvgOutputs from "./svg-elements/SvgOutputs.vue";
-import SvgBlueIndicator from "./svg-elements/SvgBlueIndicator.vue";
 import SvgPinkIndicator from "./svg-elements/SvgPinkIndicator.vue";
-import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import { SvgNodeProps } from "./common/SvgNode.vue";
 
 gsap.registerPlugin(MotionPathPlugin);
+const { t } = useTranslation();
 
 // Define the paths on the input side of the diagram
 const inputPaths = [
@@ -25,67 +27,65 @@ const inputPaths = [
 ];
 
 // Setup objects representing each input line's animation state
-const inputLines: Ref<SvgNodeProps>[] = inputPaths.map((path) =>
+const inputLines: Ref<any>[] = inputPaths.map((path) =>
   ref({
     position: 0,
     visible: false,
     labelVisible: false,
     label: "",
+    currentKey: "", // <--- MỚI: Để lưu key translation
+    currentDefault: "", // <--- MỚI: Để lưu text mặc định
     dotColor: undefined,
     glowColor: undefined,
     path,
   })
 );
-
+watchEffect(() => {
+  inputLines.forEach((line) => {
+    if (line.value.currentKey) {
+      // Dịch lại ngay lập tức dựa trên Key đang giữ
+      line.value.label = t(line.value.currentKey, line.value.currentDefault);
+    }
+  });
+});
 // Define the file set "combinations" that can be shown on the input side
-const inputFileSets = ref([
-  // Combo 1: Hồ sơ và nhu cầu cơ bản
+const inputFileSets = [
   [
-    { label: "Hồ sơ CV", color: "#61DBFB" }, // Màu xanh Cyan (tương tự React)
-    { label: "Mô tả Job" }, // Không màu (màu mặc định/trắng)
-    { label: "Lọc theo Lương", color: "#FF66AA" }, // Màu Hồng Vivid
+    { key: "hero.cv", default: "Hồ sơ CV", color: "#61DBFB" },
+    { key: "hero.jobDesc", default: "Mô tả Job" },
+    { key: "hero.salary", default: "Lọc theo Lương", color: "#FF66AA" },
   ],
-  // Combo 2: Năng lực và nhu cầu cao cấp
   [
-    { label: "Kinh nghiệm", color: "#FFA500" }, // Màu Cam Sáng
-    { label: "Kỹ năng", color: "#45B880" }, // Màu Xanh Lục Bảo
-    { label: "Phúc lợi", color: "#E0E0E0" }, // Màu Trắng sáng
+    { key: "hero.experience", default: "Kinh nghiệm", color: "#FFA500" },
+    { key: "hero.skills", default: "Kỹ năng", color: "#45B880" },
+    { key: "hero.benefits", default: "Phúc lợi", color: "#E0E0E0" },
   ],
-  // Combo 3: Các loại giấy tờ và yêu cầu
   [
-    { label: "Bằng cấp" }, // Màu Tím Lavender
-    { label: "Thư giới thiệu", color: "#FFD700" }, // Màu Vàng Kim
-    { label: "Review Công ty", color: "#00CED1" }, // Màu Xanh Thổ Nhĩ Kỳ
+    { key: "hero.degree", default: "Bằng cấp" },
+    { key: "hero.referral", default: "Thư giới thiệu", color: "#FFD700" },
+    { key: "hero.review", default: "Review Công ty", color: "#00CED1" },
   ],
-  // Thêm một combo mới để đa dạng hóa
   [
-    { label: "Làm việc từ xa", color: "#FF4500" }, // Màu Đỏ Cam
-    { label: "Thời gian linh hoạt" },
-    { label: "Khởi nghiệp", color: "#00FF7F" }, // Màu Xanh Lục Neon
+    { key: "hero.remote", default: "Làm việc từ xa", color: "#FF4500" },
+    { key: "hero.flexible", default: "Thời gian linh hoạt" },
+    { key: "hero.startup", default: "Khởi nghiệp", color: "#00FF7F" },
   ],
-]);
-
-// Setup objects representing each output line's animation state
-const outputLines: Ref[] = [
-  ref({
-    position: 0,
-    visible: false,
-    labelVisible: false,
-    label: "Nhận được Offer",
-  }),
-  ref({
-    position: 0,
-    visible: false,
-    labelVisible: false,
-    label: "Lương hấp dẫn",
-  }),
-  ref({
-    position: 0,
-    visible: false,
-    labelVisible: false,
-    label: "Phù hợp văn hóa", // Hoặc "Tuyển dụng nhanh"
-  }),
 ];
+
+// 3. XỬ LÝ OUTPUT LINES (Vì biến này là mảng các ref riêng lẻ)
+const outputLines: Ref[] = [
+  ref({ position: 0, visible: false, labelVisible: false, label: "" }),
+  ref({ position: 0, visible: false, labelVisible: false, label: "" }),
+  ref({ position: 0, visible: false, labelVisible: false, label: "" }),
+];
+
+// Dùng watchEffect hoặc watch để map giá trị từ t() vào ref của outputLines
+import { watchEffect } from "vue";
+watchEffect(() => {
+  outputLines[0].value.label = t("hero.outputOffer") || "Nhận được Offer";
+  outputLines[1].value.label = t("hero.outputSalary") || "Lương hấp dẫn";
+  outputLines[2].value.label = t("hero.outputCulture") || "Phù hợp văn hóa";
+});
 
 // Add some flags for whether to display various subcomponents
 const blueIndicator = ref(false);
@@ -172,28 +172,33 @@ const animateDiagram = () => {
  * Randomly selects a set of input file nodes and assigns them to input lines.
  */
 const prepareInputs = () => {
-  // Randomly select a set of input file "nodes"
+  // Lấy random set
   const inputFileSet =
-    inputFileSets.value[Math.floor(Math.random() * inputFileSets.value.length)];
+    inputFileSets[Math.floor(Math.random() * inputFileSets.length)];
 
-  // Choose enough unique lines for the input file nodes to slide along
   const inputLineIndexes = new Set<number>();
   while (inputLineIndexes.size < 3) {
     const index: number = Math.floor(Math.random() * inputLines.length);
     inputLineIndexes.add(index);
   }
 
-  // Assign each line it's appropriate node label
   const inputs = [...inputLineIndexes];
   inputs.forEach((lineIndex, fileIndex) => {
-    inputLines[lineIndex].value.label = inputFileSet[fileIndex].label;
+    const item = inputFileSet[fileIndex];
+
+    // Gán thông tin vào Line
+    inputLines[lineIndex].value.currentKey = item.key; // Lưu Key
+    inputLines[lineIndex].value.currentDefault = item.default; // Lưu Default text
+
+    // Gán Label ban đầu (Dùng hàm t ngay lập tức)
+    inputLines[lineIndex].value.label = t(item.key, item.default);
+
     inputLines[lineIndex].value.dotColor = inputLines[
       lineIndex
-    ].value.glowColor = inputFileSet[fileIndex].color;
+    ].value.glowColor = item.color;
   });
   return inputs;
 };
-
 /**
  * Animates a single output line for desktop.
  * There are technically 3 output lines, but they are stacked on top of each other.x

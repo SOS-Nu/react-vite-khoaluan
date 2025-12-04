@@ -1,4 +1,21 @@
 {
+  "hero": {
+    "cv": "Hồ sơ CV",
+    "jobDesc": "Mô tả Job",
+    "salary": "Lọc theo Lương",
+    "experience": "Kinh nghiệm",
+    "skills": "Kỹ năng",
+    "benefits": "Phúc lợi",
+    "degree": "Bằng cấp",
+    "referral": "Thư giới thiệu",
+    "review": "Review Công ty",
+    "remote": "Làm việc từ xa",
+    "flexible": "Thời gian linh hoạt",
+    "startup": "Khởi nghiệp",
+    "outputOffer": "Nhận được Offer",
+    "outputSalary": "Lương hấp dẫn",
+    "outputCulture": "Phù hợp văn hóa"
+  },
   "appHeader": {
     "brand": "JobHunter",
     "home": "Trang chủ",

@@ -1,4 +1,21 @@
 {
+  "hero": {
+    "cv": "Resume / CV",
+    "jobDesc": "Job Description",
+    "salary": "Salary Range",
+    "experience": "Experience",
+    "skills": "Top Skills",
+    "benefits": "Benefits",
+    "degree": "Degrees",
+    "referral": "Referral Letter",
+    "review": "Company Review",
+    "remote": "Remote Work",
+    "flexible": "Flexible Hours",
+    "startup": "Start-up Spirit",
+    "outputOffer": "Received Offer",
+    "outputSalary": "Attractive Pay",
+    "outputCulture": "Culture Fit"
+  },
   "appHeader": {
     "brand": "JobHunter",
     "home": "Home",
