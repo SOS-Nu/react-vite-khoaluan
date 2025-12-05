@@ -81,10 +81,17 @@ const outputLines: Ref[] = [
 
 // Dùng watchEffect hoặc watch để map giá trị từ t() vào ref của outputLines
 import { watchEffect } from "vue";
+// watchEffect(() => {
+//   outputLines[0].value.label = t("hero.outputOffer") || "Nhận được Offer";
+//   outputLines[1].value.label = t("hero.outputSalary") || "Lương hấp dẫn";
+//   outputLines[2].value.label = t("hero.outputCulture") || "Phù hợp văn hóa";
+// });
+
 watchEffect(() => {
-  outputLines[0].value.label = t("hero.outputOffer") || "Nhận được Offer";
-  outputLines[1].value.label = t("hero.outputSalary") || "Lương hấp dẫn";
-  outputLines[2].value.label = t("hero.outputCulture") || "Phù hợp văn hóa";
+  // Truyền text mặc định làm tham số thứ 2 cho hàm t()
+  outputLines[0].value.label = t("hero.outputOffer", "Nhận được Offer");
+  outputLines[1].value.label = t("hero.outputSalary", "Lương hấp dẫn");
+  outputLines[2].value.label = t("hero.outputCulture", "Phù hợp văn hóa");
 });
 
 // Add some flags for whether to display various subcomponents
