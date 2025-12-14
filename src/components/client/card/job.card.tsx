@@ -1,19 +1,19 @@
 // @/components/client/card/job.card.tsx (Đã cập nhật)
-import { convertSlug, getLocationName } from "@/config/utils";
+import { getLocationName } from "@/config/utils";
+import styles from "@/styles/client.module.scss";
 import { IJob } from "@/types/backend";
-import { Link, useSearchParams } from "react-router-dom";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
-import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/new-badge-orange.png";
-import { BsGeoAlt, BsCurrencyDollar, BsClock } from "react-icons/bs";
-import { Button, Col, Row } from "react-bootstrap";
-import { isMobile } from "react-device-detect";
-import styles from "@/styles/client.module.scss";
+import { useCurrentApp } from "components/context/app.context";
+import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import i18next, { t } from "i18next";
 import React from "react"; // Đảm bảo React được import
-import i18next, { t, i18n } from "i18next";
+import { Button, Col } from "react-bootstrap";
+import { isMobile } from "react-device-detect";
+import { BsClock, BsCurrencyDollar, BsGeoAlt } from "react-icons/bs";
+import { Link, useSearchParams } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 
@@ -254,7 +254,9 @@ const JobCard = (props: IProps) => {
                                       marginRight: "6px",
                                     }}
                                   />
-                                  {getLocationName(item.location)}
+                                  {getLocationName(item.location) !== "unknown"
+                                    ? getLocationName(item.location)
+                                    : item.location}
                                 </p>
                                 <p
                                   className="company"
