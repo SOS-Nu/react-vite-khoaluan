@@ -1,21 +1,15 @@
 //search.client.tsx
-import { Button, Col, Form, Row, Select, Input, Upload } from "antd";
-import {
-  SearchOutlined,
-  ApartmentOutlined,
-  FileTextOutlined,
-  UploadOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
 import { getLocationName, LOCATION_LIST } from "@/config/utils";
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearJobs } from "@/redux/slice/jobSlide";
-import Typewriter from "typewriter-effect";
 import "@/styles/stylespotfolio/search.client.scss";
-import { useCurrentApp } from "../context/app.context";
+import { ApartmentOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, Row, Select } from "antd";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import Typewriter from "typewriter-effect";
+import { useCurrentApp } from "../context/app.context";
 
 const { Option } = Select;
 
@@ -129,46 +123,6 @@ const SearchClient = (props: IProps) => {
 
   const renderSearchInput = () => {
     switch (searchType) {
-      case "ai":
-        return (
-          <div className="ai-input-wrapper">
-            <Form.Item name="searchQuery" noStyle>
-              <Input.TextArea
-                placeholder={t("searchClient.aiPlaceholder")}
-                rows={1}
-                bordered={false}
-                autoSize={{ minRows: 1, maxRows: 1 }}
-              />
-            </Form.Item>
-            <div className="ai-upload-container">
-              {fileList.length > 0 ? (
-                <div className="custom-upload-item">
-                  <span className="file-name-text" title={fileList[0].name}>
-                    {fileList[0].name}
-                  </span>
-                  <CloseOutlined
-                    className="delete-icon"
-                    onClick={handleRemoveFile}
-                  />
-                </div>
-              ) : (
-                <Upload
-                  className="ai-upload-button"
-                  fileList={fileList}
-                  onChange={handleUploadChange}
-                  beforeUpload={() => false}
-                  showUploadList={false}
-                  maxCount={1}
-                >
-                  <Button icon={<UploadOutlined />} type="text">
-                    {" "}
-                    {t("searchClient.uploadCV")}{" "}
-                  </Button>
-                </Upload>
-              )}
-            </div>
-          </div>
-        );
       case "company":
         return (
           <div className="ai-input-wrapper">
@@ -248,9 +202,9 @@ const SearchClient = (props: IProps) => {
                     <Option value="company">
                       <ApartmentOutlined /> {t("searchClient.selectCompany")}
                     </Option>
-                    <Option value="ai">
+                    {/* <Option value="ai">
                       <FileTextOutlined /> {t("searchClient.selectAI")}
-                    </Option>
+                    </Option> */}
                   </Select>
                   {renderSearchInput()}
                 </Input.Group>
