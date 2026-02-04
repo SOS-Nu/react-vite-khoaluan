@@ -1,19 +1,15 @@
 // src/pages/recruiter/index.tsx
 
-import React from "react";
-import { Container, Spinner } from "react-bootstrap";
-import { useAppSelector } from "@/redux/hooks";
-import BecomeVipRecruiter from "@/components/recruiter/BecomeVipRecruiter";
 import CompanyForm from "@/components/recruiter/CompanyForm";
 import RecruiterDashboard from "@/components/recruiter/RecruiterDashboard";
-import BenefitsSection from "@/components/recruiter/BenefitsSection";
-import FaqSection from "@/components/recruiter/FaqSection";
+import { useAppSelector } from "@/redux/hooks";
+import { Container, Spinner } from "react-bootstrap";
 
 const RecruiterPage = () => {
   const user = useAppSelector((state) => state.account.user);
   const isLoading = useAppSelector((state) => state.account.isLoading);
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   const renderContent = () => {
     // Trường hợp 1: Đang tải thông tin user
@@ -36,22 +32,18 @@ const RecruiterPage = () => {
     }
 
     // Sửa đổi ở đây: Nếu đã có công ty, hiển thị Dashboard
-    if (user.company && user.vip) {
+    if (user.company) {
       return <RecruiterDashboard />;
     }
 
     // Trường hợp 2: User đã có công ty -> Hiển thị form quản lý/cập nhật
-    if (user.company && user.vip) {
+    if (user.company) {
       return <CompanyForm initialData={user.company} />;
     }
 
-    // Trường hợp 3: User là VIP nhưng chưa có công ty -> Hiển thị form tạo mới
-    if (user.vip) {
-      return <CompanyForm />;
-    }
+    // Trường hợp 3:  chưa có công ty -> Hiển thị form tạo mới
 
-    // Trường hợp 4: User chưa phải VIP -> Hiển thị component yêu cầu nâng cấp
-    return <BecomeVipRecruiter />;
+    return <CompanyForm />;
   };
 
   const NotAuthenticated = () => {

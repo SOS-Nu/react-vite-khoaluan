@@ -1,10 +1,10 @@
 // src/components/recruiter/BecomeVipRecruiter.tsx
+import { callCreateVipPaymentUrl } from "@/config/api";
+import { useAppSelector } from "@/redux/hooks";
 import { useState } from "react";
 import { Button, Card, Spinner } from "react-bootstrap";
 import { Gem } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
-import { callCreateVipPaymentUrl } from "@/config/api";
-import { useAppSelector } from "@/redux/hooks";
 
 const BecomeVipRecruiter = () => {
   const [isCreatingUrl, setIsCreatingUrl] = useState(false);
