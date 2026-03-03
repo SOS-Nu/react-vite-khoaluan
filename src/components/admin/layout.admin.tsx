@@ -30,9 +30,8 @@ const LayoutAdmin = () => {
   const user = useAppSelector((state) => state.account.user);
 
   const permissions = useAppSelector(
-    (state) => state.account.user.role?.permissions
+    (state) => state.account.user.role?.permissions,
   );
-  const payment = useAppSelector((state) => state.payment);
   const [menuItems, setMenuItems] = useState<MenuProps["items"]>([]);
 
   const navigate = useNavigate();
@@ -44,42 +43,37 @@ const LayoutAdmin = () => {
       const viewCompany = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method,
       );
 
       const viewUser = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.USERS.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.USERS.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.USERS.GET_PAGINATE.method,
       );
 
       const viewJob = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.JOBS.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.JOBS.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.JOBS.GET_PAGINATE.method,
       );
 
       const viewResume = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.RESUMES.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.RESUMES.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.RESUMES.GET_PAGINATE.method,
       );
 
       const viewRole = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.ROLES.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.ROLES.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.ROLES.GET_PAGINATE.method,
       );
 
       const viewPermission = permissions?.find(
         (item) =>
           item.apiPath === ALL_PERMISSIONS.PERMISSIONS.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.USERS.GET_PAGINATE.method
-      );
-      const viewPayment = permissions?.find(
-        (item) =>
-          item.apiPath === ALL_PERMISSIONS.PAYMENT.GET_PAGINATE.apiPath &&
-          item.method === ALL_PERMISSIONS.PAYMENT.GET_PAGINATE.method
+          item.method === ALL_PERMISSIONS.USERS.GET_PAGINATE.method,
       );
 
       const full = [
@@ -171,19 +165,6 @@ const LayoutAdmin = () => {
                   </Link>
                 ),
                 key: "/admin/role",
-                icon: <ExceptionOutlined />,
-              },
-            ]
-          : []),
-        ...(viewPayment || ACL_ENABLE === "false"
-          ? [
-              {
-                label: (
-                  <Link style={{ textDecoration: "none" }} to="/admin/payment">
-                    Payment
-                  </Link>
-                ),
-                key: "/admin/payment",
                 icon: <ExceptionOutlined />,
               },
             ]

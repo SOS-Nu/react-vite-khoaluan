@@ -10,7 +10,6 @@ import { createBrowserRouter } from "react-router-dom";
 import ViewUpsertJob from "components/admin/job/upsert.job";
 import LayoutAdmin from "components/admin/layout.admin";
 import { AppContextProvider } from "components/context/app.context";
-import PaymentResult from "components/payment/PaymentResult";
 import LayoutApp from "components/share/layout.app";
 import NotFound from "components/share/not.found";
 import ProtectedRoute from "components/share/protected-route.ts";
@@ -26,7 +25,6 @@ import RegisterPage from "pages/auth/register";
 import ChatPage from "pages/chat/ChatPage";
 import ClientCompanyPage from "pages/company";
 import ClientCompanyDetailPage from "pages/company/detail";
-import CVAIEvaluationPage from "pages/cv-ai/CVAIEvaluation";
 import HomePage from "pages/home";
 import ClientJobPage from "pages/job";
 import ClientJobStandaloneDetailPage from "pages/job/detail";
@@ -35,7 +33,6 @@ import CreateOnlineResumePage from "pages/resume/create-online";
 import PublicCvPage from "pages/user/public-cv";
 
 // Import LayoutClient từ file mới
-import PaymentPage from "@/components/admin/payment/payment.page";
 import { LayoutClient } from "components/client/LayoutClient";
 
 const queryClient = new QueryClient();
@@ -44,7 +41,6 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      // Bọc QueryClientProvider và ContextProvider ở đây
       <QueryClientProvider client={queryClient}>
         <AppContextProvider>
           <LayoutApp>
@@ -80,15 +76,7 @@ export const router = createBrowserRouter([
         path: "user/online-resumes/:id",
         element: <PublicCvPage />,
       },
-      { path: "cv-ai", element: <CVAIEvaluationPage /> },
-      {
-        path: "/payment/result",
-        element: (
-          <ProtectedRoute>
-            <PaymentResult />
-          </ProtectedRoute>
-        ),
-      },
+
       {
         path: "chat/detail",
         element: (
@@ -179,14 +167,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <RolePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "payment",
-        element: (
-          <ProtectedRoute>
-            <PaymentPage />
           </ProtectedRoute>
         ),
       },

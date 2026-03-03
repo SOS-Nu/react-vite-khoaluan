@@ -1,23 +1,19 @@
-import { useEffect, useState, useRef } from "react";
-import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
-import { IJob, IUser } from "@/types/backend";
+import JobCard from "@/components/client/card/job.card";
+import ApplyModal from "@/components/client/modal/apply.modal";
+import SearchClient from "@/components/client/search.client";
 import { callFetchJobById } from "@/config/api";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { fetchJob } from "@/redux/slice/jobSlide";
+import { IJob, IUser } from "@/types/backend";
 import { Pagination } from "antd";
+import bg from "assets/top-bg.svg";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import ApplyModal from "@/components/client/modal/apply.modal";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import {
-  fetchJob,
-  initiateAiSearch,
-  fetchMoreAiResults,
-} from "@/redux/slice/jobSlide";
-import JobCard from "@/components/client/card/job.card";
-import SearchClient from "@/components/client/search.client";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import JobDetailPanel from "./JobDetailPanel";
 import JobFilter from "./JobFilter";
-import useMediaQuery from "@/hooks/useMediaQuery";
-import bg from "assets/top-bg.svg";
 
 dayjs.extend(relativeTime);
 
@@ -90,9 +86,6 @@ const ClientJobPage = () => {
               state: {}, // Ghi đè state bằng một object rỗng
             });
           }
-          dispatch(initiateAiSearch({ formData, page, size }));
-        } else if (searchId) {
-          dispatch(fetchMoreAiResults({ searchId, page, size }));
         }
       } else {
         const queryParams = new URLSearchParams(searchParams);
@@ -105,7 +98,7 @@ const ClientJobPage = () => {
     if (currentId !== prevId.current) {
       if (currentId) {
         callFetchJobById(currentId).then((res) =>
-          setJobDetail(res?.data?.data ?? null)
+          setJobDetail(res?.data?.data ?? null),
         );
       } else {
         setJobDetail(null);
@@ -164,7 +157,7 @@ const ClientJobPage = () => {
     if (levels.length > 0) {
       const levelConditions = levels.map((l) => `level = '${l}'`).join(" or ");
       newFilterParts.push(
-        levels.length === 1 ? levelConditions : `(${levelConditions})`
+        levels.length === 1 ? levelConditions : `(${levelConditions})`,
       );
     }
 
@@ -183,7 +176,7 @@ const ClientJobPage = () => {
         // Nếu không, dùng sắp xếp thời gian (mặc định là mới nhất)
         prev.set(
           "sort",
-          sortTime === "oldest" ? "updatedAt,asc" : "updatedAt,desc"
+          sortTime === "oldest" ? "updatedAt,asc" : "updatedAt,desc",
         );
       }
 

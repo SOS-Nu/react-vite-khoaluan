@@ -1,17 +1,13 @@
 import {
   IAccount,
   IBackendRes,
-  ICandidate,
   IComment,
   ICompany,
   IDashboardData,
   IGetAccount,
   IJob,
-  IJobWithScore,
-  IMeta,
   IModelPaginate,
   IOnlineResume,
-  IPaymentHistory,
   IPermission,
   IReqLoginOtp,
   IResponseImport,
@@ -35,7 +31,7 @@ export const callRegister = (
   age: number,
   gender: string,
   address: string,
-  otpCode: string // Thêm tham số otpCode
+  otpCode: string, // Thêm tham số otpCode
 ) => {
   return axios.post<IBackendRes<IUser>>("/api/v1/auth/register", {
     name,
@@ -68,7 +64,7 @@ export const callLogin = (username: string, password: string) => {
       validateStatus: function (status) {
         return status >= 200 && status < 500; // Chấp nhận 200 -> 499
       },
-    }
+    },
   );
 };
 export const callSendLoginOtp = (email: string) => {
@@ -79,7 +75,7 @@ export const callSendLoginOtp = (email: string) => {
     },
     {
       validateStatus: (status) => status >= 200 && status < 500,
-    }
+    },
   );
 };
 
@@ -91,7 +87,7 @@ export const callVerifyLoginOtp = (data: IReqLoginOtp) => {
     data,
     {
       validateStatus: (status) => status >= 200 && status < 500,
-    }
+    },
   );
 };
 
@@ -140,7 +136,7 @@ export const callCreateCompany = (
   scale: string,
   country: string,
   foundingYear: number,
-  location: string
+  location: string,
 ) => {
   return axios.post("/api/v1/companies", {
     name,
@@ -168,7 +164,7 @@ export const callUpdateCompany = (
   scale: string,
   country: string,
   foundingYear: number,
-  location: string
+  location: string,
 ) => {
   return axios.put<IBackendRes<ICompany>>(`/api/v1/companies`, {
     id,
@@ -191,7 +187,7 @@ export const callDeleteCompany = (id: string) => {
 
 export const callFetchCompany = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<ICompany>>>(
-    `/api/v1/companies?${query}`
+    `/api/v1/companies?${query}`,
   );
 };
 
@@ -201,7 +197,7 @@ export const callFetchCompanyById = (id: string) => {
 
 export const callFetchJobsByCompany = (id: string, query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IJob>>>(
-    `/api/v1/jobs/by-company/${id}?${query}`
+    `/api/v1/jobs/by-company/${id}?${query}`,
   );
 };
 
@@ -215,7 +211,7 @@ export const callCreateComment = (data: {
 
 export const callFetchCommentsByCompany = (id: string, query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IComment>>>(
-    `/api/v1/comments/by-company/${id}?${query}`
+    `/api/v1/comments/by-company/${id}?${query}`,
   );
 };
 
@@ -230,7 +226,7 @@ export const callCreateSkill = (name: string) => {
 export const callBulkCreateSkillAPI = (
   importSkill: {
     name: string;
-  }[]
+  }[],
 ) => {
   const urlBackend = "/api/v1/skills/bulk-create";
   return axios.post<IBackendRes<IResponseImport>>(urlBackend, importSkill);
@@ -246,7 +242,7 @@ export const callDeleteSkill = (id: string) => {
 
 export const callFetchAllSkill = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<ISkill>>>(
-    `/api/v1/skills?${query}`
+    `/api/v1/skills?${query}`,
   );
 };
 
@@ -272,7 +268,7 @@ export const callBulkCreateUserAPI = (
     address: string;
     age: number;
     role?: { id?: number };
-  }[]
+  }[],
 ) => {
   const urlBackend = "/api/v1/users/bulk-create";
   console.log("res", hoidanit);
@@ -290,7 +286,7 @@ export const callDeleteUser = (id: number) => {
 
 export const callFetchUser = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IUser>>>(
-    `/api/v1/users?${query}`
+    `/api/v1/users?${query}`,
   );
 };
 
@@ -323,7 +319,7 @@ export const callBulkCreateJobAPI = (
     skills: {
       id: number;
     }[];
-  }[]
+  }[],
 ) => {
   const urlBackend = "/api/v1/jobs/bulk-create";
   console.log("res", importJob);
@@ -354,67 +350,6 @@ export const callFetchJob = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IJob>>>(`/api/v1/jobs?${query}`);
 };
 
-export const callFindJobsByAI = (
-  formData: FormData,
-  page: number,
-  size: number
-) => {
-  return axios<
-    IBackendRes<{
-      jobs: { score: number; job: IJob }[];
-      meta: { page: number; pageSize: number; pages: number; total: number };
-    }>
-  >({
-    method: "post",
-    // Thêm page và size vào query params
-    url: `/api/v1/gemini/find-jobs?page=${page}&size=${size}`,
-    data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-};
-// API Bước 1: Khởi tạo tìm kiếm job
-export const callInitiateSearchByAI = (
-  formData: FormData,
-  page: number,
-  size: number
-) => {
-  return axios<
-    IBackendRes<{
-      meta: IMeta;
-      jobs: IJobWithScore[]; // <<< SỬA LỖI: Đổi "result" thành "jobs"
-      searchId: string;
-    }>
-  >({
-    method: "post",
-    url: `/api/v1/gemini/initiate-search?page=${page}&size=${size}`,
-    data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-};
-
-// API Bước 2: Lấy các trang kết quả tiếp theo
-// Giả định rằng API này cũng trả về key "jobs" để nhất quán
-export const callGetAiSearchResults = (
-  searchId: string,
-  page: number,
-  size: number
-) => {
-  // Thay thế IModelPaginate bằng định nghĩa tường minh vì key là "jobs"
-  return axios<
-    IBackendRes<{
-      meta: IMeta;
-      jobs: IJobWithScore[]; // <<< SỬA LỖI: Đổi "result" thành "jobs"
-    }>
-  >({
-    method: "get",
-    url: `/api/v1/gemini/search-results?searchId=${searchId}&page=${page}&size=${size}`,
-  });
-};
-
 export const callFetchJobById = (id: string) => {
   return axios.get<IBackendRes<IJob>>(`/api/v1/jobs/${id}`);
 };
@@ -427,7 +362,7 @@ export const callCreateResume = (
   url: string,
   jobId: any,
   email: string,
-  userId: string | number
+  userId: string | number,
 ) => {
   return axios.post<IBackendRes<IResume>>(
     "/api/v1/resumes",
@@ -447,7 +382,7 @@ export const callCreateResume = (
       validateStatus: function (status) {
         return status >= 200 && status < 500; // Chấp nhận 200 -> 499
       },
-    }
+    },
   );
 };
 
@@ -461,7 +396,7 @@ export const callDeleteResume = (id: string) => {
 
 export const callFetchResume = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IResume>>>(
-    `/api/v1/resumes?${query}`
+    `/api/v1/resumes?${query}`,
   );
 };
 
@@ -471,7 +406,7 @@ export const callFetchResumeById = (id: string) => {
 
 export const callFetchResumeByUser = () => {
   return axios.post<IBackendRes<IModelPaginate<IResume>>>(
-    `/api/v1/resumes/by-user`
+    `/api/v1/resumes/by-user`,
   );
 };
 
@@ -498,7 +433,7 @@ export const callDeletePermission = (id: string) => {
 
 export const callFetchPermission = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IPermission>>>(
-    `/api/v1/permissions?${query}`
+    `/api/v1/permissions?${query}`,
   );
 };
 
@@ -524,7 +459,7 @@ export const callDeleteRole = (id: string) => {
 
 export const callFetchRole = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<IRole>>>(
-    `/api/v1/roles?${query}`
+    `/api/v1/roles?${query}`,
   );
 };
 
@@ -558,21 +493,21 @@ export const callDeleteSubscriber = (id: string) => {
 
 export const callFetchSubscriber = (query: string) => {
   return axios.get<IBackendRes<IModelPaginate<ISubscribers>>>(
-    `/api/v1/subscribers?${query}`
+    `/api/v1/subscribers?${query}`,
   );
 };
 
 export const callCreateWorkExperience = (data: IWorkExperience) => {
   return axios.post<IBackendRes<IWorkExperience>>(
     "/api/v1/work-experiences",
-    data
+    data,
   );
 };
 
 export const callUpdateWorkExperience = (data: IWorkExperience) => {
   return axios.put<IBackendRes<IWorkExperience>>(
     `/api/v1/work-experiences`,
-    data
+    data,
   );
 };
 
@@ -642,7 +577,7 @@ export const callSendOtpChangePassword = (email: string) =>
 export const callVerifyOtpAndChangePassword = (
   email: string,
   otpCode: string,
-  newPassword: string
+  newPassword: string,
 ) =>
   axios.post<IBackendRes<null>>("/api/v1/auth/verify-otp-change-password", {
     email,
@@ -668,128 +603,20 @@ export const callUpdatePublicStatus = (isPublic: boolean) => {
   });
 };
 
-export const callCreateVipPaymentUrl = () => {
-  // Kiểu 'any' được dùng ở đây vì response trả về có cấu trúc lồng nhau phức tạp.
-  // Component sẽ tự xử lý việc truy cập vào dữ liệu cần thiết.
-  return axios.post<any>("/api/v1/payment/vnpay/create");
-};
-
 export const callCreateCompanyByUser = (companyData: ICompany) => {
   return axios.post<IBackendRes<ICompany>>(
     "/api/v1/companies/by-user",
-    companyData
+    companyData,
   );
 };
 
 export const callUpdateCompanyByUser = (companyData: ICompany) => {
   return axios.put<IBackendRes<ICompany>>(
     "/api/v1/companies/by-user",
-    companyData
+    companyData,
   );
-};
-
-// export const callFindCandidatesByAI = (formData: FormData) => {
-//   // Kiểu trả về của data là một object chứa mảng candidates
-//   return axios<IBackendRes<{ candidates: ICandidate[] }>>({
-//     method: "post",
-//     url: "/api/v1/gemini/find-candidates",
-//     data: formData,
-//     headers: {
-//       // Rất quan trọng để server hiểu đây là dữ liệu dạng form-data
-//       "Content-Type": "multipart/form-data",
-//     },
-//   });
-// };
-
-// >>> THÊM 2 HÀM API MỚI CHO TÌM KIẾM ỨNG VIÊN <<<
-
-// API Bước 1: Khởi tạo tìm kiếm ứng viên
-export const callInitiateCandidateSearch = (
-  formData: FormData,
-  page: number,
-  size: number
-) => {
-  return axios<
-    IBackendRes<{
-      meta: IMeta;
-      candidates: ICandidate[];
-      searchId: string;
-    }>
-  >({
-    method: "post",
-    url: `/api/v1/gemini/initiate-candidate-search?page=${page}&size=${size}`,
-    data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-};
-
-// API Bước 2: Lấy các trang kết quả ứng viên tiếp theo
-export const callGetCandidateSearchResults = (
-  searchId: string,
-  page: number,
-  size: number
-) => {
-  return axios<
-    IBackendRes<{
-      meta: IMeta;
-      candidates: ICandidate[];
-    }>
-  >({
-    method: "get",
-    url: `/api/v1/gemini/candidate-search-results?searchId=${searchId}&page=${page}&size=${size}`,
-  });
-};
-
-export const callEvaluateCVWithAI = (formData: FormData) => {
-  return axios.post("/api/v1/gemini/evaluate-cv", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      // Axios sẽ tự động thêm 'Authorization: Bearer ...' nếu bạn đã cấu hình interceptor
-    },
-  });
 };
 
 export const callNotifyUserAfterApproved = (resumeId: number) => {
   return axios.post(`/api/v1/resumes/notify-user/${resumeId}`);
-};
-
-// 1. Lấy danh sách Payment (Phân trang & Filter)
-export const callFetchPayment = (query: string) => {
-  return axios.get<IBackendRes<IModelPaginate<IPaymentHistory>>>(
-    `/api/v1/payment/allhistory?${query}`
-  );
-};
-
-// 2. Cập nhật trạng thái Payment
-export const callUpdatePaymentStatus = (id: number, status: string) => {
-  return axios.put<IBackendRes<IPaymentHistory>>(`/api/v1/payment/allhistory`, {
-    id,
-    status,
-  });
-};
-
-// 3. Export Excel
-export const callExportPaymentExcel = (query: string) => {
-  return axios.get(`/api/v1/payment/export/excel?${query}`, {
-    responseType: "blob", // Quan trọng để tải file
-  });
-};
-
-// 4. Export Báo cáo Tháng (Word)
-export const callExportPaymentMonthly = (month: number, year: number) => {
-  return axios.get(
-    `/api/v1/payment/export/monthly-report?month=${month}&year=${year}`,
-    {
-      responseType: "blob",
-    }
-  );
-};
-
-// 5. Export Báo cáo Năm (Word)
-export const callExportPaymentYearly = (year: number) => {
-  return axios.get(`/api/v1/payment/export/yearly-report?year=${year}`, {
-    responseType: "blob",
-  });
 };

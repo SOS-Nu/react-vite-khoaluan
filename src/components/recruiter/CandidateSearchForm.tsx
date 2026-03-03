@@ -1,10 +1,9 @@
 // src/components/recruiter/CandidateSearchForm.tsx
 
 import React, { useState } from "react";
-import { Form, Button, Card } from "react-bootstrap";
+import { Button, Card, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 
-import { callInitiateCandidateSearch } from "@/config/api";
 import { ICandidate, IMeta } from "@/types/backend";
 
 // --- PROPS NHẬN VỀ TỪ COMPONENT CHA ---
@@ -42,27 +41,6 @@ const CandidateSearchForm = (props: IProps) => {
     }
     if (cvFile) {
       formData.append("file", cvFile);
-    }
-
-    try {
-      // 3. Gọi API để bắt đầu phiên tìm kiếm mới
-      const res = await callInitiateCandidateSearch(formData, 1, 10); // Bắt đầu từ trang 1, 10 kết quả/trang
-
-      if (res.data?.candidates && res.data.candidates.length > 0) {
-        // 4. Cập nhật state ở component cha với kết quả nhận được
-        setCandidates(res.data.candidates);
-        setMeta(res.data.meta);
-        setSearchId(res.data.searchId);
-
-        toast.success(
-          `Tìm thấy ${res.data.candidates.length} ứng viên phù hợp!`
-        );
-      } else {
-      }
-    } catch (error) {
-      toast.error("Có lỗi xảy ra trong quá trình tìm kiếm.");
-    } finally {
-      setIsSearching(false);
     }
   };
 

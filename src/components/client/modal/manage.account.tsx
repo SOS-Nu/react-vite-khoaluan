@@ -1,19 +1,5 @@
-import {
-  Modal,
-  Tabs,
-  Tab,
-  Table,
-  Button,
-  Form,
-  Row,
-  Col,
-  Spinner,
-  Badge,
-  Alert,
-} from "react-bootstrap";
-import { isMobile } from "react-device-detect";
-import { IResume, ISubscribers, ISkill } from "@/types/backend";
-import { useState, useEffect } from "react";
+import ChangePasswordTab from "@/components/account/ChangePasswordTab";
+import UpdateInfoTab from "@/components/account/UpdateInfoTab";
 import {
   callCreateSubscriber,
   callFetchAllSkill,
@@ -21,14 +7,26 @@ import {
   callGetSubscriberSkills,
   callUpdateSubscriber,
 } from "@/config/api";
-import dayjs from "dayjs";
 import { useAppSelector } from "@/redux/hooks";
-import Select from "react-select"; // Import react-select
-import { MonitorOutlined } from "@ant-design/icons"; // Có thể giữ lại icon nếu muốn
 import "@/styles/stylespotfolio/manage-account.scss"; // File SCSS mới cho component này
-import ChangePasswordTab from "@/components/account/ChangePasswordTab";
-import UpdateInfoTab from "@/components/account/UpdateInfoTab";
-import VipAccountTab from "@/components/account/VipAccountTab";
+import { IResume, ISubscribers } from "@/types/backend";
+import { MonitorOutlined } from "@ant-design/icons"; // Có thể giữ lại icon nếu muốn
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Badge,
+  Button,
+  Col,
+  Form,
+  Modal,
+  Row,
+  Spinner,
+  Tab,
+  Table,
+  Tabs,
+} from "react-bootstrap";
+import Select from "react-select"; // Import react-select
 
 // Giao diện cho props
 interface IProps {
@@ -136,7 +134,7 @@ const JobByEmail = () => {
     const init = async () => {
       // 1. Fetch tất cả skill có thể chọn
       const skillRes = await callFetchAllSkill(
-        "page=1&size=100&sort=createdAt,desc"
+        "page=1&size=100&sort=createdAt,desc",
       );
       if (skillRes && skillRes.data) {
         const options = skillRes.data.result.map((item) => ({
@@ -385,12 +383,8 @@ const ManageAccount = (props: IProps) => {
           <Tab eventKey="user-update-info" title="Cập nhật thông tin">
             <UpdateInfoTab />
           </Tab>
-          <Tab eventKey="vip-account" title="Tài khoản VIP">
-            <VipAccountTab />
-          </Tab>
-          {/* SỬA ĐỔI Ở ĐÂY */}
+
           <Tab eventKey="user-password" title="Thay đổi mật khẩu">
-            {/* Thay thế TODO comment bằng component mới */}
             <ChangePasswordTab />
           </Tab>
         </Tabs>

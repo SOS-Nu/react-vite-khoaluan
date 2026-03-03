@@ -1,23 +1,22 @@
 // src/components/account/UpdateInfoTab.tsx
 
-import { useState, useEffect } from "react";
+import { callUploadSingleFile } from "@/config/api";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { updateOwnInfo, updatePublicStatus } from "@/redux/slice/accountSlide";
+import { IUser } from "@/types/backend";
+import { useEffect, useState } from "react";
 import {
-  Form,
-  Row,
-  Col,
-  Button,
-  Spinner,
-  Image,
   Alert,
-  Badge,
+  Button,
+  Col,
+  Form,
   FormCheck,
+  Image,
+  Row,
+  Spinner,
   Stack,
 } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { callUploadSingleFile } from "@/config/api";
-import { IUser } from "@/types/backend";
 import { toast } from "react-toastify";
-import { updateOwnInfo, updatePublicStatus } from "@/redux/slice/accountSlide";
 
 const UpdateInfoTab = () => {
   const dispatch = useAppDispatch();
@@ -44,7 +43,7 @@ const UpdateInfoTab = () => {
   // --- LOGIC MỚI ---
   // State để lưu tên file avatar đã tải lên tạm thời
   const [newAvatarFileName, setNewAvatarFileName] = useState<string | null>(
-    null
+    null,
   );
   // State để xem trước avatar
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -278,18 +277,7 @@ const UpdateInfoTab = () => {
                 />
               </Col>
             </Form.Group>
-            <Form.Group as={Row} className="mb-3 align-items-center">
-              <Form.Label column sm="3">
-                Tài khoản VIP
-              </Form.Label>
-              <Col sm="9">
-                {user.vip ? (
-                  <Badge bg="success">VIP</Badge>
-                ) : (
-                  <Badge bg="secondary">Thường</Badge>
-                )}
-              </Col>
-            </Form.Group>
+
             <Form.Group as={Row} className="mb-3 align-items-center">
               <Form.Label column sm="3">
                 Hồ sơ công khai

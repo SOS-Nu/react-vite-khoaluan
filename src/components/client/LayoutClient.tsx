@@ -1,16 +1,14 @@
 // src/components/client/LayoutClient.tsx
 
-import { useState, useRef } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import Header from "components/client/header.client";
-import Footer from "components/client/footer.client";
-import styles from "styles/app.module.scss"; // Bạn có thể cần điều chỉnh đường dẫn
-import ScrollToTop from "components/share/scroll.to.top";
-import { ToastContainer } from "react-toastify";
-import { FaRegMessage } from "react-icons/fa6";
-import { AnimatePresence } from "framer-motion";
-import ModalChatBot from "components/chatbot/ModalChatBot";
 import { useWebSocket } from "@/hooks/useWebSocket"; // Import hook mới
+import Footer from "components/client/footer.client";
+import Header from "components/client/header.client";
+import ScrollToTop from "components/share/scroll.to.top";
+import { useRef, useState } from "react";
+import { FaRegMessage } from "react-icons/fa6";
+import { Outlet, useLocation } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import styles from "styles/app.module.scss"; // Bạn có thể cần điều chỉnh đường dẫn
 
 export const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,9 +53,6 @@ export const LayoutClient = () => {
           >
             <FaRegMessage size={18} />
           </button>
-          <AnimatePresence>
-            {showChatbot && <ModalChatBot setShowChatbot={setShowChatbot} />}
-          </AnimatePresence>
         </>
       )}
     </div>

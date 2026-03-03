@@ -1,19 +1,15 @@
 // src/pages/recruiter/index.tsx
 
-import React from "react";
-import { Container, Spinner } from "react-bootstrap";
-import { useAppSelector } from "@/redux/hooks";
-import BecomeVipRecruiter from "@/components/recruiter/BecomeVipRecruiter";
 import CompanyForm from "@/components/recruiter/CompanyForm";
 import RecruiterDashboard from "@/components/recruiter/RecruiterDashboard";
-import BenefitsSection from "@/components/recruiter/BenefitsSection";
-import FaqSection from "@/components/recruiter/FaqSection";
+import { useAppSelector } from "@/redux/hooks";
+import { Container, Spinner } from "react-bootstrap";
 
 const RecruiterPage = () => {
   const user = useAppSelector((state) => state.account.user);
   const isLoading = useAppSelector((state) => state.account.isLoading);
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   const renderContent = () => {
     // Trường hợp 1: Đang tải thông tin user
@@ -49,9 +45,6 @@ const RecruiterPage = () => {
     if (user.vip) {
       return <CompanyForm />;
     }
-
-    // Trường hợp 4: User chưa phải VIP -> Hiển thị component yêu cầu nâng cấp
-    return <BecomeVipRecruiter />;
   };
 
   const NotAuthenticated = () => {

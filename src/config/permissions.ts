@@ -83,30 +83,6 @@ export const ALL_PERMISSIONS = {
       module: "USERS",
     },
   },
-  SearchUsersAI: {
-    GET: {
-      method: "GET",
-      apiPath: "/api/v1/gemini/initiate-candidate-search",
-      module: "SearchUsersAI",
-    },
-    GET_PAGINATE: {
-      method: "GET",
-      apiPath: "/api/v1/gemini/candidate-search-results",
-      module: "SearchUsersAI",
-    },
-  },
-  PAYMENT: {
-    GET_PAGINATE: {
-      method: "GET",
-      apiPath: "/api/v1/payment/allhistory",
-      module: "PAYMENT",
-    },
-    UPDATE: {
-      method: "PUT",
-      apiPath: "/api/v1/payment/allhistory",
-      module: "PAYMENT",
-    },
-  },
 };
 
 export const ALL_MODULES = {
@@ -119,5 +95,4 @@ export const ALL_MODULES = {
   USERS: "USERS",
   SUBSCRIBERS: "SUBSCRIBERS",
   SearchUsersAI: "SearchUsersAI",
-  PAYMENT: "PAYMENT",
 };

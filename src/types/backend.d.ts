@@ -369,20 +369,3 @@ export interface IReqLoginOtp {
   otpCode: string;
   password: string;
 }
-
-export interface IPaymentHistory {
-  id: number;
-  amount: number;
-  userEmail: string;
-  orderId: string;
-  responseCode: string;
-  status: "SUCCESS" | "FAILED";
-  createdAt: string;
-  updatedAt: string;
-  updatedBy: string;
-  user: {
-    id: number;
-    email: string;
-    name: string;
-  };
-}

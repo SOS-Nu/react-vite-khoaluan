@@ -1,12 +1,6 @@
+import { callFetchJob, callFetchJobsByCompany } from "@/config/api";
+import { IJob, IJobWithScore, IUser } from "@/types/backend"; // Thêm IJobWithScore nếu cần
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {
-  callFetchJob,
-  callFetchJobsByCompany,
-  // Giả sử bạn đã có 2 hàm gọi API mới này
-  callInitiateSearchByAI,
-  callGetAiSearchResults,
-} from "@/config/api";
-import { IJob, IUser, IJobWithScore } from "@/types/backend"; // Thêm IJobWithScore nếu cần
 
 interface IState {
   isFetching: boolean;
@@ -15,14 +9,13 @@ interface IState {
     pageSize: number;
     pages: number;
     total: number;
-    // Thêm các trường từ backend nếu có, ví dụ:
     hasMore?: boolean;
   };
   result?: IJob[];
   isAiSearch?: boolean;
-  aiResult?: IJobWithScore[]; // <<< THÊM STATE MỚI
+  aiResult?: IJobWithScore[];
 
-  searchId: string | null; // << THÊM STATE MỚI CHO AI SEARCH
+  searchId: string | null;
 }
 
 // ===================================================================
@@ -38,46 +31,12 @@ export const fetchJob = createAsyncThunk(
       const response = await callFetchJob(query);
       return response.data; // Trả về data để reducer xử lý
     }
-  }
+  },
 );
 
 // ===================================================================
 // CÁC THUNK MỚI CHO TÌM KIẾM AI 2 BƯỚC
 // ===================================================================
-
-// Thunk Bước 1: Khởi tạo tìm kiếm
-export const initiateAiSearch = createAsyncThunk(
-  "job/initiateAiSearch",
-  async ({
-    formData,
-    page,
-    size,
-  }: {
-    formData: FormData;
-    page: number;
-    size: number;
-  }) => {
-    const response = await callInitiateSearchByAI(formData, page, size);
-    return response.data; // Trả về { jobs, meta, searchId }
-  }
-);
-
-// Thunk Bước 2: Lấy các trang tiếp theo
-export const fetchMoreAiResults = createAsyncThunk(
-  "job/fetchMoreAiResults",
-  async ({
-    searchId,
-    page,
-    size,
-  }: {
-    searchId: string;
-    page: number;
-    size: number;
-  }) => {
-    const response = await callGetAiSearchResults(searchId, page, size);
-    return response.data; // Trả về { jobs, meta }
-  }
-);
 
 const initialState: IState = {
   isFetching: false,
@@ -118,47 +77,6 @@ export const jobSlide = createSlice({
           // action.payload giờ là data từ response
           state.meta = action.payload.meta;
           state.result = action.payload.result;
-        }
-      });
-
-    // ===================================================================
-    // LOGIC REDUCER MỚI CHỈ DÀNH CHO TÌM KIẾM AI
-    // ===================================================================
-    builder
-      .addCase(initiateAiSearch.pending, (state) => {
-        state.isFetching = true;
-        state.isAiSearch = true;
-      })
-      .addCase(initiateAiSearch.rejected, (state) => {
-        state.isFetching = false;
-        state.searchId = null;
-      })
-      .addCase(initiateAiSearch.fulfilled, (state, action) => {
-        state.isFetching = false;
-        if (action.payload) {
-          state.meta = action.payload.meta;
-          state.searchId = action.payload.searchId;
-          // <<< SỬA LOGIC TẠI ĐÂY >>>
-          state.aiResult = action.payload.jobs || []; // Lưu toàn bộ {score, job}
-          state.result = []; // Xóa kết quả thường cũ
-        }
-      });
-
-    builder
-      .addCase(fetchMoreAiResults.pending, (state) => {
-        state.isFetching = true;
-        state.isAiSearch = true;
-      })
-      .addCase(fetchMoreAiResults.rejected, (state) => {
-        state.isFetching = false;
-      })
-      .addCase(fetchMoreAiResults.fulfilled, (state, action) => {
-        state.isFetching = false;
-        if (action.payload) {
-          state.meta = action.payload.meta;
-          // <<< SỬA LOGIC TẠI ĐÂY >>>
-          state.aiResult = action.payload.jobs || []; // Lưu toàn bộ {score, job}
-          state.result = []; // Xóa kết quả thường cũ
         }
       });
   },
