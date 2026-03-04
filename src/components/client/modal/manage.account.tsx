@@ -374,11 +374,11 @@ const ManageAccount = (props: IProps) => {
               <UserResume />
             </Tab>
           )}
-          {user?.company ? null : (
+          {/* {user?.company ? null : (
             <Tab eventKey="email-by-skills" title="Nhận Jobs qua Email">
               <JobByEmail />
             </Tab>
-          )}
+          )} */}
 
           <Tab eventKey="user-update-info" title="Cập nhật thông tin">
             <UpdateInfoTab />
