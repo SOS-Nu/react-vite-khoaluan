@@ -196,6 +196,23 @@
       transform: translateY(-2px);
     }
   }
+  .btn-reapply {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 12px 20px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    color: white;
+    background-image: var(--linear-gradient-blue-purple);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
 }
 
 .job-filter-container {

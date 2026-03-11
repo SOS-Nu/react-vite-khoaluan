@@ -1,23 +1,22 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { IJob } from "@/types/backend";
+import ApplyModal from "@/components/client/modal/apply.modal";
+import { useCurrentApp } from "@/components/context/app.context";
 import { callFetchJobById } from "@/config/api";
-import parse from "html-react-parser";
-import { Divider, Skeleton, Tag, Empty } from "antd";
+import { convertSlug, getLocationName } from "@/config/utils";
+import { IJob } from "@/types/backend";
 import {
+  CalendarOutlined,
   DollarOutlined,
   HistoryOutlined,
   HomeOutlined,
   TeamOutlined,
-  CalendarOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { convertSlug, getLocationName } from "@/config/utils";
+import { Divider, Empty, Skeleton, Tag } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import ApplyModal from "@/components/client/modal/apply.modal";
-import { Link } from "react-router-dom";
-import { useCurrentApp } from "@/components/context/app.context";
+import parse from "html-react-parser";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 
@@ -138,9 +137,21 @@ const JobDetailPanel = () => {
               </div>
             </div>
 
-            <button onClick={() => setIsModalOpen(true)} className="btn-apply">
-              Apply Now
-            </button>
+            {jobDetail.applied ? (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="btn-reapply"
+              >
+                ứng tuyển lại
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="btn-apply"
+              >
+                Apply Now
+              </button>
+            )}
           </div>
 
           <div className="job-detail-content">

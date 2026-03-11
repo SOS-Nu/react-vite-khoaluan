@@ -156,6 +156,8 @@ export interface IJob {
     foundingYear?: number;
   };
   location: string;
+  applied: boolean;
+
   address: string;
   salary: number;
   quantity: number;
