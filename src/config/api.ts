@@ -428,12 +428,14 @@ export const callCreateResume = (
   jobId: any,
   email: string,
   userId: string | number,
+  coverLetter: string, // Thêm tham số này
 ) => {
   return axios.post<IBackendRes<IResume>>(
     "/api/v1/resumes",
     {
       email,
       url,
+      coverLetter, // Gửi kèm lời giới thiệu lên Backend
       status: "PENDING",
       user: {
         id: userId,
@@ -443,10 +445,7 @@ export const callCreateResume = (
       },
     },
     {
-      // BẢO AXIOS KHÔNG NÉM LỖI VỚI STATUS 4xx
-      validateStatus: function (status) {
-        return status >= 200 && status < 500; // Chấp nhận 200 -> 499
-      },
+      validateStatus: (status) => status >= 200 && status < 500,
     },
   );
 };

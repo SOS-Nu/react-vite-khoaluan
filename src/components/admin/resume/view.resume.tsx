@@ -9,7 +9,6 @@ import {
   MessageOutlined,
 } from "@ant-design/icons";
 import {
-  Badge,
   Button,
   Descriptions,
   Drawer,
@@ -20,7 +19,7 @@ import {
   notification,
 } from "antd";
 import dayjs from "dayjs";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
@@ -179,6 +178,9 @@ const ViewDetailResume = (props: IProps) => {
             {dataInit && dataInit.updatedAt
               ? dayjs(dataInit.updatedAt).format("DD-MM-YYYY HH:mm:ss")
               : ""}
+          </Descriptions.Item>
+          <Descriptions.Item label="Cover Letter">
+            {dataInit?.coverLetter || "Không có cover letter"}
           </Descriptions.Item>
         </Descriptions>
       </Drawer>

@@ -1,26 +1,26 @@
-import DataTable from "@/components/client/data-table";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { IResume } from "@/types/backend";
-import {
-  ActionType,
-  ProColumns,
-  ProFormSelect,
-} from "@ant-design/pro-components";
-import { Button, Flex, Space, Tag, Tooltip, message, notification } from "antd";
-import { useState, useRef } from "react";
-import dayjs from "dayjs";
-import { callDeleteResume } from "@/config/api";
-import queryString from "query-string";
-import { fetchResume } from "@/redux/slice/resumeSlide";
 import ViewDetailResume from "@/components/admin/resume/view.resume";
-import { ALL_PERMISSIONS } from "@/config/permissions";
+import DataTable from "@/components/client/data-table";
 import Access from "@/components/share/access";
-import { sfIn } from "spring-filter-query-builder";
+import { callDeleteResume } from "@/config/api";
+import { ALL_PERMISSIONS } from "@/config/permissions";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { fetchResume } from "@/redux/slice/resumeSlide";
+import { IResume } from "@/types/backend";
 import {
   DownloadOutlined,
   EditOutlined,
   FilePdfOutlined,
 } from "@ant-design/icons";
+import {
+  ActionType,
+  ProColumns,
+  ProFormSelect,
+} from "@ant-design/pro-components";
+import { Button, Space, Tag, Tooltip, message, notification } from "antd";
+import dayjs from "dayjs";
+import queryString from "query-string";
+import { useRef, useState } from "react";
+import { sfIn } from "spring-filter-query-builder";
 
 const ResumePage = () => {
   const tableRef = useRef<ActionType>(null);
@@ -159,6 +159,11 @@ const ResumePage = () => {
       dataIndex: "companyName",
       hideInSearch: true,
     },
+    {
+      title: "Cover Letter",
+      dataIndex: "coverLetter",
+      hideInSearch: true,
+    },
 
     {
       title: "CreatedAt",
@@ -174,7 +179,7 @@ const ResumePage = () => {
           </>
         );
       },
-      hideInSearch: true,
+      hideInSearch: false,
     },
     {
       title: "UpdatedAt",

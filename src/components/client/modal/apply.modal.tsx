@@ -1,6 +1,13 @@
+import { callCreateResume, callUploadSingleFile } from "@/config/api";
 import { useAppSelector } from "@/redux/hooks";
 import { IJob } from "@/types/backend";
-import { ProForm, ProFormText } from "@ant-design/pro-components";
+import { UploadOutlined } from "@ant-design/icons";
+import {
+  ProForm,
+  ProFormText,
+  ProFormTextArea,
+} from "@ant-design/pro-components";
+import type { UploadProps } from "antd";
 import {
   Button,
   Col,
@@ -12,12 +19,9 @@ import {
   message,
   notification,
 } from "antd";
-import { useNavigate } from "react-router-dom";
 import enUS from "antd/lib/locale/en_US";
-import { UploadOutlined } from "@ant-design/icons";
-import type { UploadProps } from "antd";
-import { callCreateResume, callUploadSingleFile } from "@/config/api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
   isModalOpen: boolean;
@@ -28,10 +32,11 @@ interface IProps {
 const ApplyModal = (props: IProps) => {
   const { isModalOpen, setIsModalOpen, jobDetail } = props;
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   const user = useAppSelector((state) => state.account.user);
   const [urlCV, setUrlCV] = useState<string>("");
+  const [coverLetter, setCoverLetter] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -42,43 +47,40 @@ const ApplyModal = (props: IProps) => {
     if (!urlCV && isAuthenticated) {
       message.error("Vui lòng upload CV!");
       setIsLoading(false);
-
       return;
     }
+
     if (!isAuthenticated) {
       setIsModalOpen(false);
       setIsLoading(false);
-      // Vấn đề ở đây: window.location.href trả về URL đầy đủ (http://...)
-      // navigate(`/login?callback=${window.location.href}`);
-
-      // Điều này sẽ tạo ra một callback URL như: /job?id=100001
       const callbackUrl = window.location.pathname + window.location.search;
       navigate(`/login?callback=${encodeURIComponent(callbackUrl)}`);
     } else {
-      //todo
       if (jobDetail) {
         const res = await callCreateResume(
           urlCV,
           jobDetail?.id,
           user?.email!,
-          user.id
+          user?.id!,
+          coverLetter, // Truyền thêm nội dung giới thiệu
         );
-        if (res.message === "Create a resume") {
+
+        if (res.data) {
+          // Check res.data thay vì message để đảm bảo logic
           message.success("Rải CV thành công!");
           setIsModalOpen(false);
-          setIsLoading(false);
+          setCoverLetter(""); // Reset form sau khi thành công
+          setUrlCV("");
         } else {
-          setIsLoading(false);
-
           notification.error({
             message: "Có lỗi xảy ra",
             description: res.message,
           });
         }
+        setIsLoading(false);
       }
     }
   };
-
   const propsUpload: UploadProps = {
     maxCount: 1,
     multiple: false,
@@ -105,7 +107,7 @@ const ApplyModal = (props: IProps) => {
       } else if (info.file.status === "error") {
         message.error(
           info?.file?.error?.event?.message ??
-            "Đã có lỗi xảy ra khi upload file."
+            "Đã có lỗi xảy ra khi upload file.",
         );
       }
     },
@@ -117,41 +119,38 @@ const ApplyModal = (props: IProps) => {
         title="Ứng Tuyển Job"
         open={isModalOpen}
         onOk={() => handleOkButton()}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setCoverLetter(""); // Reset khi đóng modal
+        }}
         maskClosable={false}
-        okText={isAuthenticated ? "Rải CV Nào " : "Đăng Nhập Nhanh"}
+        okText={isAuthenticated ? "Rải CV Nào" : "Đăng Nhập Nhanh"}
         cancelButtonProps={{ style: { display: "none" } }}
-        destroyOnHidden={true}
+        destroyOnClose={true} // Đổi thành destroyOnClose để clear form hoàn toàn
         confirmLoading={isLoading}
       >
         <Divider />
         {isAuthenticated ? (
           <div>
             <ConfigProvider locale={enUS}>
-              <ProForm
-                submitter={{
-                  render: () => <></>,
-                }}
-              >
-                <Row gutter={[10, 10]}>
+              <ProForm submitter={{ render: () => <></> }}>
+                <Row gutter={[10, 5]}>
                   <Col span={24}>
                     <div>
-                      Bạn đang ứng tuyển công việc <b>{jobDetail?.name} </b>tại{" "}
+                      Bạn đang ứng tuyển công việc <b>{jobDetail?.name}</b> tại{" "}
                       <b>{jobDetail?.company?.name}</b>
                     </div>
                   </Col>
-                  <Col span={24}>
+
+                  <Col span={24} style={{ marginTop: 15 }}>
                     <ProFormText
-                      fieldProps={{
-                        type: "email",
-                      }}
                       label="Email"
-                      name={"email"}
-                      labelAlign="right"
+                      name="email"
                       disabled
                       initialValue={user?.email}
                     />
                   </Col>
+
                   <Col span={24}>
                     <ProForm.Item
                       label={"Upload file CV"}
@@ -167,14 +166,29 @@ const ApplyModal = (props: IProps) => {
                       </Upload>
                     </ProForm.Item>
                   </Col>
+
+                  {/* Phần thêm mới: Giới thiệu bản thân */}
+                  <Col span={24}>
+                    <ProFormTextArea
+                      label="Giới thiệu bản thân (Cover Letter)"
+                      placeholder="Một chút lời chào và lý do bạn phù hợp với vị trí này sẽ giúp bạn ghi điểm hơn với nhà tuyển dụng..."
+                      fieldProps={{
+                        value: coverLetter,
+                        onChange: (e) => setCoverLetter(e.target.value),
+                        rows: 4,
+                        showCount: true,
+                        maxLength: 500,
+                      }}
+                    />
+                  </Col>
                 </Row>
               </ProForm>
             </ConfigProvider>
           </div>
         ) : (
-          <div>
+          <div style={{ padding: "10px 0" }}>
             Bạn chưa đăng nhập hệ thống. Vui lòng đăng nhập để có thể "Rải CV"
-            bạn nhé -.-
+            bạn nhé!
           </div>
         )}
         <Divider />

@@ -188,6 +188,8 @@ export interface IResume {
   status: string;
   companyName?: string;
   score?: number;
+  coverLetter?: string;
+
   job?: {
     id: string;
     name: string;
