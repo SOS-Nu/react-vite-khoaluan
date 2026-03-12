@@ -1,24 +1,25 @@
-import { useEffect, useState } from "react";
+import { getLocationName } from "@/config/utils";
 import { hrCompany, ICompany } from "@/types/backend";
-import { Skeleton, Divider, Tag, Empty } from "antd";
 import {
-  EnvironmentOutlined,
-  HomeOutlined,
-  TeamOutlined,
   CalendarOutlined,
   GlobalOutlined,
+  HomeOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
+import { Divider, Empty, Skeleton, Tag } from "antd";
 import parse from "html-react-parser";
-import { getLocationName } from "@/config/utils";
+import { useEffect, useState } from "react";
 
 // Import file SCSS dùng chung cho các panel chi tiết
-import "styles/panel-detail.scss";
+import { useCurrentApp } from "@/components/context/app.context";
 import { callFetchCompanyById } from "@/config/api";
-import CompanyReviews from "./CompanyReviews";
-import { Button } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
 import { useAppSelector } from "@/redux/hooks";
 import upload3 from "assets/top-rated.png";
+import { Button } from "react-bootstrap";
+import { BsChatDots, BsStarFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import "styles/panel-detail.scss";
+import CompanyReviews from "./CompanyReviews";
 
 interface IProps {
   companyId: string;
@@ -29,9 +30,10 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const [hrCompany, setHrCompany] = useState<hrCompany | null>(null);
+  const { theme } = useCurrentApp();
 
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   useEffect(() => {
     const fetchCompanyDetail = async () => {
@@ -49,7 +51,7 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
     // Sử dụng class name chung cho panel sticky
     <div className="sticky-panel-container">
       {isLoading ? (
-        <div style={{ padding: "1.5rem" }}>
+        <div style={{ padding: "1rem" }}>
           <Skeleton active paragraph={{ rows: 15 }} />
         </div>
       ) : companyDetail ? (
@@ -110,40 +112,87 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                   </div>
                 )}
               </div>
-
-              {isAuthenticated ? (
-                <Button
-                  onClick={() => {
-                    if (!hrCompany) return;
-                    navigate("/chat/detail", {
-                      state: {
-                        receiverId: hrCompany.id,
-                        // normalize: đảm bảo luôn có company để header dùng
-                        receiver: {
-                          ...hrCompany,
-                          company: {
-                            id: companyDetail?.id,
-                            name: companyDetail?.name,
-                            logoUrl: companyDetail?.logo,
-                          },
-                        },
-                      },
-                    });
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                {/* Khối 1: Rating (Tỷ lệ 2) */}
+                <div
+                  style={{
+                    flex: "1", // Trả lại tỷ lệ 2 như bạn muốn ban đầu
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "0.875rem",
+                    color: "#faad14",
+                    whiteSpace: "nowrap",
                   }}
-                  variant="primary"
-                  className="mt-2"
                 >
-                  Nhắn tin
-                </Button>
-              ) : (
-                <Button
-                  variant="secondary" // Sử dụng variant khác cho trạng thái disabled
-                  className="mt-2"
-                  disabled={true}
+                  <BsStarFill />
+                  <b style={{ color: theme === "dark" ? "#fff" : "#000" }}>
+                    {companyDetail.averageRating
+                      ? Number(companyDetail.averageRating).toFixed(1)
+                      : "0.0"}
+                  </b>
+                </div>
+
+                {/* Khối 2: Comments (Tỷ lệ 2) */}
+                <div
+                  style={{
+                    flex: "1", // Trả lại tỷ lệ 2
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "0.875rem",
+                    color: theme === "dark" ? "#ccc" : "#666",
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  Vui lòng đăng nhập để nhắn tin
-                </Button>
-              )}
+                  <BsChatDots /> {companyDetail.totalComments || 0}
+                </div>
+
+                {/* Khối 3: Button Nhắn tin (Tỷ lệ 8) */}
+                <div style={{ flex: "8", display: "flex" }}>
+                  {/* Thêm display: flex ở đây để div bọc cũng xử lý button tốt hơn */}
+                  {isAuthenticated ? (
+                    <Button
+                      onClick={() => {
+                        if (!hrCompany) return;
+                        navigate("/chat/detail", {
+                          state: {
+                            receiverId: hrCompany.id,
+                            receiver: {
+                              ...hrCompany,
+                              company: {
+                                id: companyDetail?.id,
+                                name: companyDetail?.name,
+                                logoUrl: companyDetail?.logo,
+                              },
+                            },
+                          },
+                        });
+                      }}
+                      variant="primary"
+                      className="w-100"
+                      style={{ borderRadius: "50px" }}
+                    >
+                      Nhắn tin
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      className="w-100" // <--- QUAN TRỌNG: Chiếm 100%
+                      disabled={true}
+                      style={{ borderRadius: "8px", fontSize: "0.8rem" }}
+                    >
+                      Đăng nhập để nhắn tin
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -173,7 +222,7 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                   allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"
                   src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                    companyDetail.address
+                    companyDetail.address,
                   )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                 ></iframe>
               </div>
@@ -182,7 +231,7 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
             <div className="description-html">
               {parse(
                 companyDetail.description ??
-                  "<p>Công ty chưa cập nhật mô tả chi tiết.</p>"
+                  "<p>Công ty chưa cập nhật mô tả chi tiết.</p>",
               )}
             </div>
             {/* === BẮT ĐẦU TÍCH HỢP REVIEW === */}

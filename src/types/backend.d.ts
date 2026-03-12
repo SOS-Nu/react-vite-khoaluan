@@ -88,6 +88,8 @@ export interface ICompany {
   updatedBy?: string | null;
   totalJobs?: number;
   hrCompany?: hrCompany;
+  averageRating?: number;
+  totalComments?: number;
 }
 
 export interface hrCompany {

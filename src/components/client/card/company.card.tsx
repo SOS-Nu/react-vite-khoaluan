@@ -1,19 +1,25 @@
 // @/components/client/card/company.card.tsx (Đã tối ưu)
 import { convertSlug, getLocationName } from "@/config/utils";
 import { ICompany } from "@/types/backend";
-import { isMobile } from "react-device-detect";
-import { Link } from "react-router-dom";
-import styles from "styles/client.module.scss";
-import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
-import { useCurrentApp } from "components/context/app.context";
 import blurImg from "assets/blur-23.svg";
 import upload3 from "assets/top-rated.png";
-import { BsGeoAlt, BsBriefcase, BsPeople } from "react-icons/bs";
+import { useCurrentApp } from "components/context/app.context";
+import SimpleGlowCard from "components/share/glowcard/simple.glow-card";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
 import { t } from "i18next";
 import React from "react"; // Thêm import React
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
+import { isMobile } from "react-device-detect";
+import {
+  BsBriefcase,
+  BsChatDots,
+  BsGeoAlt,
+  BsPeople,
+  BsStarFill,
+} from "react-icons/bs";
+import { Link } from "react-router-dom";
+import styles from "styles/client.module.scss";
 
 dayjs.extend(relativeTime);
 
@@ -153,6 +159,46 @@ const CompanyCard = (props: IProps) => {
                         Quy mô: {item.scale || "N/A"}
                       </p>
                       <p
+                        style={{
+                          color: theme === "dark" ? "#ccc" : "#666",
+                          fontSize: "0.875rem",
+                          marginBottom: "0.25rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "0.875rem",
+                            color: "#faad14",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          <BsStarFill />
+                          <b
+                            style={{
+                              color: theme === "dark" ? "#fff" : "#000",
+                            }}
+                          >
+                            {item.averageRating
+                              ? Number(item.averageRating).toFixed(1)
+                              : "0.0"}
+                          </b>
+                          &ensp;
+                          <span
+                            style={{
+                              fontSize: "0.875rem",
+                              color: theme === "dark" ? "#ccc" : "#666",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                            }}
+                          >
+                            <BsChatDots /> {item.totalComments || 0}
+                          </span>
+                        </span>
+                      </p>
+                      <p
                         className="time"
                         style={{
                           color: theme === "dark" ? "#ccc" : "#666",
@@ -182,6 +228,7 @@ const CompanyCard = (props: IProps) => {
                       />
                       {getLocationName(item?.location!)}
                     </p>
+
                     <div
                       className="total-job"
                       style={{

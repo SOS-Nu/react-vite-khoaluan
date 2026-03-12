@@ -89,7 +89,7 @@ const CompanyPage = () => {
 
             // Nếu có thì thực hiện so sánh
             return nonAccentVietnamese(option.label.toLowerCase()).includes(
-              nonAccentVietnamese(inputValue.toLowerCase())
+              nonAccentVietnamese(inputValue.toLowerCase()),
             );
           }}
           allowClear
@@ -149,6 +149,16 @@ const CompanyPage = () => {
         </>
       ),
       hideInSearch: true,
+    },
+    {
+      title: "Avarage Rating",
+      dataIndex: "averageRating",
+      sorter: true,
+    },
+    {
+      title: "Totals Comments",
+      dataIndex: "totalComments",
+      sorter: true,
     },
     {
       title: "Actions",

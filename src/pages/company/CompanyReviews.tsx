@@ -1,27 +1,27 @@
 // src/components/company/CompanyReviews.tsx
 
-import { useEffect, useState } from "react";
 import { IComment, IModelPaginate } from "@/types/backend";
+import { useEffect, useState } from "react";
 
+import { callCreateComment, callFetchCommentsByCompany } from "@/config/api";
 import { useAppSelector } from "@/redux/hooks";
-import { useSearchParams } from "react-router-dom";
+import { Comment } from "@ant-design/compatible";
 import {
   Avatar,
-  List,
-  Rate,
+  Button,
+  Empty,
   Form,
   Input,
-  Button,
+  List,
   notification,
   Pagination,
-  Tooltip,
-  Empty,
+  Rate,
   Skeleton,
+  Tooltip,
 } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Comment } from "@ant-design/compatible";
-import { callCreateComment, callFetchCommentsByCompany } from "@/config/api";
+import { useSearchParams } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 
@@ -35,12 +35,12 @@ const CompanyReviews = ({ companyId }: IProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [meta, setMeta] = useState<IModelPaginate<IComment>["meta"] | null>(
-    null
+    null,
   );
   const [searchParams, setSearchParams] = useSearchParams();
 
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   const currentUser = useAppSelector((state) => state.account.user);
 
@@ -49,7 +49,7 @@ const CompanyReviews = ({ companyId }: IProps) => {
     const page = searchParams.get("review_page") || "1";
     const res = await callFetchCommentsByCompany(
       companyId.toString(),
-      `page=${page}&size=5&sort=createdAt,desc`
+      `page=${page}&size=5&sort=createdAt,desc`,
     );
     if (res?.data) {
       setReviews(res.data.result);
@@ -67,19 +67,35 @@ const CompanyReviews = ({ companyId }: IProps) => {
     rating: number;
   }) => {
     if (!companyId) return;
+
     setIsSubmitting(true);
-    const res = await callCreateComment({ ...values, companyId });
-    if (res.data) {
-      notification.success({ message: "Gửi đánh giá thành công!" });
-      await fetchReviews(); // Tải lại danh sách review để hiển thị comment mới
-      form.resetFields();
-    } else {
+    try {
+      const res = await callCreateComment({ ...values, companyId });
+
+      // Tùy vào cách bạn config Axios Interceptor mà res có thể là data hoặc throw error
+      if (res?.data) {
+        notification.success({ message: "Gửi đánh giá thành công!" });
+        form.resetFields();
+        await fetchReviews();
+      } else {
+        // Trường hợp backend trả về 200 nhưng logic nghiệp vụ báo lỗi
+        notification.error({
+          message: "Có lỗi xảy ra",
+          description: res?.message || "Vui lòng thử lại sau",
+        });
+      }
+    } catch (error: any) {
+      // Bắt lỗi 400, 401, 500... từ backend trả về
+      console.error("Check review error:", error);
       notification.error({
-        message: "Có lỗi xảy ra",
-        description: res.message as string,
+        message: "Gửi đánh giá thất bại",
+        description:
+          error?.response?.data?.message || error?.message || "Lỗi hệ thống",
       });
+    } finally {
+      // Đảm bảo luôn tắt loading dù thành công hay thất bại
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   const handlePageChange = (page: number) => {
@@ -88,7 +104,7 @@ const CompanyReviews = ({ companyId }: IProps) => {
         prev.set("review_page", page.toString());
         return prev;
       },
-      { replace: true }
+      { replace: true },
     );
   };
 
