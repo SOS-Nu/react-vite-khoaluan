@@ -32,19 +32,18 @@ const RecruiterPage = () => {
     }
 
     // Sửa đổi ở đây: Nếu đã có công ty, hiển thị Dashboard
-    if (user.company && user.vip) {
+    if (user.company) {
       return <RecruiterDashboard />;
     }
 
     // Trường hợp 2: User đã có công ty -> Hiển thị form quản lý/cập nhật
-    if (user.company && user.vip) {
+    if (user.company) {
       return <CompanyForm initialData={user.company} />;
     }
 
     // Trường hợp 3: User là VIP nhưng chưa có công ty -> Hiển thị form tạo mới
-    if (user.vip) {
-      return <CompanyForm />;
-    }
+
+    return <CompanyForm />;
   };
 
   const NotAuthenticated = () => {

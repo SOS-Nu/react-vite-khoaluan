@@ -113,9 +113,9 @@ const RecruiterDashboard = () => {
         </div>
       </Tab>
 
-      <Tab eventKey="manage-jobs" title="Quản lý tin tuyển dụng" disabled>
-        {/* Sắp ra mắt */}
-      </Tab>
+      {/* <Tab eventKey="manage-jobs" title="Quản lý tin tuyển dụng" disabled>
+
+      </Tab> */}
     </Tabs>
   );
 };

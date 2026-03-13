@@ -1,37 +1,33 @@
 // src/components/recruiter/CompanyForm.tsx
 
-import { useState, useEffect } from "react";
-import {
-  Form,
-  Button,
-  Card,
-  Row,
-  Col,
-  Spinner,
-  Image,
-  Stack,
-} from "react-bootstrap";
-import { ICompany } from "@/types/backend";
-import { toast } from "react-toastify";
 import {
   callCreateCompanyByUser,
   callUpdateCompanyByUser,
   callUploadSingleFile,
 } from "@/config/api";
 import { useAppDispatch } from "@/redux/hooks";
+import { ICompany } from "@/types/backend";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Image,
+  Row,
+  Spinner,
+  Stack,
+} from "react-bootstrap";
+import { toast } from "react-toastify";
 
 import defaultLogo from "@/assets/avatar.svg";
-import { fetchAccount } from "@/redux/slice/accountSlide";
 import {
   COUNTRY_LIST,
   FIELD_LIST,
   LOCATION_LIST,
   SCALE_LIST,
 } from "@/config/utils";
-// ===== BẮT ĐẦU VÙNG CODE MỚI/CẬP NHẬT =====
-// Giả sử đường dẫn này là chính xác
-
-// ===== KẾT THÚC VÙNG CODE MỚI/CẬP NHẬT =====
+import { fetchAccount } from "@/redux/slice/accountSlide";
 
 interface IProps {
   initialData?: ICompany | null;
@@ -57,7 +53,7 @@ const CompanyForm = ({ initialData }: IProps) => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
