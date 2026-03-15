@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { callCreateComment, callFetchCommentsByCompany } from "@/config/api";
 import { useAppSelector } from "@/redux/hooks";
 import { Comment } from "@ant-design/compatible";
+import { InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
 import {
   Avatar,
-  Button,
   Empty,
   Form,
   Input,
@@ -21,6 +21,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { Button } from "react-bootstrap";
 import { useSearchParams } from "react-router-dom";
 
 dayjs.extend(relativeTime);
@@ -117,22 +118,52 @@ const CompanyReviews = ({
     );
   };
 
+  // ... (giữ nguyên các import và logic fetch)
+
   return (
-    <div className="company-reviews-container" style={{ marginTop: "20px" }}>
-      {/* Form để lại đánh giá */}
-      {isAuthenticated && companyDetail?.comment && (
-        <Comment
-          avatar={
-            <Avatar>{currentUser.name?.substring(0, 2)?.toUpperCase()}</Avatar>
-          }
-          content={
-            <>
+    <div className="company-reviews-container">
+      {/* KHU VỰC GỬI ĐÁNH GIÁ */}
+      <div className="review-form-section">
+        {!isAuthenticated ? (
+          <div className="review-notice auth-required">
+            <LockOutlined className="notice-icon" />
+            <span className="notice-text">
+              Vui lòng{" "}
+              <b
+                onClick={() =>
+                  (window.location.href = `/login?callback=${window.location.pathname}${window.location.search}`)
+                }
+                style={{ cursor: "pointer" }}
+              >
+                đăng nhập
+              </b>{" "}
+              để để lại đánh giá.
+            </span>
+          </div>
+        ) : !companyDetail?.comment ? (
+          <div className="review-notice permission-denied">
+            <InfoCircleOutlined className="notice-icon" />
+            <span className="notice-text">
+              Hệ thống ghi nhận bạn chưa thể đánh giá. Tài khoản cần có hồ sơ{" "}
+              <b>Approved</b> tại công ty này và chưa từng gửi đánh giá trước
+              đó.
+            </span>
+          </div>
+        ) : (
+          <Comment
+            avatar={
+              <Avatar
+                size="large"
+                src={`${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${currentUser?.avatar}`}
+              ></Avatar>
+            }
+            content={
               <Form form={form} onFinish={handleOnFinish}>
                 <Form.Item
                   name="rating"
                   rules={[{ required: true, message: "Vui lòng chọn số sao!" }]}
                 >
-                  <Rate defaultValue={0} />
+                  <Rate />
                 </Form.Item>
                 <Form.Item
                   name="comment"
@@ -145,82 +176,85 @@ const CompanyReviews = ({
                     placeholder="Viết đánh giá của bạn về công ty..."
                   />
                 </Form.Item>
-                <Form.Item>
+                <Form.Item style={{ marginBottom: 0 }}>
                   <Button
-                    htmlType="submit"
-                    loading={isSubmitting}
-                    type="primary"
+                    disabled={isSubmitting}
+                    className="btn-primary"
+                    onClick={() => form.submit()}
                   >
                     Gửi đánh giá
                   </Button>
                 </Form.Item>
               </Form>
-            </>
-          }
-        />
-      )}
-
-      {/* Danh sách các đánh giá đã có */}
-      {isLoading ? (
-        <Skeleton active avatar paragraph={{ rows: 2 }} />
-      ) : reviews.length > 0 ? (
-        <List
-          className="comment-list"
-          header={`${meta?.total || 0} đánh giá`}
-          itemLayout="horizontal"
-          dataSource={reviews}
-          renderItem={(item) => (
-            <li>
-              <Comment
-                author={<a>{item.user.name}</a>}
-                avatar={
-                  <Avatar>
-                    {item.user.name.substring(0, 2).toUpperCase()}
-                  </Avatar>
-                }
-                content={
-                  <>
-                    <Rate
-                      disabled
-                      allowHalf
-                      value={item.rating}
-                      style={{ fontSize: 14 }}
-                    />
-                    <p>{item.comment}</p>
-                  </>
-                }
-                datetime={
-                  <Tooltip
-                    title={dayjs(item.createdAt).format("YYYY-MM-DD HH:mm:ss")}
-                  >
-                    <span>{dayjs(item.createdAt).fromNow()}</span>
-                  </Tooltip>
-                }
-              />
-            </li>
-          )}
-        />
-      ) : (
-        <Empty description="Chưa có đánh giá nào." />
-      )}
-
-      {meta && meta.total > 0 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
-          <Pagination
-            current={meta.page}
-            total={meta.total}
-            pageSize={meta.pageSize}
-            onChange={handlePageChange}
-            responsive
+            }
           />
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* DANH SÁCH ĐÁNH GIÁ */}
+      <div className="reviews-list-section">
+        {isLoading ? (
+          <Skeleton active avatar paragraph={{ rows: 2 }} />
+        ) : reviews.length > 0 ? (
+          <List
+            header={`${meta?.total || 0} đánh giá từ ứng viên`}
+            itemLayout="horizontal"
+            dataSource={reviews}
+            renderItem={(item) => (
+              <div className="review-item-card">
+                <Comment
+                  author={<a>{item.user.name}</a>}
+                  avatar={
+                    <Avatar
+                      src={`${import.meta.env.VITE_BACKEND_URL}/storage/avatar/${
+                        item?.user?.avatar
+                      }`}
+                    >
+                      {item.user.name.substring(0, 2).toUpperCase()}
+                    </Avatar>
+                  }
+                  content={
+                    <div className="review-content">
+                      <Rate disabled allowHalf value={item.rating} />
+                      <p>{item.comment}</p>
+                    </div>
+                  }
+                  datetime={
+                    <Tooltip
+                      title={dayjs(item.createdAt).format(
+                        "YYYY-MM-DD HH:mm:ss",
+                      )}
+                    >
+                      <span>{dayjs(item.createdAt).fromNow()}</span>
+                    </Tooltip>
+                  }
+                />
+              </div>
+            )}
+          />
+        ) : (
+          <Empty description="Chưa có đánh giá nào cho công ty này." />
+        )}
+
+        {/* PHÂN TRANG */}
+        {meta && meta.total > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "30px",
+            }}
+          >
+            <Pagination
+              current={meta.page}
+              total={meta.total}
+              pageSize={meta.pageSize}
+              onChange={handlePageChange}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

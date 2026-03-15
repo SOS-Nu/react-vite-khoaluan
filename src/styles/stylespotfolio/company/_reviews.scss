@@ -1,143 +1,130 @@
-// src/styles/components/_reviews.scss
-
 .company-reviews-container {
-  // --- Style cho Form Gửi Review ---
-  .ant-comment {
-    // Nền của toàn bộ component Comment (chứa cả form và list)
-    background-color: transparent;
-  }
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 
-  // Nội dung của form
-  .ant-comment-content-detail {
-    // Ô nhập liệu
-    .ant-input,
-    textarea.ant-input {
-      background-color: var(--background-input-search);
-      border: 1px solid var(--border-input-search);
-      color: var(--text-white);
-      transition: all 0.3s ease;
+  // --- Style cho các thông báo hệ thống (Notice) ---
+  .review-notice {
+    padding: 16px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px dashed var(--border-input-search);
+    background-color: rgba(255, 255, 255, 0.02); // Nền tối nhẹ
+    transition: all 0.3s ease;
 
-      &::placeholder {
-        color: var(--text-gray);
-      }
-
-      &:focus,
-      &:hover {
-        border-color: var(--text-pink-100);
-        box-shadow: 0 0 0 2px rgba(var(--brand-social-rgb), 0.2);
-      }
+    .notice-icon {
+      font-size: 20px;
+      flex-shrink: 0;
     }
 
-    // Các ngôi sao đánh giá
-    .ant-rate {
-      .ant-rate-star-full .anticon,
-      .ant-rate-star-half .anticon-star {
-        color: var(--glow-1); // Màu vàng đặc trưng của bạn
-      }
-      .ant-rate-star-zero .anticon {
-        color: var(--border-input-search);
-      }
-    }
-
-    // Nút bấm "Gửi đánh giá"
-    .ant-btn-primary {
-      background-image: var(--resize-button);
-      border: none;
-      font-weight: 600;
-
-      &:hover,
-      &:focus {
-        opacity: 0.9;
-        box-shadow: 0 0 10px rgba(var(--brand-social-rgb), 0.5);
-      }
-    }
-  }
-
-  // --- Style cho Danh sách Review đã có ---
-  .ant-list {
-    .ant-list-header {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text-white);
-      border-bottom: 1px solid var(--border-input-search);
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    // Mỗi item trong list
-    .ant-list-item {
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border-input-search);
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-
-  // Style cho từng comment trong danh sách
-  .comment-list {
-    .ant-comment-inner {
-      padding: 0;
-    }
-    // Tên tác giả
-    .ant-comment-content-author-name {
-      color: var(--text-white);
-      font-weight: 500;
-    }
-    // Thời gian đăng
-    .ant-comment-content-author-time {
+    .notice-text {
+      font-size: 0.95rem;
+      line-height: 1.5;
       color: var(--text-gray);
-    }
-    // Nội dung bình luận
-    .ant-comment-content-detail p {
-      color: var(--text-gray);
-      line-height: 1.6;
-    }
-  }
 
-  // Style cho phần Phân trang
-  .ant-pagination {
-    .ant-pagination-item {
-      background-color: transparent;
-      border: 1px solid var(--border-input-search);
-      a {
-        color: var(--text-gray);
+      b {
+        color: var(--text-pink-100); // Làm nổi bật chữ "Approved"
       }
     }
 
-    .ant-pagination-item-active {
+    // Biến thể khi cần đăng nhập
+    &.auth-required {
       border-color: var(--text-pink-100);
-      a {
+      background-color: rgba(var(--brand-social-rgb), 0.05);
+
+      .notice-icon {
         color: var(--text-pink-100);
       }
-    }
-
-    .ant-pagination-prev,
-    .ant-pagination-next {
-      .ant-pagination-item-link {
-        color: var(--text-gray);
-        background-color: transparent;
-        border: 1px solid var(--border-input-search);
+      .notice-text {
+        color: var(--text-white);
       }
     }
 
-    .ant-pagination-disabled .ant-pagination-item-link {
-      color: rgba(var(--text-gray), 0.5);
-      border-color: transparent;
+    // Biến thể khi chưa đủ điều kiện (Resume)
+    &.permission-denied {
+      border-color: var(--glow-1);
+      .notice-icon {
+        color: var(--glow-1);
+      }
     }
   }
 
-  // Style cho Empty state
-  .ant-empty-description {
-    color: var(--text-gray);
+  // --- Khu vực Form Gửi Review ---
+  .review-form-section {
+    // Giữ nền mờ nhẹ để phân biệt với danh sách bên dưới
+    background-color: rgba(255, 255, 255, 0.03);
+    // padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-input-search);
+
+    .ant-comment {
+      background-color: transparent !important; // Khử nền antd
+    }
   }
-}
 
-.review-public {
-  word-break: break-word;
+  // --- Danh sách Review ---
+  .reviews-list-section {
+    .ant-list-header {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 20px;
+    }
 
-  max-width: 100%;
-  color: var(--text-white);
+    .ant-list-items {
+      display: flex;
+      flex-direction: column;
+      gap: 20px; // Khoảng cách giữa các card
+    }
+
+    .review-item-card {
+      // Ép buộc trong suốt
+      background-color: transparent !important;
+      background: transparent !important;
+
+      border: 1px solid var(--border-input-search);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+
+      // Khử nền của bản thân component Comment bên trong
+      .ant-comment,
+      .ant-comment-inner {
+        background-color: transparent !important;
+        background: transparent !important;
+        padding: 0;
+      }
+
+      &:hover {
+        // Chỉ hiện nền cực nhẹ khi hover để người dùng biết đang tương tác
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border-color: rgba(var(--brand-social-rgb), 0.5);
+        transform: translateY(-2px); // Hiệu ứng nổi nhẹ chuyên nghiệp
+      }
+
+      .ant-comment-content-author-name > a {
+        color: var(--text-white) !important;
+        font-weight: 600;
+        font-size: 0.9rem !important; // 2. Tăng cỡ chữ tên người dùng
+      }
+
+      .review-content {
+        margin-top: 8px;
+        .ant-rate {
+          font-size: 16px;
+          margin-bottom: 8px;
+          display: block;
+        }
+        p {
+          font-size: 1.05rem;
+          color: var(--text-gray);
+          line-height: 1.6;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
 }

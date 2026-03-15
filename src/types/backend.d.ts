@@ -274,6 +274,7 @@ export interface ICommentUser {
   id: number;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 export interface IComment {

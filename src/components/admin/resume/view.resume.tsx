@@ -115,6 +115,7 @@ const ViewDetailResume = (props: IProps) => {
                 loading={isSubmit}
                 type="primary"
                 onClick={handleChangeStatus}
+                disabled={dataInit?.status === "APPROVED"}
               >
                 Change Status
               </Button>
