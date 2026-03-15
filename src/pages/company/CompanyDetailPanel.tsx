@@ -19,6 +19,7 @@ import { Button } from "react-bootstrap";
 import { BsChatDots, BsStarFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import "styles/panel-detail.scss";
+import CompanyAIReviewModal from "./CompanyAIReviewModal";
 import CompanyReviews from "./CompanyReviews";
 
 interface IProps {
@@ -28,6 +29,8 @@ interface IProps {
 const CompanyDetailPanel = ({ companyId }: IProps) => {
   const [companyDetail, setCompanyDetail] = useState<ICompany | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAIReviewOpen, setIsAIReviewOpen] = useState<boolean>(false);
+
   const navigate = useNavigate();
   const [hrCompany, setHrCompany] = useState<hrCompany | null>(null);
   const { theme } = useCurrentApp();
@@ -35,15 +38,14 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
   const isAuthenticated = useAppSelector(
     (state) => state.account.isAuthenticated,
   );
+  const fetchCompanyDetail = async () => {
+    setIsLoading(true);
+    const res = await callFetchCompanyById(companyId);
+    setCompanyDetail(res?.data ?? null);
+    setHrCompany(res?.data?.hrCompany ?? null);
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const fetchCompanyDetail = async () => {
-      setIsLoading(true);
-      const res = await callFetchCompanyById(companyId);
-      setCompanyDetail(res?.data ?? null);
-      setHrCompany(res?.data?.hrCompany ?? null);
-      setIsLoading(false);
-    };
-
     fetchCompanyDetail();
   }, [companyId]);
 
@@ -81,6 +83,17 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
                       />
                     </span>
                   )}
+                  <button
+                    className="btn-success "
+                    onClick={() => setIsAIReviewOpen(true)}
+                    style={{
+                      position: "relative",
+                      color: theme === "dark" ? "#fff" : "#000",
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    Review By AI
+                  </button>
                 </h1>
 
                 <div className="location">
@@ -240,7 +253,11 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
               <span className="review-public">Đánh giá từ cộng đồng</span>
             </Divider>
 
-            <CompanyReviews companyId={Number(companyId)} />
+            <CompanyReviews
+              companyId={Number(companyId)}
+              companyDetail={companyDetail}
+              onCommentSuccess={fetchCompanyDetail}
+            />
             {/* === KẾT THÚC TÍCH HỢP REVIEW === */}
           </div>
         </>
@@ -249,6 +266,12 @@ const CompanyDetailPanel = ({ companyId }: IProps) => {
           <Empty description="Không thể tải thông tin công ty." />
         </div>
       )}
+      <CompanyAIReviewModal
+        isOpen={isAIReviewOpen}
+        setIsOpen={setIsAIReviewOpen}
+        companyId={companyId}
+        companyName={companyDetail?.name || ""}
+      />
     </div>
   );
 };

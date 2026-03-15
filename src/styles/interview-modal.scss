@@ -1,0 +1,95 @@
+.interview-modal-custom {
+  .modal-content {
+    background-color: var(--background-body-tertiary);
+    color: var(--text-white);
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border-hero-right);
+    .modal-title {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+  }
+
+  // --- PHẦN TỐI GIẢN CÂU HỎI ---
+  .question-item {
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px hide; // Mặc định không hiện
+    position: relative;
+
+    &:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--border-hero-right),
+        transparent
+      );
+    }
+
+    .q-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+  }
+
+  .form-control {
+    background-color: rgba(0, 0, 0, 0.15); // Tối hơn nền một chút
+    border: 1px solid transparent; // Ẩn viền mặc định
+    border-radius: 12px;
+    color: var(--text-white);
+    padding: 12px 15px;
+    transition: all 0.3s;
+
+    &:focus {
+      background-color: rgba(0, 0, 0, 0.25);
+      border-color: var(--brand-social); // Chỉ hiện viền khi nhấn vào
+      color: var(--text-white);
+      box-shadow: none;
+    }
+  }
+
+  .hint-text {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  // --- PHẦN KẾT QUẢ CŨNG LÀM PHẲNG ---
+  .result-card-flat {
+    border-left: 3px solid var(--border-hero-right);
+    padding-left: 1.5rem;
+    margin-bottom: 2.5rem;
+
+    &.high-score {
+      border-left-color: #52c41a;
+    }
+    &.low-score {
+      border-left-color: #ff4d4f;
+    }
+  }
+
+  .model-answer-box {
+    background-color: rgba(27, 116, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    border: none; // Bỏ viền
+  }
+}

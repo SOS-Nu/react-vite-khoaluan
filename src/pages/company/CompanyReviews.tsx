@@ -1,6 +1,6 @@
 // src/components/company/CompanyReviews.tsx
 
-import { IComment, IModelPaginate } from "@/types/backend";
+import { IComment, ICompany, IModelPaginate } from "@/types/backend";
 import { useEffect, useState } from "react";
 
 import { callCreateComment, callFetchCommentsByCompany } from "@/config/api";
@@ -27,9 +27,15 @@ dayjs.extend(relativeTime);
 
 interface IProps {
   companyId: number;
+  companyDetail?: ICompany;
+  onCommentSuccess?: () => void;
 }
 
-const CompanyReviews = ({ companyId }: IProps) => {
+const CompanyReviews = ({
+  companyId,
+  companyDetail,
+  onCommentSuccess,
+}: IProps) => {
   const [form] = Form.useForm();
   const [reviews, setReviews] = useState<IComment[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -77,6 +83,9 @@ const CompanyReviews = ({ companyId }: IProps) => {
         notification.success({ message: "Gửi đánh giá thành công!" });
         form.resetFields();
         await fetchReviews();
+        if (onCommentSuccess) {
+          onCommentSuccess();
+        }
       } else {
         // Trường hợp backend trả về 200 nhưng logic nghiệp vụ báo lỗi
         notification.error({
@@ -111,7 +120,7 @@ const CompanyReviews = ({ companyId }: IProps) => {
   return (
     <div className="company-reviews-container" style={{ marginTop: "20px" }}>
       {/* Form để lại đánh giá */}
-      {isAuthenticated && (
+      {isAuthenticated && companyDetail?.comment && (
         <Comment
           avatar={
             <Avatar>{currentUser.name?.substring(0, 2)?.toUpperCase()}</Avatar>
@@ -123,7 +132,7 @@ const CompanyReviews = ({ companyId }: IProps) => {
                   name="rating"
                   rules={[{ required: true, message: "Vui lòng chọn số sao!" }]}
                 >
-                  <Rate allowHalf defaultValue={0} />
+                  <Rate defaultValue={0} />
                 </Form.Item>
                 <Form.Item
                   name="comment"
@@ -192,7 +201,7 @@ const CompanyReviews = ({ companyId }: IProps) => {
           )}
         />
       ) : (
-        <Empty description="Chưa có đánh giá nào. Hãy là người đầu tiên!" />
+        <Empty description="Chưa có đánh giá nào." />
       )}
 
       {meta && meta.total > 0 && (

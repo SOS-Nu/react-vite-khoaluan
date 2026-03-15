@@ -1,9 +1,9 @@
+import { setRefreshTokenAction } from "@/redux/slice/accountSlide";
+import { store } from "@/redux/store";
 import { IBackendRes } from "@/types/backend";
+import { notification } from "antd";
 import { Mutex } from "async-mutex";
 import axiosClient from "axios";
-import { store } from "@/redux/store";
-import { setRefreshTokenAction } from "@/redux/slice/accountSlide";
-import { notification } from "antd";
 import i18next from "i18next";
 interface AccessTokenResponse {
   access_token: string;
@@ -20,7 +20,7 @@ const NO_RETRY_HEADER = "x-no-retry";
 // === TẠO HÀM LOGOUT HELPER ===
 // Tách logic logout ra một hàm riêng để dễ quản lý và tránh lặp code
 const handleLogout = (
-  message: string = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+  message: string = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
 ) => {
   window.localStorage.removeItem("access_token");
   // Dispatch redux action để reset state, xóa thông tin tài khoản và chuyển hướng
@@ -32,7 +32,7 @@ const handleLogout = (
 const handleRefreshToken = async (): Promise<string | null> => {
   return await mutex.runExclusive(async () => {
     const res = await instance.get<IBackendRes<AccessTokenResponse>>(
-      "/api/v1/auth/refresh"
+      "/api/v1/auth/refresh",
     ); // `res` ở đây là `res.data` từ interceptor response thành công
 
     if (res && res.data && res.data.access_token) {
@@ -162,7 +162,7 @@ instance.interceptors.response.use(
 
     // KHÔNG logout, chỉ reject lỗi
     return Promise.reject(error.response?.data ?? error);
-  }
+  },
 );
 // =================================================================
 // === KẾT THÚC PHẦN THAY ĐỔI ===

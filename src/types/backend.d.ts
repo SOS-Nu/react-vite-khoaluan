@@ -90,6 +90,7 @@ export interface ICompany {
   hrCompany?: hrCompany;
   averageRating?: number;
   totalComments?: number;
+  comment?: boolean;
 }
 
 export interface hrCompany {
@@ -392,3 +393,44 @@ export interface IPaymentHistory {
     name: string;
   };
 }
+
+//#region interview
+// Định nghĩa cấu trúc cho câu hỏi từ AI
+export interface IInterviewQuestion {
+  question: string;
+  category: string;
+  targetedSkill: string;
+  hint: string;
+}
+
+export interface IInterviewQuestionsResponse {
+  questions: IInterviewQuestion[];
+}
+
+// Định nghĩa cấu trúc cho dữ liệu gửi lên chấm điểm
+export interface IInterviewAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface IEvaluateInterviewRequest {
+  jobId: string | undefined;
+  answers: IInterviewAnswer[];
+}
+
+// Định nghĩa cấu trúc cho kết quả chấm điểm trả về
+export interface IFeedbackDetail {
+  question: string;
+  score: number;
+  strengths: string;
+  improvements: string;
+  modelAnswer: string;
+}
+
+export interface IInterviewFeedbackResponse {
+  overallScore: number;
+  generalComment: string;
+  details: IFeedbackDetail[];
+}
+
+//#endregion

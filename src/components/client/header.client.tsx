@@ -1,23 +1,22 @@
-import { useState, useEffect, useRef } from "react"; // Thêm useRef
-import { FaReact, FaStar, FaChevronDown } from "react-icons/fa";
-import { MdOutlineLightMode, MdNightlight } from "react-icons/md";
-import { useLocation, useNavigate, Link, NavLink } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { callLogout } from "@/config/api";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setLogoutAction } from "@/redux/slice/accountSlide";
-import ManageAccount from "./modal/manage.account";
-import { useCurrentApp } from "../context/app.context";
-import { useTranslation } from "react-i18next";
-import viFlag from "assets/svg/language/vi.svg";
+import { message } from "antd";
+import logojobhunter from "assets/logojobhunter.png";
 import enFlag from "assets/svg/language/en.svg";
+import viFlag from "assets/svg/language/vi.svg";
+import { useEffect, useRef, useState } from "react"; // Thêm useRef
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import Offcanvas from "react-bootstrap/Offcanvas";
-import { message } from "antd";
-import logojobhunter from "assets/logojobhunter.png";
+import { useTranslation } from "react-i18next";
+import { FaChevronDown } from "react-icons/fa";
+import { MdNightlight, MdOutlineLightMode } from "react-icons/md";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "styles/stylespotfolio/global.scss";
+import { useCurrentApp } from "../context/app.context";
+import ManageAccount from "./modal/manage.account";
 
 import avatardefault from "@/assets/avatar.svg";
 
@@ -53,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useCurrentApp();
   const isAuthenticated = useAppSelector(
-    (state) => state.account.isAuthenticated
+    (state) => state.account.isAuthenticated,
   );
   const user = useAppSelector((state) => state.account.user);
   const [showOffcanvas, setShowOffcanvas] = useState<boolean>(false);
@@ -275,7 +274,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                           >
                             {dropdownItem.label}
                           </NavDropdown.Item>
-                        )
+                        ),
                       )}
                     </NavDropdown>
                   ) : (
@@ -296,7 +295,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                       {item.label}
                       {item.isNew && <span className="new-badge">AI</span>}
                     </NavLink>
-                  )
+                  ),
                 )}
               </Nav>
               <Nav className="ms-auto align-items-center">
@@ -341,7 +340,7 @@ const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm }) => {
                         >
                           {item.label}
                         </NavDropdown.Item>
-                      )
+                      ),
                     )}
                   </NavDropdown>
                 ) : (

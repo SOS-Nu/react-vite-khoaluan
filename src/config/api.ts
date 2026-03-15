@@ -5,7 +5,10 @@ import {
   IComment,
   ICompany,
   IDashboardData,
+  IEvaluateInterviewRequest,
   IGetAccount,
+  IInterviewFeedbackResponse,
+  IInterviewQuestionsResponse,
   IJob,
   IJobWithScore,
   IMeta,
@@ -791,4 +794,33 @@ export const callExportPaymentYearly = (year: number) => {
   return axios.get(`/api/v1/payment/export/yearly-report?year=${year}`, {
     responseType: "blob",
   });
+};
+
+export const callGenerateQuestions = (
+  jobId: string | undefined,
+  quantity: number = 10,
+  language: string = "vi",
+) => {
+  return axios.post<IBackendRes<IInterviewQuestionsResponse>>(
+    `/api/v1/gemini/mock-interview?jobId=${jobId}&quantity=${quantity}&language=${language}`,
+  );
+};
+
+export const callEvaluateInterview = (
+  data: IEvaluateInterviewRequest,
+  language: string = "vi",
+) => {
+  return axios.post<IBackendRes<IInterviewFeedbackResponse>>(
+    `/api/v1/gemini/evaluate-interview?language=${language}`,
+    data,
+  );
+};
+
+export const callEvaluateCompany = (
+  id: string | number,
+  language: string = "vi",
+) => {
+  return axios.post(
+    `/api/v1/gemini/evaluate-company/${id}?language=${language}`,
+  );
 };

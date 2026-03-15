@@ -1,17 +1,17 @@
 // src/components/recruiter/RecruiterDashboard.tsx
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 // >>> BƯỚC 1: Đổi import từ 'react-bootstrap' sang 'antd' <<<
-import { Pagination } from "antd";
-import { Tab, Tabs, Spinner } from "react-bootstrap";
 import { useAppSelector } from "@/redux/hooks";
+import { Pagination } from "antd";
+import { Spinner, Tab, Tabs } from "react-bootstrap";
 import { toast } from "react-toastify";
 
-import CompanyForm from "./CompanyForm";
-import CandidateSearchForm from "./CandidateSearchForm";
-import CandidateResults from "./CandidateResults";
-import { ICandidate, IMeta } from "@/types/backend";
 import { callGetCandidateSearchResults } from "@/config/api";
+import { ICandidate, IMeta } from "@/types/backend";
+import CandidateResults from "./CandidateResults";
+import CandidateSearchForm from "./CandidateSearchForm";
+import CompanyForm from "./CompanyForm";
 
 const RecruiterDashboard = () => {
   const user = useAppSelector((state) => state.account.user);
@@ -120,9 +120,8 @@ const RecruiterDashboard = () => {
         </div>
       </Tab>
 
-      <Tab eventKey="manage-jobs" title="Quản lý tin tuyển dụng" disabled>
-        {/* Sắp ra mắt */}
-      </Tab>
+      {/* <Tab eventKey="manage-jobs" title="Quản lý tin tuyển dụng" disabled>
+      </Tab> */}
     </Tabs>
   );
 };

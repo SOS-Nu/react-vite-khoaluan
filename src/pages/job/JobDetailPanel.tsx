@@ -4,12 +4,16 @@ import { callFetchJobById } from "@/config/api";
 import { convertSlug, getLocationName } from "@/config/utils";
 import { IJob } from "@/types/backend";
 import {
+  ArrowUpOutlined,
   CalendarOutlined,
   DollarOutlined,
   HistoryOutlined,
   HomeOutlined,
+  RobotOutlined,
+  RollbackOutlined,
   TeamOutlined,
   UserOutlined,
+  UserSwitchOutlined,
 } from "@ant-design/icons";
 import { Divider, Empty, Skeleton, Tag } from "antd";
 import dayjs from "dayjs";
@@ -17,6 +21,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import parse from "html-react-parser";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import InterviewModal from "./InterviewModal";
 
 dayjs.extend(relativeTime);
 
@@ -24,6 +29,9 @@ const JobDetailPanel = () => {
   const [jobDetail, setJobDetail] = useState<IJob | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isInterviewModalOpen, setIsInterviewModalOpen] =
+    useState<boolean>(false);
+
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const { theme } = useCurrentApp();
@@ -136,22 +144,55 @@ const JobDetailPanel = () => {
                 )}
               </div>
             </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              {/* Khối 1: Rating (Tỷ lệ 2) */}
+              <div
+                style={{
+                  flex: "2", // Trả lại tỷ lệ 2 như bạn muốn ban đầu
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "0.875rem",
+                  color: "#faad14",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <button
+                  className="btn-apply"
+                  onClick={() => setIsInterviewModalOpen(true)}
+                  style={{ color: theme === "dark" ? "#fff" : "#000" }}
+                >
+                  <RobotOutlined /> Phỏng Vấn giả lập <UserSwitchOutlined />
+                </button>
+              </div>
 
-            {jobDetail.applied ? (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="btn-reapply"
-              >
-                ứng tuyển lại
-              </button>
-            ) : (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="btn-apply"
-              >
-                Apply Now
-              </button>
-            )}
+              {/* Khối 3: Button Nhắn tin (Tỷ lệ 8) */}
+              <div style={{ flex: "6", display: "flex" }}>
+                {jobDetail.applied ? (
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="btn-reapply"
+                  >
+                    Ứng tuyển lại {""}
+                    <RollbackOutlined />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="btn-apply"
+                  >
+                    Apply Now {""}
+                    <ArrowUpOutlined />
+                  </button>
+                )}{" "}
+              </div>
+            </div>
           </div>
 
           <div className="job-detail-content">
@@ -212,6 +253,12 @@ const JobDetailPanel = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         jobDetail={jobDetail}
+      />
+      <InterviewModal
+        isOpen={isInterviewModalOpen}
+        setIsOpen={setIsInterviewModalOpen}
+        jobId={jobDetail?.id}
+        jobName={jobDetail?.name}
       />
     </div>
   );

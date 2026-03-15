@@ -1,4 +1,11 @@
 import {
+  callCreateUser,
+  callFetchCompany,
+  callFetchRole,
+  callUpdateUser,
+} from "@/config/api";
+import { IUser } from "@/types/backend";
+import {
   ModalForm,
   ProForm,
   ProFormDigit,
@@ -7,15 +14,8 @@ import {
   ProFormText,
 } from "@ant-design/pro-components";
 import { Col, Form, Row, message, notification } from "antd";
+import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useState, useEffect } from "react";
-import {
-  callCreateUser,
-  callFetchCompany,
-  callFetchRole,
-  callUpdateUser,
-} from "@/config/api";
-import { IUser } from "@/types/backend";
 import { DebounceSelect } from "./debouce.select";
 
 interface IProps {
@@ -125,15 +125,15 @@ const ModalUser = (props: IProps) => {
         role: rolePayload, // Sử dụng payload đã chuẩn bị
         company: companyPayload,
       };
-      const res = await callCreateUser(user);
-      if (res.data) {
+      try {
+        const res = await callCreateUser(user);
         message.success("Thêm mới user thành công");
         handleReset();
         reloadTable();
-      } else {
+      } catch (error) {
         notification.error({
           message: "Có lỗi xảy ra",
-          description: res.message,
+          description: "Email đã tồn tại",
         });
       }
     }
@@ -259,7 +259,9 @@ const ModalUser = (props: IProps) => {
             <ProFormSwitch
               name="vip"
               label="Trạng thái VIP"
-              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+              rules={[
+                { required: false, message: "Vui lòng chọn trạng thái!" },
+              ]}
             />
           </Col>
           <Col lg={6} md={6} sm={24} xs={24}>
