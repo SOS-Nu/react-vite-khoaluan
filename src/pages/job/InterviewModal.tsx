@@ -1,5 +1,5 @@
 import { callEvaluateInterview, callGenerateQuestions } from "@/config/api";
-import "@/styles/interview-modal.scss"; // Import file SCSS vừa tạo
+import "@/styles/interview-modal.scss";
 import {
   IEvaluateInterviewRequest,
   IInterviewFeedbackResponse,
@@ -9,12 +9,16 @@ import {
   BulbOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  LeftOutlined,
+  ReloadOutlined,
+  RightOutlined,
   RobotOutlined,
+  SendOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
-import { message } from "antd";
-import { useState } from "react";
-import { Alert, Badge, Button, Form, Modal, Spinner } from "react-bootstrap";
+import { Progress, message } from "antd";
+import { useMemo, useState } from "react";
+import { Badge, Button, Form, Modal, Spinner } from "react-bootstrap";
 
 interface IProps {
   isOpen: boolean;
@@ -26,7 +30,9 @@ interface IProps {
 const InterviewModal = (props: IProps) => {
   const { isOpen, setIsOpen, jobId, jobName } = props;
 
+  // --- State Management ---
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<IInterviewQuestion[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -36,6 +42,13 @@ const InterviewModal = (props: IProps) => {
 
   const language = localStorage.getItem("language") || "vi";
 
+  // --- Calculations ---
+  const progressPercent = useMemo(() => {
+    if (questions.length === 0) return 0;
+    return Math.round(((currentIndex + 1) / questions.length) * 100);
+  }, [currentIndex, questions.length]);
+
+  // --- Business Logic ---
   const handleStartInterview = async () => {
     if (!jobId) return;
     setIsLoading(true);
@@ -44,13 +57,34 @@ const InterviewModal = (props: IProps) => {
       if (res && res.data) {
         setQuestions(res.data.questions);
         setAnswers(new Array(res.data.questions.length).fill(""));
+        setCurrentIndex(0);
         setStep(2);
       }
     } catch (error) {
-      message.error("Lỗi kết nối AI");
+      message.error(
+        language === "vi" ? "Lỗi kết nối AI" : "AI Connection Error",
+      );
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const updateAnswer = (value: string) => {
+    const newAnswers = [...answers];
+    newAnswers[currentIndex] = value;
+    setAnswers(newAnswers);
   };
 
   const handleSubmitAnswers = async () => {
@@ -60,7 +94,9 @@ const InterviewModal = (props: IProps) => {
         jobId,
         answers: questions.map((q, index) => ({
           question: q.question,
-          answer: answers[index] || "Không trả lời",
+          answer:
+            answers[index]?.trim() ||
+            (language === "vi" ? "Không trả lời" : "No answer"),
         })),
       };
       const res = await callEvaluateInterview(payload, language);
@@ -69,7 +105,7 @@ const InterviewModal = (props: IProps) => {
         setStep(3);
       }
     } catch (error) {
-      message.error("Lỗi chấm điểm");
+      message.error(language === "vi" ? "Lỗi chấm điểm" : "Evaluation Error");
     } finally {
       setIsLoading(false);
     }
@@ -77,6 +113,7 @@ const InterviewModal = (props: IProps) => {
 
   const handleReset = () => {
     setStep(1);
+    setCurrentIndex(0);
     setQuestions([]);
     setAnswers([]);
     setFeedback(null);
@@ -85,151 +122,206 @@ const InterviewModal = (props: IProps) => {
   return (
     <Modal
       show={isOpen}
-      onHide={() => setIsOpen(false)}
+      onHide={() => !isLoading && setIsOpen(false)}
       size="lg"
       centered
       className="interview-modal-custom"
       backdrop="static"
+      keyboard={false}
     >
-      <Modal.Header closeButton>
-        <Modal.Title>
+      <Modal.Header closeButton={!isLoading}>
+        <Modal.Title className="d-flex align-items-center">
           <RobotOutlined className="me-2 text-primary" />
-          Phỏng vấn giả lập AI
+          <span>
+            {language === "vi" ? "Phỏng vấn giả lập AI" : "AI Mock Interview"}
+          </span>
         </Modal.Title>
       </Modal.Header>
 
-      <Modal.Body style={{ maxHeight: "75vh", overflowY: "auto" }}>
-        {/* STEP 1: WELCOME */}
+      <Modal.Body className="interview-modal-body">
+        {/* --- STEP 1: WELCOME --- */}
         {step === 1 && (
-          <div className="text-center py-5">
-            <RobotOutlined
-              style={{ fontSize: "64px", color: "var(--brand-social)" }}
-            />
-            <h4 className="mt-4 fw-bold">Bắt đầu thử thách chuyên môn</h4>
+          <div className="step-container welcome-step text-center py-5">
+            <div className="icon-wrapper mb-4">
+              <RobotOutlined
+                style={{ fontSize: "70px", color: "var(--brand-social)" }}
+              />
+            </div>
+            <h3 className="fw-bold mb-3">Sẵn sàng cho thử thách?</h3>
             <p
-              className="text-muted-custom mx-auto"
+              className="text-muted-custom mb-4 mx-auto"
               style={{ maxWidth: "500px" }}
             >
-              Dựa trên vị trí <strong>{jobName}</strong>, AI sẽ tạo 10 câu hỏi
-              sát thực tế để kiểm tra trình độ của bạn.
+              Hệ thống sẽ tạo <strong>{questions.length || 10} câu hỏi</strong>{" "}
+              chuyên môn cho vị trí
+              <span className="text-primary ms-1">{jobName}</span>.
             </p>
             <Button
-              className="view-vip mt-4 px-5"
+              className="view-vip btn-lg px-5 py-3 shadow"
               onClick={handleStartInterview}
               disabled={isLoading}
             >
-              {isLoading ? <Spinner size="sm" /> : "Bắt đầu ngay"}
+              {isLoading ? <Spinner size="sm" className="me-2" /> : null}
+              {language === "vi" ? "Bắt đầu phỏng vấn" : "Start Interview"}
             </Button>
           </div>
         )}
-        {/* // Trong Step 2 (Questions) */}
-        {step === 2 && (
-          <div className="interview-flow px-md-4">
-            <Alert
-              variant="info"
-              className="border-0 bg-opacity-10 mb-5 py-3 shadow-sm"
-              style={{
-                backgroundColor: "rgba(13, 202, 240, 0.1)",
-                color: "#0dcaf0",
-              }}
+
+        {/* --- STEP 2: QUESTIONS FLOW --- */}
+        {step === 2 && questions.length > 0 && (
+          <div className="step-container question-step px-md-3">
+            <div className="interview-progress mb-4">
+              <div className="d-flex justify-content-between align-items-end mb-2">
+                <span className="small fw-bold text-muted">
+                  CÂU HỎI {currentIndex + 1} / {questions.length}
+                </span>
+                <span className="small text-primary">{progressPercent}%</span>
+              </div>
+              <Progress
+                percent={progressPercent}
+                showInfo={false}
+                strokeColor="var(--brand-social)"
+                trailColor="rgba(255,255,255,0.1)"
+              />
+            </div>
+
+            <div
+              className="question-content-box mb-4 animate-fade-in"
+              key={currentIndex}
             >
-              <BulbOutlined className="me-2" />
-              Ngôn ngữ:{" "}
-              <strong>{language === "vi" ? "Tiếng Việt" : "English"}</strong>
-            </Alert>
+              <div className="q-label mb-3">
+                <Badge bg="primary" className="p-2 px-3 mb-2">
+                  Câu hỏi hiện tại
+                </Badge>
+                <h4 className="fw-bold text-white line-height-base">
+                  {questions[currentIndex].question}
+                </h4>
+              </div>
 
-            {questions.map((q, index) => (
-              <div key={index} className="question-item">
-                <div className="q-title">
-                  <Badge bg="primary" pill style={{ minWidth: "30px" }}>
-                    {index + 1}
-                  </Badge>
-                  <span>{q.question}</span>
-                </div>
-
+              <Form.Group>
                 <Form.Control
                   as="textarea"
-                  rows={3}
-                  placeholder="Viết câu trả lời của bạn..."
-                  value={answers[index]}
-                  onChange={(e) => {
-                    const newAns = [...answers];
-                    newAns[index] = e.target.value;
-                    setAnswers(newAns);
-                  }}
+                  rows={8}
+                  className="answer-textarea"
+                  placeholder={
+                    language === "vi"
+                      ? "Nhập câu trả lời của bạn..."
+                      : "Type your answer here..."
+                  }
+                  value={answers[currentIndex]}
+                  onChange={(e) => updateAnswer(e.target.value)}
+                  autoFocus
                 />
+              </Form.Group>
 
-                <div className="hint-text">
-                  <BulbOutlined className="text-warning" />
-                  <span className="fst-italic">Gợi ý: {q.hint}</span>
-                </div>
+              <div className="hint-alert mt-3">
+                <BulbOutlined className="text-warning me-2" />
+                <span className="fst-italic small">
+                  <strong>Gợi ý:</strong> {questions[currentIndex].hint}
+                </span>
               </div>
-            ))}
+            </div>
 
-            <div className="text-center pb-5">
+            <div className="navigation-footer d-flex justify-content-between border-top pt-4">
               <Button
-                className="view-vip btn-lg shadow"
-                onClick={handleSubmitAnswers}
-                disabled={isLoading}
+                variant="outline-light"
+                onClick={handlePrev}
+                disabled={currentIndex === 0 || isLoading}
+                className="btn-nav"
               >
-                {isLoading ? "AI đang chấm điểm..." : "Hoàn tất và Nộp bài"}
+                <LeftOutlined className="me-1" /> Trước đó
               </Button>
+
+              {currentIndex === questions.length - 1 ? (
+                <Button
+                  variant="primary"
+                  className="btn-submit view-vip border-0"
+                  onClick={handleSubmitAnswers}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Spinner size="sm" className="me-2" />
+                  ) : (
+                    <SendOutlined className="me-1" />
+                  )}
+                  Hoàn tất & Nộp bài
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  onClick={handleNext}
+                  disabled={isLoading}
+                  className="btn-nav"
+                >
+                  Tiếp theo <RightOutlined className="ms-1" />
+                </Button>
+              )}
             </div>
           </div>
         )}
-        {/* // Trong Step 3 (Results) */}
+
+        {/* --- STEP 3: RESULTS --- */}
         {step === 3 && feedback && (
-          <div className="interview-results px-md-4">
-            <div className="result-summary-box text-center p-4 mb-5 shadow-sm">
-              <TrophyOutlined style={{ fontSize: "40px", color: "#faad14" }} />
-              <h2 className="fw-bold mt-2">{feedback.overallScore}/10</h2>
-              <p className="text-muted-custom small">
+          <div className="step-container result-step px-md-2 animate-fade-in">
+            <div className="result-header text-center p-4 mb-4 rounded-4 shadow-sm">
+              <TrophyOutlined
+                className="mb-2"
+                style={{ fontSize: "48px", color: "#faad14" }}
+              />
+              <h1 className="display-4 fw-bold text-white mb-0">
+                {feedback.overallScore}/10
+              </h1>
+              <p className="text-muted-custom mt-2 mb-3">
                 {feedback.generalComment}
               </p>
+              <Button variant="outline-primary" size="sm" onClick={handleReset}>
+                <ReloadOutlined className="me-1" /> Thực hiện lại bài test
+              </Button>
             </div>
 
-            {feedback.details.map((item, idx) => (
-              <div
-                key={idx}
-                className={`result-card-flat ${item.score >= 7 ? "high-score" : "low-score"}`}
-              >
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-bold mb-0 text-primary">
-                    Q{idx + 1}. {item.question}
-                  </h6>
-                  <Badge pill bg={item.score >= 7 ? "success" : "danger"}>
-                    {item.score}/10
-                  </Badge>
-                </div>
+            <div className="feedback-list">
+              {feedback.details.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`feedback-card-flat mb-4 ${item.score >= 7 ? "border-success" : "border-danger"}`}
+                >
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <h6 className="fw-bold text-primary mb-0 pe-3">
+                      Q{idx + 1}. {item.question}
+                    </h6>
+                    <Badge pill bg={item.score >= 7 ? "success" : "danger"}>
+                      {item.score}/10
+                    </Badge>
+                  </div>
 
-                <div className="row g-3 mt-1">
-                  <div className="col-md-6 small">
-                    <div className="text-success fw-bold">
-                      <CheckCircleOutlined /> Điểm mạnh
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <div className="feedback-sub-box success">
+                        <small className="d-block fw-bold mb-1 text-success">
+                          <CheckCircleOutlined /> ĐIỂM MẠNH
+                        </small>
+                        <p className="mb-0 small">{item.strengths}</p>
+                      </div>
                     </div>
-                    <div>{item.strengths}</div>
-                  </div>
-                  <div className="col-md-6 small">
-                    <div className="text-danger fw-bold">
-                      <CloseCircleOutlined /> Cần cải thiện
+                    <div className="col-md-6">
+                      <div className="feedback-sub-box danger">
+                        <small className="d-block fw-bold mb-1 text-danger">
+                          <CloseCircleOutlined /> CẦN CẢI THIỆN
+                        </small>
+                        <p className="mb-0 small">{item.improvements}</p>
+                      </div>
                     </div>
-                    <div>{item.improvements}</div>
                   </div>
-                </div>
 
-                <div className="model-answer-box mt-3">
-                  <strong className="text-primary small d-block mb-1">
-                    CÂU TRẢ LỜI MẪU:
-                  </strong>
-                  <div
-                    className="text-muted-custom italic"
-                    style={{ whiteSpace: "pre-line" }}
-                  >
-                    {item.modelAnswer}
+                  <div className="model-answer-section mt-3">
+                    <small className="text-primary fw-bold d-block mb-1">
+                      CÂU TRẢ LỜI GỢI Ý:
+                    </small>
+                    <div className="answer-content">{item.modelAnswer}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </Modal.Body>

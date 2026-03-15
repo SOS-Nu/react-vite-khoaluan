@@ -2,94 +2,121 @@
   .modal-content {
     background-color: var(--background-body-tertiary);
     color: var(--text-white);
-    border-radius: 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
   }
 
   .modal-header {
-    border-bottom: 1px solid var(--border-hero-right);
-    .modal-title {
-      color: var(--text-white);
-      font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.25rem 1.5rem;
+    .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
     }
   }
 
-  // --- PHẦN TỐI GIẢN CÂU HỎI ---
-  .question-item {
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px hide; // Mặc định không hiện
-    position: relative;
+  .interview-modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-social) transparent;
 
-    &:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 10%;
-      right: 10%;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        var(--border-hero-right),
-        transparent
-      );
+    &::-webkit-scrollbar {
+      width: 6px;
     }
-
-    .q-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--brand-social);
+      border-radius: 10px;
     }
   }
 
-  .form-control {
-    background-color: rgba(0, 0, 0, 0.15); // Tối hơn nền một chút
-    border: 1px solid transparent; // Ẩn viền mặc định
-    border-radius: 12px;
-    color: var(--text-white);
-    padding: 12px 15px;
-    transition: all 0.3s;
+  // Animation mượt mà khi chuyển câu hỏi
+  .animate-fade-in {
+    animation: fadeInSlide 0.4s ease-out forwards;
+  }
+
+  // --- Step 2: Question Flow ---
+  .answer-textarea {
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-radius: 14px;
+    padding: 1.2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    resize: none;
 
     &:focus {
-      background-color: rgba(0, 0, 0, 0.25);
-      border-color: var(--brand-social); // Chỉ hiện viền khi nhấn vào
-      color: var(--text-white);
-      box-shadow: none;
+      border-color: var(--brand-social) !important;
+      background-color: rgba(0, 0, 0, 0.35) !important;
+      box-shadow: 0 0 0 4px rgba(27, 116, 255, 0.1) !important;
     }
   }
 
-  .hint-text {
-    font-size: 0.85rem;
-    color: var(--text-gray);
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  // --- PHẦN KẾT QUẢ CŨNG LÀM PHẲNG ---
-  .result-card-flat {
-    border-left: 3px solid var(--border-hero-right);
-    padding-left: 1.5rem;
-    margin-bottom: 2.5rem;
-
-    &.high-score {
-      border-left-color: #52c41a;
-    }
-    &.low-score {
-      border-left-color: #ff4d4f;
-    }
-  }
-
-  .model-answer-box {
-    background-color: rgba(27, 116, 255, 0.08);
+  .hint-alert {
+    background: rgba(255, 193, 7, 0.08);
+    border-left: 4px solid #ffc107;
+    padding: 12px 16px;
     border-radius: 8px;
-    padding: 12px;
-    margin-top: 15px;
-    font-size: 0.9rem;
-    border: none; // Bỏ viền
+    color: var(--text-gray);
+  }
+
+  .btn-nav {
+    min-width: 120px;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+  }
+
+  // --- Step 3: Result Styles ---
+  .result-header {
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.01)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .feedback-card-flat {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left-width: 5px;
+
+    .feedback-sub-box {
+      padding: 12px;
+      border-radius: 10px;
+      height: 100%;
+      &.success {
+        background: rgba(40, 167, 69, 0.05);
+      }
+      &.danger {
+        background: rgba(220, 53, 69, 0.05);
+      }
+    }
+  }
+
+  .model-answer-section {
+    background: rgba(27, 116, 255, 0.05);
+    padding: 15px;
+    border-radius: 12px;
+    .answer-content {
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      white-space: pre-line;
+    }
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

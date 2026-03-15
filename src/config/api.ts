@@ -798,7 +798,7 @@ export const callExportPaymentYearly = (year: number) => {
 
 export const callGenerateQuestions = (
   jobId: string | undefined,
-  quantity: number = 10,
+  quantity: number = 8,
   language: string = "vi",
 ) => {
   return axios.post<IBackendRes<IInterviewQuestionsResponse>>(
