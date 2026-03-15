@@ -6,21 +6,40 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Env
 .env
+.env.*
+!.env.example
+
+# Node
 node_modules
+
+# Build
 dist
 dist-ssr
+
+# Local config
 *.local
 
+# Lock file (không nên ignore nếu là project app)
 # package-lock.json
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# OS
 .DS_Store
+
+# Windows
 *.suo
+
+# Visual Studio
 *.ntvs*
 *.njsproj
 *.sln
+
+# Swap
 *.sw?
