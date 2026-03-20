@@ -1,9 +1,9 @@
-import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { defineConfig, loadEnv } from "vite";
 // import { visualizer } from "rollup-plugin-visualizer";
-import dns from "dns";
 import vue from "@vitejs/plugin-vue";
+import dns from "dns";
 
 //running on localhost instead of IP 127.0.0.1
 dns.setDefaultResultOrder("verbatim");
@@ -40,6 +40,12 @@ export default defineConfig(({ mode }) => {
         helpers: `${path.resolve(__dirname, "./src/helpers/")}`,
       },
     },
-    assetsInclude: ["**/*.xlsx", "**/*.csv"], ///cho phep dowload file excel
+    assetsInclude: ["**/*.xlsx", "**/*.csv"],
+    build: {
+      sourcemap: false, // Tắt sourcemap để tiết kiệm RAM khi build
+      rollupOptions: {
+        maxParallelFileOps: 2, // Giới hạn số lượng file xử lý song song
+      },
+    },
   };
 });
