@@ -22,7 +22,7 @@ RUN npm install
 COPY . .
 
 # Chạy lệnh build (lúc này Vite sẽ thấy các biến ENV ở trên)
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build-uat
+RUN NODE_OPTIONS="--max-old-space-size=3000" npm run build-uat
 
 # STAGE 2: Serve bằng Nginx
 FROM nginx:1.23-alpine
