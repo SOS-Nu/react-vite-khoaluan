@@ -9,7 +9,7 @@
     "dev": "vite",
     "start": "vite",
     "build": "tsc && vite build",
-    "build-uat": "vite build --mode uat",
+    "build-uat": "vite build --mode uat --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview"
   },
