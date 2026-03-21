@@ -1,18 +1,16 @@
 //file footer.client.tsx
-import React from "react";
-import { Container, Row, Col, Form, Button, Accordion } from "react-bootstrap";
-import { useInView } from "react-intersection-observer";
+import { Accordion, Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next"; // Import hook
 import {
+  FaDribbble,
   FaFacebook,
+  FaGithub,
+  FaGooglePlay,
   FaInstagram,
   FaTwitter,
-  FaGithub,
-  FaDribbble,
-  FaGooglePlay,
 } from "react-icons/fa";
 import { FaApple } from "react-icons/fa6";
-import bg from "assets/section-optimus.svg";
+import { useInView } from "react-intersection-observer";
 import { useMediaQuery } from "react-responsive"; // Cần cài: npm install react-responsive
 
 const Footer = () => {
@@ -39,12 +37,12 @@ const Footer = () => {
         {
           type: "text",
           label: t("footer.contact.hotline"),
-          value: "+84 385382597",
+          value: "0987654321",
         },
         {
           type: "text",
           label: t("footer.contact.email"),
-          value: "nu1412sos@gmail.com",
+          value: "abc123@gmail.com",
         },
       ],
     },
