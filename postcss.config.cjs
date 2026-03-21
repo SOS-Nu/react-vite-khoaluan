@@ -7,3 +7,5 @@ module.exports = {
     // hoặc để trống như này nếu không cần gì cả.
   ],
 };
+//thêm vào chế độ chạy uat ở packagejson
+// --emptyOutDir
