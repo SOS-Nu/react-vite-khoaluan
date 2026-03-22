@@ -193,7 +193,7 @@ const InterviewModal = (props: IProps) => {
                 <Badge bg="primary" className="p-2 px-3 mb-2">
                   Câu hỏi hiện tại
                 </Badge>
-                <h4 className="fw-bold text-white line-height-base">
+                <h4 className="fw-bold score-text line-height-base">
                   {questions[currentIndex].question}
                 </h4>
               </div>
@@ -224,7 +224,6 @@ const InterviewModal = (props: IProps) => {
 
             <div className="navigation-footer d-flex justify-content-between border-top pt-4">
               <Button
-                variant="outline-light"
                 onClick={handlePrev}
                 disabled={currentIndex === 0 || isLoading}
                 className="btn-nav"
@@ -268,7 +267,7 @@ const InterviewModal = (props: IProps) => {
                 className="mb-2"
                 style={{ fontSize: "48px", color: "#faad14" }}
               />
-              <h1 className="display-4 fw-bold text-white mb-0">
+              <h1 className="display-4 fw-bold question-text mb-0">
                 {feedback.overallScore}/10
               </h1>
               <p className="text-muted-custom mt-2 mb-3">
